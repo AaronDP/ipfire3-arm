@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libselinux
-version    = 2.0.96
+version    = 2.1.7
 release    = 1
 
 groups     = System/Libraries
@@ -13,12 +13,11 @@ license    = Public Domain
 summary    = SELinux library and simple utilities.
 
 description
-	libselinux provides an API for SELinux applications to get and set \
-	process and file security contexts and to obtain security policy \
+	libselinux provides an API for SELinux applications to get and set
+	process and file security contexts and to obtain security policy
 	decisions.
 end
 
-source_dl  =
 sources    = %{thisapp}.tgz
 
 build
