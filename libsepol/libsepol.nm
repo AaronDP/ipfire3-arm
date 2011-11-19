@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libsepol
-version    = 2.0.41
+version    = 2.1.4
 release    = 1
 
 groups     = System/Libraries
@@ -13,11 +13,10 @@ license    = LGPLv2+
 summary    = SELinux binary policy manipulation library.
 
 description
-	libsepol provides an API for the manipulation of SELinux binary \
+	libsepol provides an API for the manipulation of SELinux binary
 	policies.
 end
 
-source_dl  =
 sources    = %{thisapp}.tgz
 
 build
@@ -30,14 +29,13 @@ build
 		# Remove binaries
 		rm -rf %{BUILDROOT}/usr/bin
 
-		# Remove manpages from binaries
+		# Remove manpages for binaries
 		rm -rf %{BUILDROOT}/usr/share/man/man8
 	end
 end
 
 packages
 	package %{name}
-	end
 	
 	package %{name}-devel
 		template DEVEL
