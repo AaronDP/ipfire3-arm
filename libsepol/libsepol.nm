@@ -5,7 +5,7 @@
 
 name       = libsepol
 version    = 2.1.4
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.selinuxproject.org
@@ -20,6 +20,10 @@ end
 sources    = %{thisapp}.tgz
 
 build
+	# Keep static libsepol.a for some selinux tools, that needs to link 
+	# against it. We will put it into an own package.
+	keep_libraries = /usr/lib/libsepol.a
+
 	build
 		make clean
 		make CFLAGS="%{CFLAGS}" %{PARALELLISMFLAGS}
@@ -39,5 +43,15 @@ packages
 	
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-static
+		summary = Static libraries used to build policy manipulation tools.
+		description = %{summary}
+		groups = Development/Libraries
+
+		files
+			/usr/lib/libsepol.a
+		end
 	end
 end
