@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libsemanage
-version    = 2.0.45
+version    = 2.1.5
 release    = 1
 
 groups     = System/Libraries
@@ -13,11 +13,10 @@ license    = LGPLv2+
 summary    = SELinux binary policy manipulation library.
 
 description
-	libsemanage provides an API for the manipulation of SELinux \
+	libsemanage provides an API for the manipulation of SELinux
 	binary policies.
 end
 
-source_dl  =
 sources    = %{thisapp}.tgz
 
 build
