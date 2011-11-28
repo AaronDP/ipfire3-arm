@@ -1,0 +1,269 @@
+diff -Nur a/include/selinux/label.h b/include/selinux/label.h
+--- a/include/selinux/label.h	2011-11-04 13:57:24.000000000 +0100
++++ b/include/selinux/label.h	2011-11-27 18:45:27.080551748 +0100
+@@ -46,8 +46,10 @@
+ #define SELABEL_OPT_PATH	3
+ /* select a subset of the search space as an optimization (file backend) */
+ #define SELABEL_OPT_SUBSET	4
++/* like subset, but an array of subsets */
++#define SELABEL_OPT_PREFIXES	5
+ /* total number of options */
+-#define SELABEL_NOPT		5
++#define SELABEL_NOPT		6
+ 
+ /*
+  * Label operations
+diff -Nur a/include/selinux/selinux.h b/include/selinux/selinux.h
+--- a/include/selinux/selinux.h	2011-11-04 13:57:24.000000000 +0100
++++ b/include/selinux/selinux.h	2011-11-27 18:45:27.081551748 +0100
+@@ -139,7 +139,10 @@
+ /* Structure for passing options, used by AVC and label subsystems */
+ struct selinux_opt {
+ 	int type;
+-	const char *value;
++	union {
++		const char *value;
++		const char **values;
++	};
+ };
+ 
+ /* Callback facilities */
+@@ -410,6 +413,11 @@
+    regexes that have stems that are prefixes of 'prefix'. */
+ extern int matchpathcon_init_prefix(const char *path, const char *prefix);
+ 
++/* Same as matchpathcon_init, but only load entries with
++ * regexes that have stems that are prefixes of the 'prefixes'
++ * array of entries.  The last entry must be NULL. */
++extern int matchpathcon_init_prefixes(const char *patch, const char **prefixes);
++
+ /* Free the memory allocated by matchpathcon_init. */
+ extern void matchpathcon_fini(void);
+ 
+diff -Nur a/man/man3/matchpathcon.3 b/man/man3/matchpathcon.3
+--- a/man/man3/matchpathcon.3	2011-11-04 13:57:24.000000000 +0100
++++ b/man/man3/matchpathcon.3	2011-11-27 18:45:27.082551748 +0100
+@@ -8,7 +8,9 @@
+ 
+ .BI "int matchpathcon_init(const char *" path ");"
+ 
+-.BI "int matchpathcon_init_prefix(const char *" path ", const char *" subset ");"
++.BI "int matchpathcon_init_prefix(const char *" path ", const char *" prefix ");"
++
++.BI "int matchpathcon_init_prefixes(const char *" path ", const char **" prefixes ");"
+ 
+ .BI "int matchpathcon_fini(void);"
+ .sp
+@@ -50,6 +52,14 @@
+ .I prefix.
+ 
+ .sp
++.B matchpathcon_init_prefixes
++is the same as
++.B matchpathcon_init_prefix
++but takes an array of
++.I prefixes
++instead of a single prefix.  The last entry in the array must be NULL.
++
++.sp
+ .B matchpathcon_fini
+ frees the memory allocated by a prior call to
+ .B matchpathcon_init.
+diff -Nur a/man/man3/selabel_open.3 b/man/man3/selabel_open.3
+--- a/man/man3/selabel_open.3	2011-11-04 13:57:24.000000000 +0100
++++ b/man/man3/selabel_open.3	2011-11-27 18:45:27.082551748 +0100
+@@ -66,6 +66,13 @@
+ is used; a custom validation function can be provided via
+ .BR selinux_set_callback (3).
+ Note that an invalid context may not be treated as an error unless it is actually encountered during a lookup operation.
++.TP
++.B SELABEL_OPT_SUBSET
++A ":" separates string of path prefixes that tell the system to only loads entries with regular expressions that could match this strings. For example "/dev:/var/run:/tmp".  This option can cause the system to use less memory and work faster, but you should only use paths that begin with a prefix.
++.TP
++.B SELABEL_OPT_PATH
++A string representing an alternate path the the regular expressions.
++.sp
+ 
+ .SH "BACKENDS"
+ 
+@@ -99,4 +106,3 @@
+ .BR selabel_stats (3),
+ .BR selinux_set_callback (3),
+ .BR selinux (8)
+-
+diff -Nur a/src/callbacks.c b/src/callbacks.c
+--- a/src/callbacks.c	2011-11-04 13:57:23.000000000 +0100
++++ b/src/callbacks.c	2011-11-27 18:45:27.083551748 +0100
+@@ -16,6 +16,7 @@
+ {
+ 	int rc;
+ 	va_list ap;
++	if (is_selinux_enabled() == 0) return 0;
+ 	va_start(ap, fmt);
+ 	rc = vfprintf(stderr, fmt, ap);
+ 	va_end(ap);
+diff -Nur a/src/label_file.c b/src/label_file.c
+--- a/src/label_file.c	2011-11-04 13:57:23.000000000 +0100
++++ b/src/label_file.c	2011-11-27 18:45:27.084551748 +0100
+@@ -27,6 +27,7 @@
+  * Internals, mostly moved over from matchpathcon.c
+  */
+ 
++#define MAX_PREFIX 100
+ /* A file security context specification. */
+ typedef struct spec {
+ 	struct selabel_lookup_rec lr;	/* holds contexts for lookup result */
+@@ -276,7 +277,7 @@
+ 
+ 
+ static int process_line(struct selabel_handle *rec,
+-			const char *path, const char *prefix,
++			const char *path, const char **prefix_array,
+ 			char *line_buf, int pass, unsigned lineno)
+ {
+ 	int items, len;
+@@ -310,12 +311,24 @@
+ 	}
+ 
+ 	len = get_stem_from_spec(regex);
+-	if (len && prefix && strncmp(prefix, regex, len)) {
+-		/* Stem of regex does not match requested prefix, discard. */
+-		free(regex);
+-		free(type);
+-		free(context);
+-		return 0;
++	if (len && prefix_array[0]) {
++		int i = 0;
++		int found = 0;
++		while (i < MAX_PREFIX && prefix_array[i]) {
++			if (strncmp(prefix_array[i], regex, len) == 0) {
++				found = 1;
++				break;
++			}
++			i++;
++		}
++
++		if (! found) {
++			/* Stem of regex does not match requested prefix, discard. */
++			free(regex);
++			free(type);
++			free(context);
++			return 0;
++		}
+ 	}
+ 
+ 	if (pass == 1) {
+@@ -397,7 +410,8 @@
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	const char *path = NULL;
+-	const char *prefix = NULL;
++	const char *static_prefix_array[2] = {NULL, };
++	const char **prefix_array = static_prefix_array;
+ 	FILE *fp;
+ 	FILE *localfp = NULL;
+ 	FILE *homedirfp = NULL;
+@@ -418,7 +432,10 @@
+ 			path = opts[n].value;
+ 			break;
+ 		case SELABEL_OPT_SUBSET:
+-			prefix = opts[n].value;
++			static_prefix_array[0] = opts[n].value;
++			break;
++		case SELABEL_OPT_PREFIXES:
++			prefix_array = opts[n].values;
+ 			break;
+ 		case SELABEL_OPT_BASEONLY:
+ 			baseonly = !!opts[n].value;
+@@ -480,7 +497,7 @@
+ 		while (getline(&line_buf, &line_len, fp) > 0) {
+ 			if (data->nspec >= maxnspec)
+ 				break;
+-			status = process_line(rec, path, prefix, line_buf, pass, ++lineno);
++			status = process_line(rec, path, prefix_array, line_buf, pass, ++lineno);
+ 			if (status)
+ 				goto finish;
+ 		}
+@@ -496,7 +513,7 @@
+ 			while (getline(&line_buf, &line_len, homedirfp) > 0) {
+ 				if (data->nspec >= maxnspec)
+ 					break;
+-				status = process_line(rec, homedir_path, prefix, line_buf, pass, ++lineno);
++				status = process_line(rec, homedir_path, prefix_array, line_buf, pass, ++lineno);
+ 				if (status)
+ 					goto finish;
+ 			}
+@@ -506,7 +523,7 @@
+ 			while (getline(&line_buf, &line_len, localfp) > 0) {
+ 				if (data->nspec >= maxnspec)
+ 					break;
+-				status = process_line(rec, local_path, prefix, line_buf, pass, ++lineno);
++				status = process_line(rec, local_path, prefix_array, line_buf, pass, ++lineno);
+ 				if (status)
+ 					goto finish;
+ 			}
+diff -Nur a/src/matchpathcon.c b/src/matchpathcon.c
+--- a/src/matchpathcon.c	2011-11-04 13:57:23.000000000 +0100
++++ b/src/matchpathcon.c	2011-11-27 18:45:27.085551748 +0100
+@@ -2,6 +2,7 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <stdio.h>
++#include <syslog.h>
+ #include "selinux_internal.h"
+ #include "label_internal.h"
+ #include "callbacks.h"
+@@ -62,7 +63,7 @@
+ {
+ 	va_list ap;
+ 	va_start(ap, fmt);
+-	vfprintf(stderr, fmt, ap);
++	vsyslog(LOG_ERR, fmt, ap);
+ 	va_end(ap);
+ }
+ 
+@@ -304,7 +305,7 @@
+ 		destructor_key_initialized = 1;
+ }
+ 
+-int matchpathcon_init_prefix(const char *path, const char *subset)
++int matchpathcon_init_prefixes(const char *path, const char **prefixes)
+ {
+ 	if (!mycanoncon)
+ 		mycanoncon = default_canoncon;
+@@ -312,15 +313,22 @@
+ 	__selinux_once(once, matchpathcon_init_once);
+ 	__selinux_setspecific(destructor_key, (void *)1);
+ 
+-	options[SELABEL_OPT_SUBSET].type = SELABEL_OPT_SUBSET;
+-	options[SELABEL_OPT_SUBSET].value = subset;
++	options[SELABEL_OPT_PREFIXES].type = SELABEL_OPT_PREFIXES;
++	options[SELABEL_OPT_PREFIXES].values = prefixes;
+ 	options[SELABEL_OPT_PATH].type = SELABEL_OPT_PATH;
+ 	options[SELABEL_OPT_PATH].value = path;
+ 
+ 	hnd = selabel_open(SELABEL_CTX_FILE, options, SELABEL_NOPT);
+ 	return hnd ? 0 : -1;
+ }
++hidden_def(matchpathcon_init_prefixes)
+ 
++int matchpathcon_init_prefix(const char *path, const char *prefix)
++{
++	const char *prefixes[2] = { prefix, NULL };
++
++	return matchpathcon_init_prefixes(path, prefixes);
++}
+ hidden_def(matchpathcon_init_prefix)
+ 
+ int matchpathcon_init(const char *path)
+diff -Nur a/src/selinux_internal.h b/src/selinux_internal.h
+--- a/src/selinux_internal.h	2011-11-04 13:57:23.000000000 +0100
++++ b/src/selinux_internal.h	2011-11-27 18:45:27.086551748 +0100
+@@ -80,6 +80,7 @@
+     hidden_proto(selinux_path)
+     hidden_proto(selinux_check_passwd_access)
+     hidden_proto(selinux_check_securetty_context)
++    hidden_proto(matchpathcon_init_prefixes)
+     hidden_proto(matchpathcon_init_prefix)
+     hidden_proto(selinux_users_path)
+     hidden_proto(selinux_usersconf_path);

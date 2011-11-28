@@ -5,7 +5,7 @@
 
 name       = libselinux
 version    = 2.1.7
-release    = 2
+release    = 3
 
 groups     = System/Libraries
 url        = http://www.selinuxproject.org
