@@ -5,7 +5,7 @@
 
 name       = libselinux
 version    = 2.1.7
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.selinuxproject.org
@@ -54,15 +54,11 @@ build
 
 		# Move binaries from /sbin to /usr/sbin
 		mv %{BUILDROOT}/sbin/* %{BUILDROOT}/usr/sbin
-
-		# Remove python module
-		rm -rvf %{BUILDROOT}/usr/lib/python*
 	end
 end
 
 packages
 	package %{name}
-	end
 	
 	package %{name}-devel
 		template DEVEL
@@ -80,14 +76,12 @@ packages
 		end
 	end
 	
-	#package python-selinux
-	#	summary =  SELinux python bindings.
-	#	description = SELinux python bindings for libselinux.
-	#
-	#	def files
-	#		/usr/lib/python*
-	#	end
-	#end
+	package python-selinux
+		summary =  SELinux python bindings.
+		description = SELinux python bindings for libselinux.
 	
-	
+		def files
+			/usr/lib/python*
+		end
+	end
 end
