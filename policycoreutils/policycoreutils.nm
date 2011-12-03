@@ -1,0 +1,117 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = policycoreutils
+version    = 2.1.8
+release    = 1
+
+groups     = System/Base
+url        = http://www.selinuxproject.org
+license    = GPLv2
+summary    = SELinux policy core utilities.
+
+description
+	policycoreutils contains utilities that are required
+	for basic operation of a SELinux system. These utilities include
+	load_policy to load policies, setfiles to label filesystems and newrole
+	to switch roles.
+end
+
+sepolgen_ver = 1.1.3
+
+sources = \
+	%{thisapp}.tgz \
+	sepolgen-%{sepolgen_ver}.tgz
+
+# We have to apply policycoreutils-sepolgen.patch at a later time.
+patches = \
+	policycoreutils-gui.patch \
+	policycoreutils-po.patch \
+	policycoreutils-rhat.patch
+
+build
+	requires
+		audit-devel
+		dbus-devel
+		dbus-glib-devel
+		glib2-devel
+		gettext
+		libcap-devel
+		libcap-ng-devel
+		libcgroup-devel
+		libselinux-devel>=2.1.7-3
+		libsemanage-devel
+		libsepol-devel
+		libsepol-static
+		pam-devel
+	end
+
+	# Manually add policycoreutils-sepolgen.patch because it has to be applied to the sepolgen source.
+	prepare_cmds
+		cd %{DIR_SRC}/sepolgen-%{sepolgen_ver} && patch -Np1 -i %{DIR_PATCHES}/policycoreutils-sepolgen.patch
+	end
+
+	make_build_targets += \
+		LSPP_PRIV=y \
+		LIBDIR=/usr/lib \
+		CFLAGS="%{CFLAGS}" \
+		all
+
+	make_install_targets +=\
+		LSPP_PRIV=y \
+		LIBDIR=%{BUILDROOT}/usr/lib
+
+	# Build sepolgen.
+	build_cmds
+		make -C %{DIR_SRC}/sepolgen-%{sepolgen_ver} %{make_build_targets}
+	end
+
+	install_cmds
+		# Install sepolgen
+		make -C %{DIR_SRC}/sepolgen-%{sepolgen_ver} %{make_install_targets}
+
+		# Remove unneeded stuff.
+		rm -vrf %{BUILDROOT}/etc/{rc.d,xdg,sysconfig}
+
+		# Fix absolute symlink
+		ln -svf ../../sbin/load_policy %{BUILDROOT}/usr/sbin/load_policy
+
+		# Remove unneeded sandbox stuff - they are to create graphical sandboxes.
+		rm -vrf %{BUILDROOT}/usr/sbin/seunshare
+		rm -vrf %{BUILDROOT}/usr/share/sandbox
+		rm -vrf %{BUILDROOT}/usr/share/man/man5/seunshare.5
+		rm -vrf %{BUILDROOT}/usr/share/man/man8/sandbox.8
+	end
+end
+
+packages
+	package %{name}
+
+	package python-%{name}
+		summary = SELinux policy core python utilities.
+		description = %{summary}
+
+		requires
+			policycoreutils>=%{thisver}
+			python-selinux>=2.1.7-3
+		end
+
+		files
+			/usr/bin/audit2allow
+			/usr/bin/audit2why
+			/usr/bin/chcat
+			/usr/bin/sandbox
+			/usr/bin/sepolgen-ifgen
+			/usr/bin/sepolgen-ifgen-attr-helper
+			/usr/lib/python*
+			/usr/sbin/semanage
+			/usr/share/man/man1/audit2allow.1
+			/usr/share/man/man1/audit2why.1
+			/usr/share/man/man8/chcat.8
+			/usr/share/man/man8/sandbox.8
+			/usr/share/man/man8/semanage.8
+		end
+	end
+end

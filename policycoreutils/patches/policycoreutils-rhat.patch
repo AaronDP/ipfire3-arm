@@ -1,0 +1,1222 @@
+diff -Nur a/Makefile b/Makefile
+--- a/Makefile	2011-11-04 14:38:45.000000000 +0100
++++ b/Makefile	2011-11-27 18:02:23.488513229 +0100
+@@ -1,4 +1,4 @@
+-SUBDIRS = setfiles semanage load_policy newrole run_init sandbox secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool po
++SUBDIRS = setfiles semanage semanage/default_encoding load_policy newrole run_init sandbox secon audit2allow audit2why scripts sestatus semodule_package semodule semodule_link semodule_expand semodule_deps sepolgen-ifgen setsebool po
+ 
+ INOTIFYH = $(shell ls /usr/include/sys/inotify.h 2>/dev/null)
+ 
+diff -Nur a/newrole/newrole.c b/newrole/newrole.c
+--- a/newrole/newrole.c	2011-11-04 14:38:45.000000000 +0100
++++ b/newrole/newrole.c	2011-11-27 18:02:23.489513229 +0100
+@@ -543,13 +543,13 @@
+ #if defined(AUDIT_LOG_PRIV) && !defined(NAMESPACE_PRIV)
+ static int drop_capabilities(int full)
+ {
++	uid_t uid = getuid();
++	if (!uid) return 0;
++
+ 	capng_clear(CAPNG_SELECT_BOTH);
+ 	if (capng_lock() < 0) 
+ 		return -1;
+ 
+-	uid_t uid = getuid();
+-	if (!uid) return 0;
+-
+ 	/* Change uid */
+ 	if (setresuid(uid, uid, uid)) {
+ 		fprintf(stderr, _("Error changing uid, aborting.\n"));
+@@ -1030,10 +1030,11 @@
+ 	 * if it makes sense to continue to run newrole, and setting up
+ 	 * a scrubbed environment.
+ 	 */
+-	if (drop_capabilities(FALSE)) {
++/*	if (drop_capabilities(FALSE)) {
+ 		perror(_("Sorry, newrole failed to drop capabilities\n"));
+ 		return -1;
+ 	}
++*/
+ 	if (set_signal_handles())
+ 		return -1;
+ 
+diff -Nur a/po/Makefile b/po/Makefile
+--- a/po/Makefile	2011-11-04 14:38:45.000000000 +0100
++++ b/po/Makefile	2011-11-27 18:02:23.495513229 +0100
+@@ -7,7 +7,7 @@
+ # What is this package?
+ NLSPACKAGE	= policycoreutils
+ POTFILE		= $(NLSPACKAGE).pot
+-INSTALL		= /usr/bin/install -c
++INSTALL		= /usr/bin/install -c -p
+ INSTALL_DATA	= $(INSTALL) -m 644
+ INSTALL_DIR	= /usr/bin/install -d
+ 
+diff -Nur a/restorecond/restorecond.c b/restorecond/restorecond.c
+--- a/restorecond/restorecond.c	2011-11-04 14:38:44.000000000 +0100
++++ b/restorecond/restorecond.c	2011-11-27 18:02:23.496513229 +0100
+@@ -140,6 +140,7 @@
+ {
+ 	int opt;
+ 	struct sigaction sa;
++	const char *null_array[1] = { NULL };
+ 
+ 	memset(&r_opts, 0, sizeof(r_opts));
+ 
+@@ -160,6 +161,7 @@
+ 	r_opts.fts_flags = FTS_PHYSICAL;
+ 	r_opts.selabel_opt_validate = NULL;
+ 	r_opts.selabel_opt_path = NULL;
++	r_opts.selabel_opt_prefixes = null_array;
+ 	r_opts.ignore_enoent = 1;
+ 
+ 	restore_init(&r_opts);
+diff -Nur a/run_init/run_init.c b/run_init/run_init.c
+--- a/run_init/run_init.c	2011-11-04 14:38:45.000000000 +0100
++++ b/run_init/run_init.c	2011-11-27 18:02:23.497513229 +0100
+@@ -414,10 +414,17 @@
+ 	 * execvp or using a exec(1) recycles pty's, and does not open a new
+ 	 * one. 
+ 	 */
++#ifdef USE_OPEN_INIT_PTY
+ 	if (execvp("/usr/sbin/open_init_pty", argv)) {
+ 		perror("execvp");
+ 		exit(-1);
+ 	}
++#else
++	if (execvp(argv[1], argv + 1)) {
++		perror("execvp");
++		exit(-1);
++	}
++#endif
+ 	return 0;
+ 
+ }				/* main() */
+diff -Nur a/sandbox/Makefile b/sandbox/Makefile
+--- a/sandbox/Makefile	2011-11-04 14:38:45.000000000 +0100
++++ b/sandbox/Makefile	2011-11-27 18:02:23.518513231 +0100
+@@ -23,7 +23,7 @@
+ 	install -m 644 sandbox.8 $(MANDIR)/man8/
+ 	install -m 644 seunshare.8 $(MANDIR)/man8/
+ 	-mkdir -p $(MANDIR)/man5
+-	install -m 644 sandbox.conf.5 $(MANDIR)/man5/
++	install -m 644 sandbox.5 $(MANDIR)/man5/sandbox.5
+ 	-mkdir -p $(SBINDIR)
+ 	install -m 4755 seunshare $(SBINDIR)/
+ 	-mkdir -p $(SHAREDIR)
+diff -Nur a/sandbox/sandbox b/sandbox/sandbox
+--- a/sandbox/sandbox	2011-11-04 14:38:45.000000000 +0100
++++ b/sandbox/sandbox	2011-11-27 18:02:23.519513231 +0100
+@@ -118,10 +118,30 @@
+     sock.bind("\0%s" % level)
+     fcntl.fcntl(sock.fileno(), fcntl.F_SETFD, fcntl.FD_CLOEXEC)
+ 
++def get_range():
++       try:
++              level =selinux.getcon_raw()[1].split(":")[4]
++              lowc,highc = level.split(".")
++              low = int(lowc[1:])
++              high = int(highc[1:])+1
++              if high - low < 100:
++                     raise IndexError
++                     
++              return low,high
++       except IndexError:
++              raise ValueError(_("User account must be setup with an MCS Range with more then 100 categories"))
++
+ def gen_mcs():
+-       while True:
+-              i1 = random.randrange(0, 1024)
+-              i2 = random.randrange(0, 1024)
++       low, high = get_range()
++
++       level = None
++       ctr = 0
++       total = high-low 
++       total = (total * total)/2 - total
++       while ctr < total:
++              ctr += 1
++              i1 = random.randrange(low, high)
++              i2 = random.randrange(low, high)
+               if i1 == i2:
+                      continue
+               if i1 > i2:
+@@ -134,7 +154,10 @@
+               except socket.error:
+                      continue
+               break
+-       return level
++       if level:
++              return level
++       raise ValueError(_("Failed to find any unused categories"))
++       
+ 
+ def fullpath(cmd):
+        for i in [ "/", "./", "../" ]:
+@@ -160,6 +183,17 @@
+         self.__level = None
+         self.__homedir = None
+         self.__tmpdir = None
++        self.__set_dpi()
++    
++    def __set_dpi(self):
++        rc, out = commands.getstatusoutput("/usr/bin/xrdb -query")
++        if rc != 0:
++               self.dpi = 96
++        else:
++               for i in out.split("\n"):
++                      if i.startswith("Xft.dpi:"):
++                             self.dpi = i.split()[1]
++                             break;
+ 
+     def __validate_mount(self):
+            if self.__options.level:
+@@ -278,6 +312,9 @@
+                           action="callback", callback=self.__mount_callback, 
+                           help=_("mount new home and/or tmp directory"))
+ 
++        parser.add_option("-d", "--dpi", 
++                          dest="dpi", action="store",default=self.dpi,
++                          help=_("dots per inch for X display: (%s)" % self.dpi))
+         parser.add_option("-S", "--session", action="store_true",  dest="session", 
+                           default=False,  help=_("run complete desktop session within sandbox"))
+ 
+@@ -322,7 +359,7 @@
+ 
+         if self.__options.X_ind:
+                self.setype = DEFAULT_X_TYPE
+-               self.dpi=commands.getoutput("xrdb -query | grep dpi  | /bin/cut -f 2")
++
+         if self.__options.setype:
+                self.setype = self.__options.setype
+ 
+@@ -408,7 +445,7 @@
+ 
+                                 self.__setup_sandboxrc(self.__options.wm)
+ 
+-                                cmds += [ "--", SANDBOXSH, self.__options.windowsize, self.dpi ]
++                                cmds += [ "--", SANDBOXSH, self.__options.windowsize, self.__options.dpi ]
+                          else:
+                                 cmds += [ "--" ] + self.__paths
+                          return subprocess.Popen(cmds).wait()
+diff -Nur a/sandbox/sandbox.5 b/sandbox/sandbox.5
+--- a/sandbox/sandbox.5	1970-01-01 01:00:00.000000000 +0100
++++ b/sandbox/sandbox.5	2011-11-27 18:02:23.520513231 +0100
+@@ -0,0 +1,40 @@
++.TH sandbox.conf "5" "June 2010" "sandbox.conf" "Linux System Administration"
++.SH NAME
++sandbox.conf \- user config file for the SELinux sandbox
++.SH DESCRIPTION
++.PP
++When running sandbox with the -C argument, it will be confined using control groups and a system administrator can specify how the sandbox is confined.
++
++.PP
++Everything after "#" is ignored, as are empty lines.  All arguments should be separated by and equals sign ("=").
++
++.PP
++These keywords are allowed.
++
++.RS
++.TP
++.B NAME
++The name of the sandbox control group.  Default is "sandbox".
++
++.TP
++.B CPUAFFINITY
++Which cpus to assign sandbox to.  The default is ALL, but users can specify a comma-separated list with dashes ("-") to represent ranges.  Ex: 0-2,5
++
++.TP
++.B MEMUSAGE
++How much memory to allow sandbox to use.  The default is 80%.  Users can specify either a percentage or a value in the form of a number followed by one of the suffixes K, M, G to denote kilobytes, megabytes or gigabytes respectively.  Ex: 50% or 100M
++
++.TP
++.B CPUUSAGE
++Percentage of cpu sandbox should be allowed to use.  The default is 80%.  Specify a value followed by a percent sign ("%"). Ex: 50%
++
++
++
++.SH "SEE ALSO"
++.TP
++sandbox(8)
++.PP
++
++.SH AUTHOR
++This manual page was written by
++.I Thomas Liu <tliu@fedoraproject.org>
+diff -Nur a/sandbox/sandbox.8 b/sandbox/sandbox.8
+--- a/sandbox/sandbox.8	2011-11-04 14:38:45.000000000 +0100
++++ b/sandbox/sandbox.8	2011-11-27 18:02:23.520513231 +0100
+@@ -3,11 +3,11 @@
+ sandbox \- Run cmd under an SELinux sandbox
+ .SH SYNOPSIS
+ .B sandbox
+-[-C] [-c] [-l level ] [[-M | -X]  -H homedir -T tempdir ] [-I includefile ] [ -W windowmanager ] [ -w windowsize ] [[-i file ]...] [ -t type ] cmd
++[-C] [-c] [ -d DPI ] [-l level ] [[-M | -X]  -H homedir -T tempdir ] [-I includefile ] [ -W windowmanager ] [ -w windowsize ] [[-i file ]...] [ -t type ] cmd
+ 
+ .br
+ .B sandbox
+-[-C] [-c] [-l level ] [[-M | -X]  -H homedir -T tempdir ] [-I includefile ] [ -W windowmanager ] [ -w windowsize ] [[-i file ]...] [ -t type ] -S
++[-C] [-c] [ -d DPI ] [-l level ] [[-M | -X]  -H homedir -T tempdir ] [-I includefile ] [ -W windowmanager ] [ -w windowsize ] [[-i file ]...] [ -t type ] -S
+ .br
+ .SH DESCRIPTION
+ .PP
+@@ -60,6 +60,9 @@
+ Create an X based Sandbox for gui apps, temporary files for
+ $HOME and /tmp, secondary Xserver, defaults to sandbox_x_t
+ .TP
++\fB\-d\fR
++Set the DPI value for the sanbox X Server. Defaults to the current X Sever DPI.
++.TP
+ \fB\-c\fR
+ Use control groups to control this copy of sandbox.  Specify parameters in /etc/sysconfig/sandbox.  Max memory usage and cpu usage are to be specified in percent.  You can specify which CPUs to use by numbering them 0,1,2... etc.
+ .TP
+diff -Nur a/sandbox/sandbox.conf.5 b/sandbox/sandbox.conf.5
+--- a/sandbox/sandbox.conf.5	2011-11-04 14:38:45.000000000 +0100
++++ b/sandbox/sandbox.conf.5	1970-01-01 01:00:00.000000000 +0100
+@@ -1,40 +0,0 @@
+-.TH sandbox.conf "5" "June 2010" "sandbox.conf" "Linux System Administration"
+-.SH NAME
+-sandbox.conf \- user config file for the SELinux sandbox
+-.SH DESCRIPTION
+-.PP
+-When running sandbox with the -C argument, it will be confined using control groups and a system administrator can specify how the sandbox is confined.
+-
+-.PP
+-Everything after "#" is ignored, as are empty lines.  All arguments should be separated by and equals sign ("=").
+-
+-.PP
+-These keywords are allowed.
+-
+-.RS
+-.TP
+-.B NAME
+-The name of the sandbox control group.  Default is "sandbox".
+-
+-.TP
+-.B CPUAFFINITY
+-Which cpus to assign sandbox to.  The default is ALL, but users can specify a comma-separated list with dashes ("-") to represent ranges.  Ex: 0-2,5
+-
+-.TP
+-.B MEMUSAGE
+-How much memory to allow sandbox to use.  The default is 80%.  Users can specify either a percentage or a value in the form of a number followed by one of the suffixes K, M, G to denote kilobytes, megabytes or gigabytes respectively.  Ex: 50% or 100M
+-
+-.TP
+-.B CPUUSAGE
+-Percentage of cpu sandbox should be allowed to use.  The default is 80%.  Specify a value followed by a percent sign ("%"). Ex: 50%
+-
+-
+-
+-.SH "SEE ALSO"
+-.TP
+-sandbox(8)
+-.PP
+-
+-.SH AUTHOR
+-This manual page was written by
+-.I Thomas Liu <tliu@fedoraproject.org>
+diff -Nur a/sandbox/sandbox.init b/sandbox/sandbox.init
+--- a/sandbox/sandbox.init	2011-11-04 14:38:45.000000000 +0100
++++ b/sandbox/sandbox.init	2011-11-27 18:02:23.521513231 +0100
+@@ -19,6 +19,7 @@
+ #
+ 
+ # Source function library.
++. /etc/init.d/functions
+ 
+ LOCKFILE=/var/lock/subsys/sandbox
+ 
+@@ -27,7 +28,7 @@
+ start() {
+ 	echo -n "Starting sandbox"
+ 
+-	[ -f "$LOCKFILE" ] && return 1
++	[ -f "$LOCKFILE" ] && return 0
+ 
+ 	touch $LOCKFILE
+ 	mount --make-rshared / || return $? 
+diff -Nur a/scripts/genhomedircon b/scripts/genhomedircon
+--- a/scripts/genhomedircon	2011-11-04 14:38:45.000000000 +0100
++++ b/scripts/genhomedircon	2011-11-27 18:02:23.521513231 +0100
+@@ -1,2 +1,3 @@
+ #!/bin/sh
++
+ /usr/sbin/semodule -Bn
+diff -Nur a/semanage/default_encoding/default_encoding.c b/semanage/default_encoding/default_encoding.c
+--- a/semanage/default_encoding/default_encoding.c	1970-01-01 01:00:00.000000000 +0100
++++ b/semanage/default_encoding/default_encoding.c	2011-11-27 18:02:23.533513231 +0100
+@@ -0,0 +1,57 @@
++/*
++ * Authors:
++ *   John Dennis <jdennis@redhat.com>
++ *
++ * Copyright (C) 2009  Red Hat
++ * see file 'COPYING' for use and warranty information
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ */
++
++#include <Python.h>
++
++PyDoc_STRVAR(setdefaultencoding_doc,
++"setdefaultencoding(encoding='utf-8')\n\
++\n\
++Set the current default string encoding used by the Unicode implementation.\n\
++Defaults to utf-8."
++);
++
++static PyObject *
++setdefaultencoding(PyObject *self, PyObject *args, PyObject *kwds)
++{
++    static char *kwlist[] = {"utf-8", NULL};
++    char *encoding;
++
++    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s:setdefaultencoding", kwlist, &encoding))
++        return NULL;
++
++    if (PyUnicode_SetDefaultEncoding(encoding))
++        return NULL;
++
++    Py_RETURN_NONE;
++}
++
++static PyMethodDef methods[] = {
++    {"setdefaultencoding", (PyCFunction)setdefaultencoding, METH_VARARGS|METH_KEYWORDS, setdefaultencoding_doc},
++	{NULL,		NULL}		/* sentinel */
++};
++
++
++PyMODINIT_FUNC
++initdefault_encoding_utf8(void)
++{
++    PyUnicode_SetDefaultEncoding("utf-8");
++    Py_InitModule3("default_encoding_utf8", methods, "Forces the default encoding to utf-8");
++}
+diff -Nur a/semanage/default_encoding/Makefile b/semanage/default_encoding/Makefile
+--- a/semanage/default_encoding/Makefile	1970-01-01 01:00:00.000000000 +0100
++++ b/semanage/default_encoding/Makefile	2011-11-27 18:02:23.533513231 +0100
+@@ -0,0 +1,8 @@
++all:
++	LDFLAGS="" python setup.py build
++
++install: all
++	LDFLAGS="" python setup.py install --root=$(DESTDIR)/
++
++clean:
++	rm -rf build *~
+diff -Nur a/semanage/default_encoding/policycoreutils/__init__.py b/semanage/default_encoding/policycoreutils/__init__.py
+--- a/semanage/default_encoding/policycoreutils/__init__.py	1970-01-01 01:00:00.000000000 +0100
++++ b/semanage/default_encoding/policycoreutils/__init__.py	2011-11-27 18:02:23.534513231 +0100
+@@ -0,0 +1,17 @@
++#
++# Copyright (C) 2006,2007,2008, 2009 Red Hat, Inc.
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++#
+diff -Nur a/semanage/default_encoding/setup.py b/semanage/default_encoding/setup.py
+--- a/semanage/default_encoding/setup.py	1970-01-01 01:00:00.000000000 +0100
++++ b/semanage/default_encoding/setup.py	2011-11-27 18:02:23.536513231 +0100
+@@ -0,0 +1,38 @@
++# Authors:
++#   John Dennis <jdennis@redhat.com>
++#
++# Copyright (C) 2009  Red Hat
++# see file 'COPYING' for use and warranty information
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++
++from distutils.core import setup, Extension
++
++default_encoding_utf8 = Extension('policycoreutils.default_encoding_utf8', ['default_encoding.c'])
++
++setup(name             = 'policycoreutils-default-encoding',
++      version          = '0.1',
++      description      = 'Forces the default encoding in Python to be utf-8',
++      long_description = 'Forces the default encoding in Python to be utf-8',
++      author           = 'John Dennis',
++      author_email     = 'jdennis@redhat.com',
++      maintainer       = 'John Dennis',
++      maintainer_email = 'jdennis@redhat.com',
++      license          = 'GPLv3+',
++      platforms        = 'posix',
++      url              = '',
++      download_url     = '',
++      ext_modules      = [default_encoding_utf8],
++      packages=["policycoreutils"],
++)
+diff -Nur a/semanage/semanage b/semanage/semanage
+--- a/semanage/semanage	2011-11-04 14:38:45.000000000 +0100
++++ b/semanage/semanage	2011-11-27 18:02:23.537513231 +0100
+@@ -20,6 +20,7 @@
+ #                                        02111-1307  USA
+ #
+ #  
++import policycoreutils.default_encoding_utf8
+ import sys, getopt, re
+ import seobject
+ import selinux
+@@ -32,7 +33,7 @@
+ try:
+        gettext.install(PROGNAME,
+                        localedir="/usr/share/locale",
+-                       unicode=False,
++                       unicode=True,
+                        codeset = 'utf-8')
+ except IOError:
+        import __builtin__
+@@ -283,11 +284,14 @@
+ 				equal = a
+ 
+ 			if o == "--enable":
+-				set_action(o)
++				if disable:
++					raise ValueError(_("You can't disable and enable at the same time"))
++
+ 				enable = True
+ 
+ 			if o == "--disable":
+-				set_action(o)
++				if enable:
++					raise ValueError(_("You can't disable and enable at the same time"))
+ 				disable = True
+ 
+ 			if o == "-F"  or o == "--file":
+@@ -504,31 +508,36 @@
+                if len(sys.argv) < 3:
+                       usage(_("Requires 2 or more arguments"))
+                 
+-               gopts, cmds = getopt.getopt(sys.argv[1:],
+-                                           '01adf:i:lhmno:p:s:FCDR:L:r:t:T:P:S:',
+-                                           ['add',
+-                                            'delete',
+-                                            'deleteall',
+-                                            'ftype=',
+-                                            'file',
+-                                            'help',
+-                                            'input=',
+-                                            'list', 
+-                                            'modify',
+-                                            'noheading',
+-                                            'localist',
+-                                            'off', 
+-                                            'on', 
+-                                            'output=',
+-                                            'proto=',
+-                                            'seuser=',
+-                                            'store=',
+-                                            'range=',
+-                                            'level=',
+-                                            'roles=',
+-                                            'type=',
+-                                            'prefix='
+-                                            ])
++               try:
++                      gopts, cmds = getopt.getopt(sys.argv[1:],
++                                                  '01adf:i:lhmno:p:s:FCDR:L:r:t:T:P:S:',
++                                                  ['add',
++                                                   'delete',
++                                                   'deleteall',
++                                                   'ftype=',
++                                                   'file',
++                                                   'help',
++                                                   'input=',
++                                                   'list',
++                                                   'modify',
++                                                   'noheading',
++                                                   'localist',
++                                                   'off',
++                                                   'on',
++                                                   'output=',
++                                                   'proto=',
++                                                   'seuser=',
++                                                   'store=',
++                                                   'range=',
++                                                   'level=',
++                                                   'roles=',
++                                                   'type=',
++                                                   'trans=',
++                                                   'prefix='
++                                                   ])
++               except getopt.error, error:
++                      usage(_("Options Error %s ") % error.msg)
++
+                for o, a in gopts:
+                       if o == "-S" or o == '--store':
+                              store = a
+@@ -558,8 +567,6 @@
+                else:
+                       process_args(sys.argv[1:])
+ 			
+-	except getopt.error, error:
+-		usage(_("Options Error %s ") % error.msg)
+ 	except ValueError, error:
+ 		errorExit(error.args[0])
+ 	except KeyError, error:
+diff -Nur a/semanage/seobject.py b/semanage/seobject.py
+--- a/semanage/seobject.py	2011-11-04 14:38:45.000000000 +0100
++++ b/semanage/seobject.py	2011-11-27 18:02:23.539513231 +0100
+@@ -30,11 +30,10 @@
+ import gettext
+ gettext.bindtextdomain(PROGNAME, "/usr/share/locale")
+ gettext.textdomain(PROGNAME)
+-try:
+-       gettext.install(PROGNAME, localedir = "/usr/share/locale", unicode = 1)
+-except IOError:
+-       import __builtin__
+-       __builtin__.__dict__['_'] = unicode
++
++import gettext
++translation=gettext.translation(PROGNAME, localedir = "/usr/share/locale", fallback=True)
++_=translation.ugettext
+ 
+ import syslog
+ 
+@@ -166,6 +165,7 @@
+         transaction = False
+         handle = None
+         store = None
++
+         def __init__(self, store):
+                global handle
+                       
+@@ -333,6 +333,7 @@
+                       name = semanage_module_get_name(mod)
+                       if name and name.startswith("permissive_"):
+                              l.append(name.split("permissive_")[1])
++
+                return l
+ 
+ 	def list(self, heading = 1, locallist = 0):
+@@ -431,7 +432,9 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if login mapping for %s is defined") % name)
+ 		if exists:
+-			raise ValueError(_("Login mapping for %s is already defined") % name)
++                       semanage_seuser_key_free(k)
++                       return self.__modify(name, sename, serange)
++
+                 if name[0] == '%':
+                        try:
+                               grp.getgrnam(name[1:])
+@@ -641,7 +644,8 @@
+                 if rc < 0:
+                        raise ValueError(_("Could not check if SELinux user %s is defined") % name)
+                 if exists:
+-                       raise ValueError(_("SELinux user %s is already defined") % name)
++                       semanage_user_key_free(k)
++                       return self.__modify(name, roles, selevel, serange, prefix)
+ 
+                 (rc, u) = semanage_user_create(self.sh)
+                 if rc < 0:
+@@ -881,6 +885,7 @@
+ 		return ( k, proto_d, low, high )
+ 
+ 	def __add(self, port, proto, serange, type):
++
+ 		if is_mls_enabled == 1:
+ 			if serange == "":
+ 				serange = "s0"
+@@ -943,6 +948,7 @@
+                 self.commit()
+ 
+ 	def __modify(self, port, proto, serange, setype):
++
+ 		if serange == "" and setype == "":
+ 			if is_mls_enabled == 1:
+ 				raise ValueError(_("Requires setype or serange"))
+@@ -1156,7 +1162,8 @@
+ 
+                (rc, exists) = semanage_node_exists(self.sh, k)
+                if exists:
+-                       raise ValueError(_("Addr %s already defined") % addr)
++                       semanage_node_key_free(k)
++                       return self.__modify(addr, mask, self.protocol[proto], serange, ctype)
+ 
+                (rc, node) = semanage_node_create(self.sh)
+                if rc < 0:
+@@ -1172,7 +1179,6 @@
+                if rc < 0:
+                        raise ValueError(_("Could not set mask for %s") % addr)
+ 
+-
+                rc = semanage_context_set_user(self.sh, con, "system_u")
+                if rc < 0:
+                        raise ValueError(_("Could not set user in addr context for %s") % addr)
+@@ -1224,12 +1230,11 @@
+                if not exists:
+                        raise ValueError(_("Addr %s is not defined") % addr)
+ 
+-               (rc, node) = semanage_node_query(self.sh, k)
++               (rc, node) = semanage_node_query_local(self.sh, k)
+                if rc < 0:
+                        raise ValueError(_("Could not query addr %s") % addr)
+ 
+                con = semanage_node_get_con(node)
+-
+                if serange != "":
+                        semanage_context_set_mls(self.sh, con, untranslate(serange))
+                if setype != "":
+@@ -1357,7 +1362,8 @@
+ 		if rc < 0:
+ 			raise ValueError(_("Could not check if interface %s is defined") % interface)
+ 		if exists:
+-			raise ValueError(_("Interface %s already defined") % interface)
++                        semanage_iface_key_free(k)
++                        return self.__modify(interface, serange, ctype)
+ 
+ 		(rc, iface) = semanage_iface_create(self.sh)
+ 		if rc < 0:
+@@ -1525,6 +1531,7 @@
+ 	def __init__(self, store = ""):
+ 		semanageRecords.__init__(self, store)
+                 self.equiv = {}
++                self.equiv_dist = {}
+                 self.equal_ind = False
+                 try:
+                        fd = open(selinux.selinux_file_context_subs_path(), "r")
+@@ -1534,6 +1541,14 @@
+                        fd.close()
+                 except IOError:
+                        pass
++                try:
++                       fd = open(selinux.selinux_file_context_subs_dist_path(), "r")
++                       for i in fd.readlines():
++                              src, dst = i.split()
++                              self.equiv_dist[src] = dst
++                       fd.close()
++                except IOError:
++                       pass
+ 
+         def commit(self):
+                 if self.equal_ind:
+@@ -1589,12 +1604,21 @@
+ 
+                 return con
+                
++        def check_equiv(self, target, fdict):
++		for i in fdict:
++			if target.startswith(i+"/"):
++				t = re.sub(i, fdict[i], target)
++				raise ValueError(_("File spec %s conflicts with equivalency rule '%s %s'; Try adding '%s' instead") % (target, i, fdict[i], t))
++
++			
+         def validate(self, target):
+                if target == "" or target.find("\n") >= 0:
+                       raise ValueError(_("Invalid file specification"))
+                if target.find(" ") != -1:
+                       raise ValueError(_("File specification can not include spaces"))
+-                      
++	       self.check_equiv(target, self.equiv)
++	       self.check_equiv(target, self.equiv_dist)
++			       
+ 	def __add(self, target, type, ftype = "", serange = "", seuser = "system_u"):
+                 self.validate(target)
+ 
+@@ -1618,7 +1642,8 @@
+                               raise ValueError(_("Could not check if file context for %s is defined") % target)
+ 
+                 if exists:
+-                       raise ValueError(_("File context for %s already defined") % target)
++                       semanage_fcontext_key_free(k)
++                       return self.__modify(target, type, ftype, serange, seuser)
+ 
+ 		(rc, fcontext) = semanage_fcontext_create(self.sh)
+ 		if rc < 0:
+@@ -1825,9 +1850,17 @@
+ 					print "%-50s %-18s %s:%s:%s " % (k[0], k[1], fcon_dict[k][0], fcon_dict[k][1],fcon_dict[k][2])
+ 			else:
+ 				print "%-50s %-18s <<None>>" % (k[0], k[1])
+-                if len(self.equiv.keys()) > 0:
++
++
++		if len(self.equiv_dist):
++		       if not locallist:
++			       if heading:
++				       print _("\nSELinux Distribution fcontext Equivalence \n")
++			       for src in self.equiv_dist.keys():
++				       print "%s = %s" % (src, self.equiv_dist[src])
++		if len(self.equiv):
+                        if heading:
+-                              print _("\nSELinux fcontext Equivalence \n")
++                              print _("\nSELinux Local fcontext Equivalence \n")
+ 
+                        for src in self.equiv.keys():
+                               print "%s = %s" % (src, self.equiv[src])
+diff -Nur a/setfiles/restore.c b/setfiles/restore.c
+--- a/setfiles/restore.c	2011-11-04 14:38:45.000000000 +0100
++++ b/setfiles/restore.c	2011-11-27 18:02:23.540513231 +0100
+@@ -1,5 +1,6 @@
+ #include "restore.h"
+ #include <glob.h>
++#include <selinux/context.h>
+ 
+ #define SKIP -2
+ #define ERR -1
+@@ -33,7 +34,6 @@
+ 
+ static file_spec_t *fl_head;
+ static int filespec_add(ino_t ino, const security_context_t con, const char *file);
+-static int only_changed_user(const char *a, const char *b);
+ struct restore_opts *r_opts = NULL;
+ static void filespec_destroy(void);
+ static void filespec_eval(void);
+@@ -58,11 +58,16 @@
+ void restore_init(struct restore_opts *opts)
+ {	
+ 	r_opts = opts;
+-	struct selinux_opt selinux_opts[] = {
+-		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
+-		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path }
+-	};
+-	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 2);
++	struct selinux_opt selinux_opts[3];
++
++	selinux_opts[0].type = SELABEL_OPT_VALIDATE;
++	selinux_opts[0].value = r_opts->selabel_opt_validate;
++	selinux_opts[1].type = SELABEL_OPT_PATH;
++	selinux_opts[1].value = r_opts->selabel_opt_path;
++	selinux_opts[2].type = SELABEL_OPT_PREFIXES;
++	selinux_opts[2].values = r_opts->selabel_opt_prefixes;
++
++	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
+ 	if (!r_opts->hnd) {
+ 		perror(r_opts->selabel_opt_path);
+ 		exit(1);
+@@ -104,8 +109,7 @@
+ {
+ 	char *my_file = strdupa(ftsent->fts_path);
+ 	int ret = -1;
+-	char *context, *newcon;
+-	int user_only_changed = 0;
++	security_context_t curcon = NULL, newcon = NULL;
+ 
+ 	if (match(my_file, ftsent->fts_statp, &newcon) < 0)
+ 		/* Check for no matching specification. */
+@@ -139,74 +143,105 @@
+ 		printf("%s:  %s matched by %s\n", r_opts->progname, my_file, newcon);
+ 	}
+ 
++	/*
++	 * Do not relabel if their is no default specification for this file
++	 */
++
++	if (strcmp(newcon, "<<none>>") == 0) {
++		goto out;
++	}
++
+ 	/* Get the current context of the file. */
+-	ret = lgetfilecon_raw(ftsent->fts_accpath, &context);
++	ret = lgetfilecon_raw(ftsent->fts_accpath, &curcon);
+ 	if (ret < 0) {
+ 		if (errno == ENODATA) {
+-			context = NULL;
++			curcon = NULL;
+ 		} else {
+ 			fprintf(stderr, "%s get context on %s failed: '%s'\n",
+ 				r_opts->progname, my_file, strerror(errno));
+ 			goto err;
+ 		}
+-		user_only_changed = 0;
+-	} else
+-		user_only_changed = only_changed_user(context, newcon);
++	}
++
+ 	/* lgetfilecon returns number of characters and ret needs to be reset
+ 	 * to 0.
+ 	 */
+ 	ret = 0;
+ 
+ 	/*
+-	 * Do not relabel the file if the matching specification is 
+-	 * <<none>> or the file is already labeled according to the 
+-	 * specification.
++	 * Do not relabel the file if the file is already labeled according to
++	 * the specification.
+ 	 */
+-	if ((strcmp(newcon, "<<none>>") == 0) ||
+-	    (context && (strcmp(context, newcon) == 0))) {
+-		freecon(context);
++	if (curcon && (strcmp(curcon, newcon) == 0)) {
+ 		goto out;
+ 	}
+ 
+-	if (!r_opts->force && context && (is_context_customizable(context) > 0)) {
++	if (!r_opts->force && curcon && (is_context_customizable(curcon) > 0)) {
+ 		if (r_opts->verbose > 1) {
+ 			fprintf(stderr,
+ 				"%s: %s not reset customized by admin to %s\n",
+-				r_opts->progname, my_file, context);
++				r_opts->progname, my_file, curcon);
+ 		}
+-		freecon(context);
+ 		goto out;
+ 	}
+ 
+-	if (r_opts->verbose) {
+-		/* If we're just doing "-v", trim out any relabels where
+-		 * the user has r_opts->changed but the role and type are the
+-		 * same.  For "-vv", emit everything. */
+-		if (r_opts->verbose > 1 || !user_only_changed) {
+-			printf("%s reset %s context %s->%s\n",
+-			       r_opts->progname, my_file, context ?: "", newcon);
++	/*
++	 *  Do not change label unless this is a force or the type is different
++	 */
++	if (!r_opts->force && curcon) {
++		int types_differ = 0;
++		context_t cona;
++		context_t conb;
++		int err = 0;
++		cona = context_new(curcon);
++		if (! cona) {
++			goto out;
++		}
++		conb = context_new(newcon);
++		if (! conb) {
++			context_free(cona);
++			goto out;
+ 		}
++
++		types_differ = strcmp(context_type_get(cona), context_type_get(conb));
++		if (types_differ) {
++			err |= context_user_set(conb, context_user_get(cona));
++			err |= context_role_set(conb, context_role_get(cona));
++			err |= context_range_set(conb, context_range_get(cona));
++			if (!err) {
++				freecon(newcon);
++				newcon = strdup(context_str(conb));
++			}
++		}
++		context_free(cona);
++		context_free(conb);
++
++		if (!types_differ || err) {
++			goto out;
++		}
++	}
++
++	if (r_opts->verbose) {
++		printf("%s reset %s context %s->%s\n",
++		       r_opts->progname, my_file, curcon ?: "", newcon);
+ 	}
+ 
+-	if (r_opts->logging && !user_only_changed) {
+-		if (context)
++	if (r_opts->logging) {
++		if (curcon)
+ 			syslog(LOG_INFO, "relabeling %s from %s to %s\n",
+-			       my_file, context, newcon);
++			       my_file, curcon, newcon);
+ 		else
+ 			syslog(LOG_INFO, "labeling %s to %s\n",
+ 			       my_file, newcon);
+ 	}
+ 
+-	if (r_opts->outfile && !user_only_changed)
++	if (r_opts->outfile)
+ 		fprintf(r_opts->outfile, "%s\n", my_file);
+ 
+-	if (context)
+-		freecon(context);
+-
+ 	/*
+ 	 * Do not relabel the file if -n was used.
+ 	 */
+-	if (!r_opts->change || user_only_changed)
++	if (!r_opts->change)
+ 		goto out;
+ 
+ 	/*
+@@ -220,12 +255,15 @@
+ 	}
+ 	ret = 1;
+ out:
++	freecon(curcon);
+ 	freecon(newcon);
+ 	return ret;
+ skip:
++	freecon(curcon);
+ 	freecon(newcon);
+ 	return SKIP;
+ err:
++	freecon(curcon);
+ 	freecon(newcon);
+ 	return ERR;
+ }
+@@ -447,22 +485,6 @@
+ 	return 0;
+ }
+ 
+-/* Compare two contexts to see if their differences are "significant",
+- * or whether the only difference is in the user. */
+-static int only_changed_user(const char *a, const char *b)
+-{
+-	char *rest_a, *rest_b;	/* Rest of the context after the user */
+-	if (r_opts->force)
+-		return 0;
+-	if (!a || !b)
+-		return 0;
+-	rest_a = strchr(a, ':');
+-	rest_b = strchr(b, ':');
+-	if (!rest_a || !rest_b)
+-		return 0;
+-	return (strcmp(rest_a, rest_b) == 0);
+-}
+-
+ /*
+  * Evaluate the association hash table distribution.
+  */
+diff -Nur a/setfiles/restorecon.8 b/setfiles/restorecon.8
+--- a/setfiles/restorecon.8	2011-11-04 14:38:45.000000000 +0100
++++ b/setfiles/restorecon.8	2011-11-27 18:02:23.541513231 +0100
+@@ -4,22 +4,27 @@
+ 
+ .SH "SYNOPSIS"
+ .B restorecon
+-.I [\-o outfilename ] [\-R] [\-n] [\-p] [\-v] [\-e directory ] pathname...
++.I [\-o outfilename ] [\-R] [\-n] [\-p] [\-v] [\-e directory ] [\-L labelprefix ] pathname...
+ .P
+ .B restorecon
+-.I \-f infilename [\-o outfilename ] [\-e directory ] [\-R] [\-n] [\-p] [\-v] [\-F]
++.I \-f infilename [\-o outfilename ] [\-e directory ] [\-L labelprefix ] [\-R] [\-n] [\-p] [\-v] [\-F]
+ 
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR restorecon
+ program.
+ .P
+-This program is primarily used to set the security context
++This program is primarily used to reset the security context (type)
+ (extended attributes) on one or more files. 
+ .P
+ It can be run at any time to correct errors, to add support for
+ new policy, or with the \-n option it can just check whether the file
+ contexts are all as you expect.
++.P
++If a file object does not have a context, restorecon will write the default
++context to the file object's extended attributes. If a file object has a
++context, restorecon will only modify the type portion of the security context.
++The -F option will force a replacement of the entire context.
+ 
+ .SH "OPTIONS"
+ .TP 
+@@ -32,6 +37,12 @@
+ .B \-e directory
+ directory to exclude (repeat option for more than one directory.)
+ .TP 
++.B \-L labelprefix
++Tells selinux to only use the file context that match this prefix for labeling,  -L can be called multiple times.  Can speed up labeling if you are only doing one directory.
++
++# restorecon -R -v -L /dev /dev
++
++.TP
+ .B \-R \-r
+ change files and directories file labels recursively
+ .TP 
+@@ -47,11 +58,8 @@
+ .B \-v
+ show changes in file labels.
+ .TP 
+-.B \-vv
+-show changes in file labels, if type, role, or user are changing.
+-.TP 
+ .B \-F
+-Force reset of context to match file_context for customizable files, or the user section, if it has changed. 
++Force reset of context to match file_context for customizable files, and the default file context, changing the user, role, range portion as well as the type.
+ .TP 
+ .SH "ARGUMENTS"
+ .B pathname...
+diff -Nur a/setfiles/restore.h b/setfiles/restore.h
+--- a/setfiles/restore.h	2011-11-04 14:38:45.000000000 +0100
++++ b/setfiles/restore.h	2011-11-27 18:02:23.540513231 +0100
+@@ -40,6 +40,7 @@
+ 	int fts_flags; /* Flags to fts, e.g. follow links, follow mounts */
+ 	const char *selabel_opt_validate;
+ 	const char *selabel_opt_path;
++	const char **selabel_opt_prefixes;
+ };
+ 
+ void restore_init(struct restore_opts *opts);
+diff -Nur a/setfiles/setfiles.8 b/setfiles/setfiles.8
+--- a/setfiles/setfiles.8	2011-11-04 14:38:45.000000000 +0100
++++ b/setfiles/setfiles.8	2011-11-27 18:02:23.542513231 +0100
+@@ -4,7 +4,7 @@
+ 
+ .SH "SYNOPSIS"
+ .B setfiles
+-.I [\-c policy ] [\-d] [\-l] [\-n] [\-e directory ] [\-o filename ] [\-q] [\-s] [\-v] [\-vv] [\-W] [\-F] spec_file pathname...
++.I [\-c policy ] [\-d] [\-l] [\-n] [\-e directory ] [\-o filename ] [\-L labelprefix ] [\-q] [\-s] [\-v] [\-W] [\-F] spec_file pathname...
+ .SH "DESCRIPTION"
+ This manual page describes the
+ .BR setfiles
+@@ -17,6 +17,11 @@
+ It can also be run at any time to correct errors, to add support for
+ new policy, or with the \-n option it can just check whether the file
+ contexts are all as you expect.
++.P
++If a file object does not have a context, setfiles will write the default
++context to the file object's extended attributes. If a file object has a
++context, setfiles will only modify the type portion of the security context.
++The -F option will force a replacement of the entire context.
+ 
+ .SH "OPTIONS"
+ .TP 
+@@ -45,8 +50,11 @@
+ directory to exclude (repeat option for more than one directory.)
+ .TP 
+ .B \-F
+-Force reset of context to match file_context for customizable files
++Force reset of context to match file_context for customizable files, and the default file context, changing the user, role, range portion as well as the type.
+ .TP 
++.B \-L labelprefix
++Tells selinux to only use the file context that match this prefix for labeling,  -L can be called multiple times.  Can speed up labeling if you are only doing one directory.
++.TP
+ .B \-o filename
+ save list of files with incorrect context in filename.
+ .TP 
+@@ -55,10 +63,7 @@
+ command line.
+ .TP
+ .B \-v
+-show changes in file labels, if type or role are changing.
+-.TP 
+-.B \-vv
+-show changes in file labels, if type, role, or user are changing.
++show changes in file labels.
+ .TP 
+ .B \-W
+ display warnings about entries that had no matching files.
+diff -Nur a/setfiles/setfiles.c b/setfiles/setfiles.c
+--- a/setfiles/setfiles.c	2011-11-04 14:38:45.000000000 +0100
++++ b/setfiles/setfiles.c	2011-11-27 18:02:23.542513231 +0100
+@@ -39,7 +39,7 @@
+ {
+ 	if (iamrestorecon) {
+ 		fprintf(stderr,
+-			"usage:  %s [-iFnprRv0] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
++			"usage:  %s [-iFnprRv0] [ -L labelprefix ] [-e excludedir ] [-o filename ] [-f filename | pathname... ]\n",
+ 			name);
+ 	} else {
+ 		fprintf(stderr,
+@@ -137,7 +137,7 @@
+ int main(int argc, char **argv)
+ {
+ 	struct stat sb;
+-	int opt, i = 0;
++	int opt, i;
+ 	char *input_filename = NULL;
+ 	int use_input_file = 0;
+ 	char *buf = NULL;
+@@ -145,6 +145,8 @@
+ 	int recurse; /* Recursive descent. */
+ 	char *base;
+ 	int mass_relabel = 0, errors = 0;
++	int num_prefixes = 0;
++	const char *null_array[1] = { NULL };
+ 	
+ 	memset(&r_opts, 0, sizeof(r_opts));
+ 
+@@ -160,6 +162,7 @@
+ 	r_opts.outfile = NULL;
+ 	r_opts.force = 0;
+ 	r_opts.hard_links = 1;
++	r_opts.selabel_opt_prefixes = null_array;
+ 
+ 	altpath = NULL;
+ 
+@@ -217,7 +220,7 @@
+ 	exclude_non_seclabel_mounts();
+ 
+ 	/* Process any options. */
+-	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FRW0")) > 0) {
++	while ((opt = getopt(argc, argv, "c:de:f:ilnpqrsvo:FL:RW0")) > 0) {
+ 		switch (opt) {
+ 		case 'c':
+ 			{
+@@ -280,6 +283,35 @@
+ 		case 'n':
+ 			r_opts.change = 0;
+ 			break;
++		case 'L':
++		{
++			char **new_prefixes;
++
++			/* we need 1 for this entry and 1 for the NULL entry */
++			new_prefixes = malloc(sizeof(*new_prefixes) * (num_prefixes + 2));
++			if (!new_prefixes) {
++				fprintf(stderr, "Can't allocate memory for labeling prefix %s:%s\n",
++				optarg, strerror(errno));
++				exit(1);
++			}
++
++			memcpy(new_prefixes, r_opts.selabel_opt_prefixes, sizeof(*new_prefixes) * num_prefixes);
++			new_prefixes[num_prefixes] = strdup(optarg);
++			if (!new_prefixes[num_prefixes]) {
++				fprintf(stderr, "Can't allocate memory for labeling prefix %s:%s\n",
++				optarg, strerror(errno));
++				exit(1);
++			}
++
++			new_prefixes[num_prefixes + 1] = NULL;
++			num_prefixes++;
++
++			if (r_opts.selabel_opt_prefixes != null_array)
++				free(r_opts.selabel_opt_prefixes);
++
++			r_opts.selabel_opt_prefixes = (const char **)new_prefixes;
++			break;
++		}
+ 		case 'o':
+ 			if (strcmp(optarg, "-") == 0) {
+ 				r_opts.outfile = stdout;
+@@ -433,7 +465,15 @@
+ 	if (r_opts.outfile)
+ 		fclose(r_opts.outfile);
+ 
+-       if (r_opts.progress && r_opts.count >= STAR_COUNT)
+-               printf("\n");
++	if (r_opts.progress && r_opts.count >= STAR_COUNT)
++		printf("\n");
++
++	free(r_opts.progname);
++	i = 0;
++	while (r_opts.selabel_opt_prefixes[i])
++		free((void *)r_opts.selabel_opt_prefixes[i++]);
++	if (r_opts.selabel_opt_prefixes != null_array)
++		free(r_opts.selabel_opt_prefixes);
++	free(r_opts.rootpath);
+ 	exit(errors);
+ }

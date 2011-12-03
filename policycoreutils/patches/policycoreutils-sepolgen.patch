@@ -1,0 +1,191 @@
+diff --git a/src/sepolgen/audit.py b/src/sepolgen/audit.py
+index 898fbc3..9fdfafa 100644
+--- a/src/sepolgen/audit.py
++++ b/src/sepolgen/audit.py
+@@ -127,6 +127,9 @@ class PathMessage(AuditMessage):
+             if fields[0] == "path":
+                 self.path = fields[1][1:-1]
+                 return
++import selinux.audit2why as audit2why
++
++avcdict = {}
+ 
+ class AVCMessage(AuditMessage):
+     """AVC message representing an access denial or granted message.
+@@ -168,6 +171,8 @@ class AVCMessage(AuditMessage):
+         self.name = ""
+         self.accesses = []
+         self.denial = True
++        self.type = audit2why.TERULE
++        self.bools = []
+ 
+     def __parse_access(self, recs, start):
+         # This is kind of sucky - the access that is in a space separated
+@@ -229,7 +234,31 @@ class AVCMessage(AuditMessage):
+ 
+         if not found_src or not found_tgt or not found_class or not found_access:
+             raise ValueError("AVC message in invalid format [%s]\n" % self.message)
+-                
++        self.analyze()
++
++    def analyze(self):
++        tcontext = self.tcontext.to_string()
++        scontext = self.scontext.to_string()
++        access_tuple = tuple( self.accesses)
++        if (scontext, tcontext, self.tclass, access_tuple) in avcdict.keys():
++            self.type, self.bools = avcdict[(scontext, tcontext, self.tclass, access_tuple)]
++        else:
++            self.type, self.bools = audit2why.analyze(scontext, tcontext, self.tclass, self.accesses);
++            if self.type == audit2why.NOPOLICY:
++                self.type = audit2why.TERULE
++            if self.type == audit2why.BADTCON:
++                raise ValueError("Invalid Target Context %s\n" % tcontext)
++            if self.type == audit2why.BADSCON:
++                raise ValueError("Invalid Source Context %s\n" % scontext)
++            if self.type == audit2why.BADSCON:
++                raise ValueError("Invalid Type Class %s\n" % self.tclass)
++            if self.type == audit2why.BADPERM:
++                raise ValueError("Invalid permission %s\n" % " ".join(self.accesses))
++            if self.type == audit2why.BADCOMPUTE:
++                raise ValueError("Error during access vector computation")
++
++            avcdict[(scontext, tcontext, self.tclass, access_tuple)] = (self.type, self.bools)
++
+ class PolicyLoadMessage(AuditMessage):
+     """Audit message indicating that the policy was reloaded."""
+     def __init__(self, message):
+@@ -472,10 +501,10 @@ class AuditParser:
+             if avc_filter:
+                 if avc_filter.filter(avc):
+                     av_set.add(avc.scontext.type, avc.tcontext.type, avc.tclass,
+-                               avc.accesses, avc)
++                               avc.accesses, avc, avc_type=avc.type, bools=avc.bools)
+             else:
+                 av_set.add(avc.scontext.type, avc.tcontext.type, avc.tclass,
+-                           avc.accesses, avc)
++                           avc.accesses, avc, avc_type=avc.type, bools=avc.bools)
+         return av_set
+ 
+ class AVCTypeFilter:
+diff --git a/src/sepolgen/matching.py b/src/sepolgen/matching.py
+index 1a9a3e5..d56dd92 100644
+--- a/src/sepolgen/matching.py
++++ b/src/sepolgen/matching.py
+@@ -50,7 +50,7 @@ class Match:
+                 return 1
+ 
+ class MatchList:
+-    DEFAULT_THRESHOLD = 120
++    DEFAULT_THRESHOLD = 150
+     def __init__(self):
+         # Match objects that pass the threshold
+         self.children = []
+@@ -63,14 +63,15 @@ class MatchList:
+     def best(self):
+         if len(self.children):
+             return self.children[0]
+-        else:
+-            return None
++        if len(self.bastards):
++            return self.bastards[0]
++        return None
+ 
+     def __len__(self):
+         # Only return the length of the matches so
+         # that this can be used to test if there is
+         # a match.
+-        return len(self.children)
++        return len(self.children) + len(self.bastards)
+ 
+     def __iter__(self):
+         return iter(self.children)
+diff --git a/src/sepolgen/policygen.py b/src/sepolgen/policygen.py
+index 0e6b502..4882999 100644
+--- a/src/sepolgen/policygen.py
++++ b/src/sepolgen/policygen.py
+@@ -29,6 +29,8 @@ import objectmodel
+ import access
+ import interfaces
+ import matching
++import selinux.audit2why as audit2why
++from setools import *
+ 
+ # Constants for the level of explanation from the generation
+ # routines
+@@ -77,6 +79,7 @@ class PolicyGenerator:
+ 
+         self.dontaudit = False
+ 
++        self.domains = None
+     def set_gen_refpol(self, if_set=None, perm_maps=None):
+         """Set whether reference policy interfaces are generated.
+ 
+@@ -151,8 +154,41 @@ class PolicyGenerator:
+             rule = refpolicy.AVRule(av)
+             if self.dontaudit:
+                 rule.rule_type = rule.DONTAUDIT
++            rule.comment = ""
+             if self.explain:
+-                rule.comment = refpolicy.Comment(explain_access(av, verbosity=self.explain))
++                rule.comment = str(refpolicy.Comment(explain_access(av, verbosity=self.explain)))
++            if av.type == audit2why.ALLOW:
++                rule.comment += "#!!!! This avc is allowed in the current policy\n"
++            if av.type == audit2why.DONTAUDIT:
++                rule.comment += "#!!!! This avc has a dontaudit rule in the current policy\n"
++
++            if av.type == audit2why.BOOLEAN:
++                if len(av.bools) > 1:
++                    rule.comment += "#!!!! This avc can be allowed using one of the these booleans:\n#     %s\n" % ", ".join(map(lambda x: x[0], av.bools))
++                else:
++                    rule.comment += "#!!!! This avc can be allowed using the boolean '%s'\n" % av.bools[0][0]
++
++            if av.type == audit2why.CONSTRAINT:
++                rule.comment += "#!!!! This avc is a constraint violation.  You will need to add an attribute to either the source or target type to make it work.\n"
++                rule.comment += "#Constraint rule: "
++
++            if av.type == audit2why.TERULE:
++                if "write" in av.perms:
++                    if "dir" in av.obj_class or "open" in av.perms:
++                        if not self.domains:
++                            self.domains = seinfo(ATTRIBUTE, name="domain")[0]["types"]
++                        types=[]
++
++                        try:
++                            for i in map(lambda x: x[TCONTEXT], sesearch([ALLOW], {SCONTEXT: av.src_type, CLASS: av.obj_class, PERMS: av.perms})):
++                                if i not in self.domains:
++                                    types.append(i)
++                            if len(types) == 1:
++                                rule.comment += "#!!!! The source type '%s' can write to a '%s' of the following type:\n# %s\n" % ( av.src_type, av.obj_class, ", ".join(types))
++                            elif len(types) >= 1:
++                                rule.comment += "#!!!! The source type '%s' can write to a '%s' of the following types:\n# %s\n" % ( av.src_type, av.obj_class, ", ".join(types))
++                        except:
++                            pass
+             self.module.children.append(rule)
+ 
+ 
+diff --git a/src/sepolgen/refparser.py b/src/sepolgen/refparser.py
+index 955784d..9a79340 100644
+--- a/src/sepolgen/refparser.py
++++ b/src/sepolgen/refparser.py
+@@ -245,7 +245,7 @@ def t_refpolicywarn(t):
+     t.lexer.lineno += 1
+ 
+ def t_IDENTIFIER(t):
+-    r'[a-zA-Z_\$\"][a-zA-Z0-9_\-\.\$\*\"]*'
++    r'[a-zA-Z_\$\"][a-zA-Z0-9_\-\.\$\*\"~]*'
+     # Handle any keywords
+     t.type = reserved.get(t.value,'IDENTIFIER')
+     return t
+diff --git a/src/sepolgen/yacc.py b/src/sepolgen/yacc.py
+index 58332de..2f3c09d 100644
+--- a/src/sepolgen/yacc.py
++++ b/src/sepolgen/yacc.py
+@@ -594,7 +594,7 @@ class MiniProduction:
+     pass
+ 
+ # regex matching identifiers
+-_is_identifier = re.compile(r'^[a-zA-Z0-9_-]+$')
++_is_identifier = re.compile(r'^[a-zA-Z0-9_-~]+$')
+ 
+ # -----------------------------------------------------------------------------
+ # add_production()
