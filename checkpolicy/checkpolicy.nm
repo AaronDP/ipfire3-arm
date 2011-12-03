@@ -1,0 +1,58 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = checkpolicy
+version    = 2.1.6
+release    = 1
+
+groups     = Development/System
+url        = http://userspace.selinuxproject.org
+license    = GPLv2
+summary    = SELinux policy compiler.
+
+description
+	This package contains checkpolicy, the SELinux policy compiler and  
+	is required for building policies. 
+end
+
+sources    = %{thisapp}.tgz
+
+build
+	requires
+		bison
+		flex
+		flex-devel
+		libselinux-devel
+		libsepol-devel
+		libsepol-static
+	end
+
+	prepare_cmds
+		# Link against -lfl_pic instead of -lfl.
+		sed -i -e "s/lfl/&_pic/g" Makefile */Makefile
+	end
+
+	make_build_targets += \
+		LIBDIR="/usr/lib" \
+		CFLAGS="%{CFLAGS}" \
+		LEX=flex
+
+	# build all binaries.
+	build_cmds
+		make -C test %{make_build_targets}
+	end
+
+	make_install_cmds += \
+		LIBDIR=%{BUILDROOT}/usr/lib
+
+	install_cmds
+		install test/dismod %{BULDROOT}/usr/bin
+		install test/dispol %{BUILDROOT}/usr/bin
+	end
+end
+
+packages
+	package %{name}
+end
