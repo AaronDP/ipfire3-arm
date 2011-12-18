@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = mpfr
-version    = 3.0.0
-release    = 1
+version    = 3.1.0
+release    = 2
+
+compat_version = 2.4.2
 
 groups     = System/Libraries
 url        = http://www.mpfr.org/
@@ -21,25 +23,60 @@ description
 	library.
 end
 
-source_dl  =
+source_dl  = http://mpfr.loria.fr/mpfr-%{version}/
+sources   += %{name}-%{compat_version}.tar.bz2
 
 build
 	requires
-		gmp-devel
+		gmp-devel>=4.3.2
 	end
 
 	configure_options += \
-		--enable-thread-safe
+		--enable-thread-safe \
+		--disable-assert
+
+	build_cmds
+
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		./configure \
+			%{configure_options}
+
+		export LD_LIBRARY_PATH=$(pwd)/.libs
+		make %{PARALLELISMFLAGS}
+	end
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/.libs
 		make check
+
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		export LD_LIBRARY_PATH=$(pwd)/.libs
+		make check
+	end
+
+	install_cmds
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		install -m 644 .libs/libmpfr.so.1.2.2 %{BUILDROOT}/usr/lib/
+		ln -svf libmpfr.so.1.2.2 %{BUILDROOT}/usr/lib/libmpfr.so.1
 	end
 end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-compat
+		summary = Compat libraries of %{thisapp}.
+
+		files
+			/usr/lib/libmpfr.so.1*
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

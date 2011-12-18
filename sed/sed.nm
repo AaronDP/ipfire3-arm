@@ -5,9 +5,9 @@
 
 name       = sed
 version    = 4.2.1
-release    = 1
+release    = 2
 
-groups     = Base Build Applications/Text
+groups     = Applications/Text
 url        = http://sed.sourceforge.net/
 license    = GPLv2+
 summary    = A GNU stream text editor.
@@ -39,5 +39,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -5,9 +5,9 @@
 
 name       = vim
 version    = 7.3
-release    = 1
+release    = 2
 
-groups     = Base Applications/Editors
+groups     = Applications/Editors
 url        = http://www.vim.org
 license    = PublicDomain/Charityware
 summary    = Very feature- and powerful editor.
@@ -52,5 +52,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

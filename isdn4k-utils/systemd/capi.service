@@ -3,8 +3,8 @@ Description=Capi services for passiv ISDN cards
 After=syslog.target
 
 [Service]
-ExecStart=/sbin/capiinit start
-ExecStop=/sbin/capiinit stop
+ExecStart=/usr/sbin/capiinit start
+ExecStop=/usr/sbin/capiinit stop
 
 [Install]
 WantedBy=multi-user.target

@@ -40,7 +40,7 @@ end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
@@ -53,5 +53,9 @@ packages
 		files
 			/usr/lib/libsepol.a
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

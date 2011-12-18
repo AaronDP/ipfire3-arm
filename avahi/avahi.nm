@@ -59,12 +59,16 @@ packages
 	package %{name}
 		requires = libdaemon>=0.14
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
-	
+
 	package %{name}-libs
 		template LIBS
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

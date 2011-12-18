@@ -5,7 +5,7 @@
 
 name       = m4
 version    = 1.4.16
-release    = 1
+release    = 2
 
 groups     = Applications/Text
 url        = http://www.gnu.org/software/m4/
@@ -21,16 +21,19 @@ description
 	configure scripts, but not for running configure scripts.
 end
 
-source_dl  =
+source_dl  = http://ftp.gnu.org/gnu/m4/
 sources    = %{thisapp}.tar.xz
 
-# Testsuite is broken ( readlink )
-#build
-#	test
-#		make check
-#	end
-#end
+build
+	test
+		make check
+	end
+end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

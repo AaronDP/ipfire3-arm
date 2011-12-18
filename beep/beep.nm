@@ -40,4 +40,8 @@ end
 
 packages
 	package beep
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

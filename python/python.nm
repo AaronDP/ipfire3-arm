@@ -6,7 +6,7 @@
 name       = python
 major_ver  = 2.7
 version    = %{major_ver}.2
-release    = 2
+release    = 3
 thisapp    = Python-%{version}
 
 groups     = Development/Languages
@@ -65,6 +65,7 @@ build
 			./configure \
 				--prefix=/usr \
 				--enable-ipv6 \
+				--enable-unicode=ucs4 \
 				--with-system-expat \
 				--with-system-ffi \
 				--enable-shared
@@ -86,9 +87,13 @@ packages
 
 	package %{name}-devel
 		template DEVEL
-	
+
 		files += \
 			!/usr/lib/python*/config/Makefile \
 			!/usr/include/python*/pyconfig.h
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

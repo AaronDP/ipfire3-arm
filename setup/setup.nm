@@ -5,7 +5,8 @@
 
 name       = setup
 version    = 3.0
-release    = 3
+release    = 4
+arch       = noarch
 
 groups     = Base Build System/Base
 url        =

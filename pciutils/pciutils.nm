@@ -5,10 +5,9 @@
 
 name       = pciutils
 version    = 3.1.7
-release    = 1
+release    = 2
 
 groups     = System/Base
-groups-pciutils = Base %{groups}
 url        = http://atrey.karlin.mff.cuni.cz/~mj/pciutils.shtml
 license    = GPLv2+
 summary    = PCI bus related utilities.
@@ -41,13 +40,18 @@ end
 
 packages
 	package %{name}
+		groups += Base
 	end
-	
+
 	package %{name}-libs
 		template LIBS
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

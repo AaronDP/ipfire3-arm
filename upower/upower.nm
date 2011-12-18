@@ -41,12 +41,16 @@ packages
 	package %{name}
 		requires = udev util-linux
 	end
-	
+
 	package %{name}-libs
 		template LIBS
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -1,0 +1,23 @@
+--- tools/firmware/etherboot/Makefile	2011-12-11 16:57:04.609076813 +0100
++++ tools/firmware/etherboot/Makefile	2011-12-11 16:54:16.211074495 +0100
+@@ -35,13 +35,13 @@
+ 	mv -f $@.new $@
+ 
+ $T:
+-	if ! wget -O _$T $(IPXE_TARBALL_URL); then \
+-		$(GIT) clone $(IPXE_GIT_URL) $D.git; \
+-		(cd $D.git && $(GIT) archive --format=tar --prefix=$D/ \
+-		$(IPXE_GIT_TAG) | gzip >../_$T); \
+-		rm -rf $D.git; \
+-	fi
+-	mv _$T $T
++#	if ! wget -O _$T $(IPXE_TARBALL_URL); then \
++#		$(GIT) clone $(IPXE_GIT_URL) $D.git; \
++#		(cd $D.git && $(GIT) archive --format=tar --prefix=$D/ \
++#		$(IPXE_GIT_TAG) | gzip >../_$T); \
++#		rm -rf $D.git; \
++#	fi
++#	mv _$T $T
+ 
+ $D/src/arch/i386/Makefile: $T Config
+ 	rm -rf $D

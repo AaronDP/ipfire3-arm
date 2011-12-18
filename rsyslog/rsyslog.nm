@@ -5,9 +5,9 @@
 
 name       = rsyslog
 version    = 5.8.6
-release    = 1
+release    = 2
 
-groups     = Base System/Daemons
+groups     = System/Daemons
 url        = http://www.rsyslog.com/
 license    = GPLv3+
 summary    = Enhanced system logging and kernel message trapping daemon.
@@ -93,5 +93,9 @@ packages
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 			/bin/systemctl try-restart rsyslog.service >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

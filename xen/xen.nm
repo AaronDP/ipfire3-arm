@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = xen
-version    = 4.1.1
-release    = 4
+version    = 4.1.2
+release    = 3
 
 maintainer = Ben Schweikert <ben.schweikert@ipfire.org>
 groups     = Applications/Virtualization
@@ -19,19 +19,23 @@ description
 	feature set for virtualization.
 end
 
-source_dl  =
-sources    = %{thisapp}.tar.gz
+source_dl  = http://bits.xensource.com/oss-xen/release/%{version}/
+sources    = %{thisapp}.tar.gz xen-utils-0.1.tar.bz2
 
 build
 	requires
+		chrpath
+		dev86
 		gettext-devel
+		iasl
 		kernel-headers
 		libuuid-devel
 		ncurses-devel
 		openssl-devel
 		python
 		python-devel
-		sdl-devel
+		SDL
+		SDL-devel
 		texinfo
 		xorg-x11-proto-devel
 		wget
@@ -39,12 +43,9 @@ build
 	end
 
 	prepare_cmds
-		# Following two lines are disabling HVM. HVM does not work because \
-		# of some PIE errors we get when we try to build the firmware part \
-		# needed for different architektures.
-		sed -i -e '/^CONFIG_IOEMU := y$/d' config/*.mk
-		sed -i -e '/SUBDIRS-$(CONFIG_X86) += firmware/d' tools/Makefile
-
+		tar -xvf %{DIR_DL}/xen-utils-0.1.tar.bz2
+		mv tools/firmware/etherboot/ipxe-git-v1.0.0.tar.gz tools/firmware/etherboot/ipxe.tar.gz
+		mv extras/mini-os/newlib-1.16.0.tar.gz stubdom/
 		rm -f Config.mk~
 	end
 
@@ -52,10 +53,11 @@ build
 		xen tools
 
 	make_install_targets +=\
-		xen install-tools
+		install-xen install-tools
 
 	install_cmds
 		rm -R %{BUILDROOT}/etc/init.d
+		chrpath --delete %{BUILDROOT}/usr/lib/xen/bin/qemu-dm
 	end
 end
 
@@ -109,5 +111,9 @@ packages
 			This package contains what's needed to
 			develop applications which manage Xen virtual machines.
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

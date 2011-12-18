@@ -6,9 +6,9 @@
 name       = initscripts
 epoch      = 1
 version    = 2.99
-release    = 11
+release    = 12
 
-groups     = Base System/Boot
+groups     = System/Boot
 url        =
 license    = GPLv3+
 summary    = The set of scripts that initalize the system.
@@ -55,6 +55,8 @@ end
 
 packages
 	package %{name}
+		groups += Base
+
 		requires
 			bash
 			coreutils
@@ -102,5 +104,9 @@ packages
 		script postun
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

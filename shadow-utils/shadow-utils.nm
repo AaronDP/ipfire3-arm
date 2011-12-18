@@ -5,11 +5,11 @@
 
 name       = shadow-utils
 version    = 4.1.4.3
-release    = 5
+release    = 6
 thisapp    = shadow-%{version}
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
-groups     = Base System/Base
+groups     = System/Base
 url        = http://pkg-shadow.alioth.debian.org/
 license    = GPLv2+
 summary    = Utilities to deal with user accounts.
@@ -68,6 +68,8 @@ end
 
 packages
 	package %{name}
+		groups += Base
+
 		obsoletes += shadow<%{thisver}
 		provides  += shadow=%{thisver}
 
@@ -78,5 +80,9 @@ packages
 		configfiles
 			/etc/default/useradd
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

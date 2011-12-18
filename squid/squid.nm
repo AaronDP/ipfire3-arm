@@ -99,7 +99,7 @@ build
 		echo "visible_hostname %{DISTRO_NAME}" >> %{BUILDROOT}/etc/squid/squid.conf
 		echo "cache_effective_user squid" >> %{BUILDROOT}/etc/squid/squid.conf
 		echo "cache_effective_group squid" >> %{BUILDROOT}/etc/squid/squid.conf
-		
+
 		chown -Rv squid:squid %{BUILDROOT}/var/log/squid %{BUILDROOT}/var/log/cache %{BUILDROOT}/var/cache/squid
 		chmod 600 %{BUILDROOT}/var/cache/squid
 		mkdir -pv %{BUILDROOT}/etc/sysconfig
@@ -150,5 +150,9 @@ packages
 		requires = /usr/bin/smbclient
 
 		filter_requires = perl\(Authen::Smb\)
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

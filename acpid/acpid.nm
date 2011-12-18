@@ -5,9 +5,9 @@
 
 name       = acpid
 version    = 2.0.9
-release    = 4
+release    = 5
 
-groups     = Base System/Daemons
+groups     = System/Daemons
 url        = http://tedfelix.com/linux/acpid-netlink.html
 license    = GPLv2+
 summary    = ACPI Event Daemon.
@@ -36,5 +36,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

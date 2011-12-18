@@ -63,7 +63,7 @@ build
 
 		# Extract tarball into nss directory.
 		cd %{DIR_APP} && %{MACRO_EXTRACT} %{DIR_DL}/%{name}-pem-20100809.tar.bz2
-		
+
 		# Apply all patches
 		%{MACRO_PATCHES}
 
@@ -233,5 +233,9 @@ packages
 			/usr/include
 			/usr/lib/pkgconfig
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

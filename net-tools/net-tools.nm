@@ -5,9 +5,9 @@
 
 name       = net-tools
 version    = 1.60
-release    = 1
+release    = 2
 
-groups     = Base Sytem/Base
+groups     = System/Base
 url        = http://net-tools.berlios.de/
 license    = GPL+
 summary    = Basic networking tools.
@@ -152,4 +152,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

@@ -78,7 +78,7 @@ build
 		macro_extract docbook-4.4.zip 4.4-sgml
 		macro_extract docbook-xml-4.4.zip 4.4-xml
 		macro_extract docbook-4.5.zip 4.5-sgml
-		macro_extract docbook-xml-4.5.zip 4.5-xml			
+		macro_extract docbook-xml-4.5.zip 4.5-xml
 
 		# Convert all catalog files to unix format
 		cd %{DIR_APP} && dos2unix */docbook.cat
@@ -197,7 +197,7 @@ packages
 		script postun
 			# remove entries only on removal of package
 			if [ "$1" = 0 ]; then
- 
+
 				entities="
 					ent/iso-pub.ent
 					ent/iso-grk1.ent

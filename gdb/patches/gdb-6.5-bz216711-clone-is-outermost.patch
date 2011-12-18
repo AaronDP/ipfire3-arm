@@ -1,0 +1,133 @@
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=216711
+
+FIXME: This workaround should be dropped and
+glibc/sysdeps/unix/sysv/linux/x86_64/clone.S should get CFI for the child
+instead.
+
+2006-12-17  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	* gdb/amd64-linux-tdep.c (linux_clone_code): New variable.
+	(LINUX_CLONE_LEN): New definition.
+	(amd64_linux_clone_running, amd64_linux_outermost_frame): New function.
+	(amd64_linux_init_abi): Initialize `outermost_frame_p'.
+	* gdb/i386-tdep.c (i386_gdbarch_init): Likewise.
+	* gdb/i386-tdep.h (gdbarch_tdep): Add `outermost_frame_p' member.
+	* gdb/amd64-tdep.c (amd64_frame_this_id): Call `outermost_frame_p'.
+
+2006-12-17  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	* gdb.threads/bt-clone-stop.exp, gdb.threads/bt-clone-stop.c:
+	New file.
+
+2007-10-16  Jan Kratochvil  <jan.kratochvil@redhat.com>
+
+	Port to GDB-6.7.
+
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gdb-6.8.50.20090802/gdb/testsuite/gdb.threads/bt-clone-stop.c	2009-08-03 15:50:08.000000000 +0200
+@@ -0,0 +1,39 @@
++/* This testcase is part of GDB, the GNU debugger.
++
++   Copyright 2006 Free Software Foundation, Inc.
++
++   This program is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2 of the License, or
++   (at your option) any later version.
++
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++ 
++   You should have received a copy of the GNU General Public License
++   along with this program; if not, write to the Free Software
++   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
++   MA 02110-1301, USA.  */
++
++
++#include <pthread.h>
++#include <unistd.h>
++#include <assert.h>
++
++
++void *threader (void *arg)
++{
++	assert (0);
++	return NULL;
++}
++
++int main (void)
++{
++	pthread_t t1;
++
++	pthread_create (&t1, NULL, threader, (void *) NULL);
++	for (;;)
++		pause();
++}
+Index: gdb-6.8.50.20090802/gdb/testsuite/gdb.threads/bt-clone-stop.exp
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ gdb-6.8.50.20090802/gdb/testsuite/gdb.threads/bt-clone-stop.exp	2009-08-03 15:50:08.000000000 +0200
+@@ -0,0 +1,61 @@
++# Copyright 2006 Free Software Foundation, Inc.
++
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++# 
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++# 
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.  
++
++# Backtraced `clone' must not have `PC == 0' as its previous frame.
++
++if $tracelevel then {
++    strace $tracelevel
++}
++
++set testfile bt-clone-stop
++set srcfile ${testfile}.c
++set binfile ${objdir}/${subdir}/${testfile}
++if  { [gdb_compile_pthreads "${srcdir}/${subdir}/${srcfile}" "${binfile}" executable {debug}] != "" } {
++    untested "Couldn't compile test program"
++    return -1
++}
++
++# Get things started.
++
++gdb_exit
++gdb_start
++gdb_reinitialize_dir $srcdir/$subdir
++gdb_load ${binfile}
++
++# threader: threader.c:8: threader: Assertion `0' failed.
++# Program received signal SIGABRT, Aborted.
++
++gdb_test "run" \
++     "Program received signal SIGABRT.*" \
++     "run"
++
++# Former gdb unwind (the first function is `clone'):
++# #5  0x0000003421ecd62d in ?? () from /lib64/libc.so.6
++# #6  0x0000000000000000 in ?? ()
++# (gdb)
++# Tested `amd64_linux_outermost_frame' functionality should omit the line `#6'.
++# 
++# Two `-re' cases below must be in this order (1st is a subset of the 2nd one).
++# Unhandled case below should not happen and it is fortunately handled by
++# `amd64_linux_outermost_frame' as FAIL (and result `0x0 entry output invalid').
++gdb_test_multiple "bt" "0x0 entry output invalid" {
++    -re "in threader \\(.*\n#\[0-9\]* *0x0* in .*$gdb_prompt $" {
++    	fail "0x0 entry found"
++    }
++    -re "in threader \\(.*$gdb_prompt $" {
++    	pass "0x0 entry not found"
++    }
++}

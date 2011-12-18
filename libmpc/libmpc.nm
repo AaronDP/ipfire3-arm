@@ -20,7 +20,7 @@ description
 	It is built upon and follows the same principles as Mpfr.
 end
 
-source_dl  =
+source_dl  = http://www.multiprecision.org/mpc/download/
 
 build
 	requires
@@ -38,9 +38,12 @@ end
 
 packages
 	package %{name}
-	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

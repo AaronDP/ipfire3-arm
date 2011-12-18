@@ -53,8 +53,12 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

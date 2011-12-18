@@ -138,17 +138,17 @@ packages
 			perl(:MODULE_COMPAT_5.14.2)
 			perl(:MODULE_COMPAT_5.14.1)
 			perl(:MODULE_COMPAT_5.14.0)
-	
+
 			# Threading provides
 			perl(:WITH_ITHREADS)
 			perl(:WITH_THREADS)
-	
+
 			# Largefile provides
 			perl(:WITH_LARGEFILES)
 
 			# PerlIO provides
 			perl(:WITH_PERLIO)
-	
+
 			# File provides
 			perl(abbrev.pl)
 			perl(assert.pl)
@@ -211,22 +211,22 @@ packages
 			perl\(Carp\)
 		end
 	end
-	
+
 	package perl-libs
 		template LIBS
-	
+
 		provides
 			libperl.so
 		end
-	
+
 		files
 			/usr/lib/perl5/CORE/libperl.so
 		end
 	end
-	
+
 	package perl-devel
 		template DEVEL
-	
+
 		files
 			/usr/bin/enc2xs
 			/usr/share/man/man1/enc2xs*
@@ -243,7 +243,7 @@ packages
 			/usr/share/man/man1/perlxs*
 		end
 	end
-	
+
 	#package perl-tests
 	#	summary = Testsuite to check your Perl installation.
 	#	description-perl-tests
@@ -256,12 +256,12 @@ packages
 	#		/usr/lib/perl5-tests
 	#	end
 	#end
-	
+
 	package perl-Archive-Extract
 		epoch = 0
 		version = 0.48
 		arch = noarch
-	
+
 		summary = Generic archive extracting mechanism.
 		description
 			Archive::Extract is a generic archive extraction mechanism.
@@ -270,18 +270,18 @@ packages
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Archive/Extract.pm
 			/usr/share/man/man3/Archive::Extract.3*
 		end
 	end
-	
+
 	package perl-Archive-Tar
 		epoch = 0
 		version = 1.76
 		arch = noarch
-	
+
 		summary = A module for Perl manipulation of .tar files.
 		description
 			Archive::Tar provides an object oriented mechanism for handling tar files. It
@@ -294,7 +294,7 @@ packages
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/bin/ptar
 			/usr/bin/ptardiff
@@ -330,7 +330,7 @@ packages
 			/usr/share/man/man3/Class::ISA.3*
 		end
 	end
-	
+
 	package perl-Compress-Raw-Zlib
 		epoch = 0
 		version = 2.033
@@ -344,7 +344,7 @@ packages
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Compress/Raw/Zlib/
 			/usr/share/man/man3/Compress::Raw::Zlib*
@@ -387,22 +387,22 @@ packages
 			/usr/share/man/man3/CGI::*.3*
 		end
 	end
-	
+
 	package perl-CPAN
 		epoch = 0
 		version = 1.9600.01
 		arch = noarch
-	
+
 		summary = Query, download and build perl modules from CPAN sites.
 		description
 			Query, download and build perl modules from CPAN sites.
 		end
-	
+
 		requires
 			%{perl_requires}
 			perl(Digest::SHA)
 		end
-	
+
 		provides
 			cpan
 			cpan=$(version-perl-CPAN)
@@ -411,7 +411,7 @@ packages
 		filter_requires
 			perl\(Mac::BuildTools\)
 		end
-	
+
 		files
 			/usr/bin/cpan
 			/usr/share/perl5/CPAN*
@@ -477,20 +477,20 @@ packages
 		epoch = 0
 		version = 0.9103
 		arch = noarch
-	
+
 		summary = API & CLI access to the CPAN mirrors.
 		description
 			The CPANPLUS library is an API to the CPAN mirrors and a collection of
 			interactive shells, commandline programs, etc, that use this API.
 		end
-	
+
 		requires
 			%{perl_requires}
 			perl(Digest::SHA)
 			perl(Module::Pluggable)>=2.4
 			perl(Module::CoreList)
 		end
-	
+
 		provides
 			perl-CPANPLUS-Dist-Build=0.06
 		end
@@ -501,7 +501,7 @@ packages
 			Your::Module::Here
 			perl\(DBD::SQLite\)
 		end
-	
+
 		files
 			/usr/bin/cpan2dist
 			/usr/bin/cpanp
@@ -596,11 +596,11 @@ packages
 			/usr/share/man/man3/Digest::MD5.3*
 		end
 	end
-	
+
 	package perl-Digest-SHA
 		epoch = 0
 		version = 5.61
-	
+
 		summary = Perl extension for SHA-1/224/256/384/512.
 		description
 			Digest::SHA is a complete implementation of the NIST Secure Hash
@@ -608,13 +608,13 @@ packages
 			SHA-1, SHA-224, SHA-256, SHA-384, and SHA-512 message digests. The
 			module can handle all types of input, including partial-byte data.
 		end
-	
+
 		requires
 			%{perl_requires}
 			perl(Digest::base)
 			perl(MIME::Base64)
 		end
-	
+
 		files
 			/usr/bin/shasum
 			/usr/share/perl5/Digest/SHA*
@@ -896,34 +896,34 @@ packages
 			/usr/share/man/man3/JSON::PP::Boolean.3pm*
 		end
 	end
-	
+
 	package perl-Locale-Maketext-Simple
 		epoch = 0
 		version = 0.21
 		arch = noarch
 		license = MIT
-	
+
 		summary = Simple interface to Locale::Maketext::Lexicon.
 		description
 			This module is a simple wrapper around Locale::Maketext::Lexicon, designed
 			to alleviate the need of creating Language Classes for module authors.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Locale/Maketext/Simple.pm
 			/usr/share/man/man3/Locale::Maketext::Simple.*
 		end
 	end
-	
+
 	package perl-Log-Message
 		epoch = 0
 		version = 0.04
 		arch = noarch
-	
+
 		summary = Generic message storage mechanism.
 		description
 			Log::Message is a generic message storage mechanism. It allows you to store
@@ -933,11 +933,11 @@ packages
 			identify it or group it, and a level at which to handle the message (for
 			example, log it, or die with it).
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		provides
 			perl(Log::Message::Handlers)=%{version}
 		end
@@ -953,33 +953,33 @@ packages
 			/usr/share/man/man3/Log::Message::Item.3*
 		end
 	end
-	
+
 	package perl-Log-Message-Simple
 		epoch = 0
 		version = 0.08
 		arch = noarch
-	
+
 		summary = Simplified frontend to Log::Message.
 		description
 			This module provides standardized logging facilities using the
 			Log::Message module.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Log/Message/Simple.pm
 			/usr/share/man/man3/Log::Message::Simple.3*
 		end
 	end
-	
+
 	package perl-Module-Build
 		epoch = 0
 		version = 0.3800
 		arch = noarch
-	
+
 		summary = Perl module for building and installing Perl modules.
 		description
 			Module::Build is a system for building, testing, and installing Perl modules.
@@ -992,7 +992,7 @@ packages
 			are included with perl 5.6.0, and it works fine on perl 5.005 if you can
 			install a few additional modules.
 		end
-	
+
 		requires
 			%{perl_requires}
 			perl(Archive::Tar)>=1.08
@@ -1000,7 +1000,7 @@ packages
 			perl(ExtUtils::CBuilder)>=0.15
 			perl(ExtUtils::ParseXS)>=1.02
 		end
-	
+
 		files
 			/usr/bin/config_data
 			/usr/share/perl5/inc/
@@ -1010,23 +1010,23 @@ packages
 			/usr/share/man/man3/inc::latest.3*
 		end
 	end
-	
+
 	package perl-Module-CoreList
 		epoch = 0
 		version = 2.49_01
 		arch = noarch
-	
+
 		summary = Perl core modules indexed by perl versions.
 		description
 			Module::CoreList contains the hash of hashes %Module::CoreList::version, this
 			is keyed on perl version as indicated in $].  The second level hash is module
 			=> version pairs.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/bin/corelist
 			/usr/share/perl5/Module/CoreList.pm
@@ -1034,54 +1034,54 @@ packages
 			/usr/share/man/man3/Module::CoreList*
 		end
 	end
-	
+
 	package perl-Module-Load
 		epoch = 0
 		version = 0.18
 		arch = noarch
-	
+
 		summary = Runtime require of both modules and files.
 		description
 			Module::Load eliminates the need to know whether you are trying to require
 			either a file or a module.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Module/Load.pm
 			/usr/share/man/man3/Module::Load.*
 		end
 	end
-	
+
 	package perl-Module-Load-Conditional
 		epoch = 0
 		version = 0.44
 		arch = noarch
-	
+
 		summary = Looking up module information / loading at runtime.
 		description
 			Module::Load::Conditional provides simple ways to query and possibly load
 			any of the modules you have installed on your system during runtime.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Module/Load/
 			/usr/share/man/man3/Module::Load::Conditional*
 		end
 	end
-	
+
 	package perl-Module-Loaded
 		epoch = 0
 		version = 0.06
 		arch = noarch
-	
+
 		summary = Mark modules as loaded or unloaded.
 		description
 			When testing applications, often you find yourself needing to provide
@@ -1090,11 +1090,11 @@ packages
 			modules as loaded, so they are not attempted to be loaded by perl, this module
 			offers you a very simple way to mark modules as loaded and/or unloaded.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Module/Loaded.pm
 			/usr/share/man/man3/Module::Loaded*
@@ -1131,11 +1131,11 @@ packages
 			Provides a simple but, hopefully, extensible way of having 'plugins' for
 			your module.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Devel/InnerPackage.pm
 			/usr/share/perl5/Module/Pluggable/
@@ -1149,7 +1149,7 @@ packages
 		epoch = 0
 		version = 0.38
 		arch = noarch
-	
+
 		summary = Perl module that allows per object accessors.
 		description
 			Object::Accessor provides an interface to create per object accessors (as
@@ -1159,25 +1159,25 @@ packages
 		requires
 			%{perl_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Object/
 			/usr/share/man/man3/Object::Accessor*
 		end
 	end
-	
+
 	package perl-Package-Constants
 		epoch = 0
 		version = 0.02
 		arch = noarch
-	
+
 		summary = List all constants declared in a package.
 		description
 			Package::Constants lists all the constants defined in a certain package.  This
 			can be useful for, among others, setting up an autogenerated @EXPORT/@EXPORT_OK
 			for a Constants.pm file.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1187,17 +1187,17 @@ packages
 			/usr/share/man/man3/Package::Constants*
 		end
 	end
-	
+
 	package perl-Params-Check
 		epoch = 0
 		version = 0.28
 		arch = noarch
-	
+
 		summary = Generic input parsing/checking mechanism.
 		description
 			Params::Check is a generic input parsing/checking mechanism.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1205,13 +1205,13 @@ packages
 		provides
 			perl(Params::Check)
 		end
-	
+
 		files
 			/usr/share/perl5/Params/
 			/usr/share/man/man3/Params::Check*
 		end
 	end
-	
+
 	package perl-Parse-CPAN-Meta
 		epoch = 0
 		version = 1.4401
@@ -1222,7 +1222,7 @@ packages
 			Parse::CPAN::Meta is a parser for META.yml files, based on the parser half of
 			YAML::Tiny.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1232,17 +1232,17 @@ packages
 			/usr/share/man/man3/Parse::CPAN::Meta.3*
 		end
 	end
-	
+
 	package perl-Path-Tools
 		epoch = 0
 		version = 3.33
 		license = (GPL+ or Artistic) and BSD
-	
+
 		summary = PathTools Perl module (Cwd, File::Spec).
 		description
 			PathTools Perl module (Cwd, File::Spec).
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1250,7 +1250,7 @@ packages
 		filter_requires
 			perl\(VMS\:\:Filespec\)
 		end
-	
+
 		files
 			/usr/lib/perl5/Cwd.pm
 			/usr/lib/perl5/File/Spec*
@@ -1284,18 +1284,18 @@ packages
 			/usr/share/man/man3/Perl::OSType.3pm*
 		end
 	end
-	
+
 	package perl-Pod-Escapes
 		epoch= 0
 		version = 1.04
 		arch = noarch
-	
+
 		summary = Perl module for resolving POD escape sequences.
 		description
 			This module provides things that are useful in decoding Pod E<...> sequences.
 			Presumably, it should be used only by Pod parsers and/or formatters.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1303,25 +1303,25 @@ packages
 		filter_requires
 			%{perl_filter_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Pod/Escapes.pm
 			/usr/share/man/man3/Pod::Escapes.*
 		end
 	end
-	
+
 	package perl-Pod-Simple
 		epoch = 0
 		version = 3.16
 		arch = noarch
-	
+
 		summary = Framework for parsing POD documentation.
 		description
 			Pod::Simple is a Perl library for parsing text in the Pod (plain old
 			documentation) markup language that is typically used for writing
 			documentation for Perl and for Perl modules.
 		end
-	
+
 		requires
 			%{perl_requires}
 		end
@@ -1329,7 +1329,7 @@ packages
 		filter_requires
 			%{perl_filter_requires}
 		end
-	
+
 		files
 			/usr/share/perl5/Pod/Simple/
 			/usr/share/perl5/Pod/Simple.pm
@@ -1362,7 +1362,7 @@ packages
 			/usr/share/man/man3/Scalar::Util*
 		end
 	end
-	
+
 	package perl-Term-UI
 		epoch = 0
 		version = 0.26
@@ -1653,5 +1653,9 @@ packages
 		# Nothing. Nada. Zilch. Zarro. Uh uh. Nope. Sorry.
 		files
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

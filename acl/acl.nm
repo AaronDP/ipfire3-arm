@@ -47,12 +47,18 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package libacl
 		template LIBS
 	end
-	
+
 	package libacl-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+
+		provides += libacl-debuginfo
 	end
 end

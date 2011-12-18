@@ -9,7 +9,7 @@ major_ver  = 2.34
 release    = 1
 
 groups     = System/Libraries
-url        = 
+url        =
 license    = LGPLv2+
 summary    = A SVG library based on cairo.
 
@@ -39,8 +39,12 @@ end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -5,7 +5,7 @@
 
 name       = ncurses
 version    = 5.9
-release    = 3
+release    = 5
 
 groups     = System/Base
 url        = http://invisible-island.net/ncurses/ncurses.html
@@ -30,37 +30,106 @@ build
 		--mandir=/usr/share/man \
 		--with-shared \
 		--without-debug \
-		--enable-widec \
-		--disable-static \
-		--enable-symlinks \
-		--disable-root-environ
+		--without-ada \
+		--with-ospeed=unsigned \
+		--with-chtype=long \
+		--enable-hard-tabs \
+		--enable-xmc-glitch \
+		--enable-colorfgbg \
+		--with-terminfo-dirs=/etc/terminfo:/usr/share/terminfo:/lib/terminfo \
+		--enable-overwrite \
+		--enable-pc-files \
+		--with-termlib=tinfo
 
-	install_cmds
+	export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig
+
+	build
+		mkdir -pv narrowc widec
+
+		# Build narrowc version.
+		cd narrowc
+		ln -svf ../configure .
+		./configure %{configure_options} --with-ticlib
+		make %{PARALLELISMFLAGS} libs
+		make %{PARALLELISMFLAGS} -C progs
+
+		# Build widec version.
+		cd ../widec
+		ln -svf ../configure .
+		./configure %{configure_options} --enable-widec --without-progs
+		make %{PARALLELISMFLAGS} libs
+		cd ..
+	end
+
+	install
+		make -C narrowc DESTDIR=%{BUILDROOT} install.{libs,progs,data}
+		rm -rvf %{BUILDROOT}/usr/lib/libtinfo.*
+		make -C widec DESTDIR=%{BUILDROOT} install.{libs,includes,man}
+
+		chmod -v 755 %{BUILDROOT}/usr/lib/lib*.so.*.*
+
+		# move lib{ncurses{,w},tinfo}.so.* to /lib*
 		mkdir -pv %{BUILDROOT}/lib
-		mv -v %{BUILDROOT}/usr/lib/libncursesw.so.5* %{BUILDROOT}/lib
-		ln -sfv ../../lib/libncursesw.so.5 %{BUILDROOT}/usr/lib/libncursesw.so
-		for lib in curses ncurses form panel menu; do
-			rm -vf %{BUILDROOT}/usr/lib/lib${lib}.so
-			echo "INPUT(-l${lib}w)" >%{BUILDROOT}/usr/lib/lib${lib}.so
+		mv -v %{BUILDROOT}/usr/lib/lib{ncurses{,w},tinfo}.so.* %{BUILDROOT}/lib
+		for l in %{BUILDROOT}/usr/lib/lib{ncurses{,w},tinfo}.so; do
+			ln -sf $(echo /usr/lib | \
+				sed 's,\(^/\|\)[^/][^/]*,..,g')/lib/$(readlink $l) $l
+		done
+		mkdir -pv %{BUILDROOT}/{etc,lib}/terminfo
+
+		# move few basic terminfo entries to /lib
+		baseterms=
+		for termname in \
+				ansi dumb linux vt100 vt100-nav vt102 vt220 vt52; do
+			for t in $(find %{BUILDROOT}/usr/share/terminfo \
+					-samefile %{BUILDROOT}/usr/share/terminfo/${termname::1}/$termname); do
+				baseterms="$baseterms $(basename $t)"
+			done
+		done
+		for termname in ${baseterms}; do
+			termpath=terminfo/${termname::1}/${termname}
+			mkdir -pv %{BUILDROOT}/lib/terminfo/${termname::1}
+			mv -v %{BUILDROOT}/usr/share/${termpath} %{BUILDROOT}/lib/${termpath}
+			ln -svf $(dirname /usr/share/${termpath} | \
+					sed 's,\(^/\|\)[^/][^/]*,..,g')/lib/${termpath} \
+				%{BUILDROOT}/usr/share//${termpath}
 		done
 
-		rm -vf %{BUILDROOT}/usr/lib/libcursesw.so
-		echo "INPUT(-lncursesw)" >%{BUILDROOT}/usr/lib/libcursesw.so
-		ln -sfv libncurses.so %{BUILDROOT}/usr/lib/libcurses.so
+		# can't replace directory with symlink, symlink all headers
+		#mkdir %{BUILDROOT}/usr/include/ncurses{,w}
+		#for l in %{BUILDROOT}/usr/include/*.h; do
+		#	ln -s ../$(basename $l) %{BUILDROOT}/usr/include/ncurses
+		#	ln -s ../$(basename $l) %{BUILDROOT}/usr/include/ncursesw
+		#done
+
+		# don't require -ltinfo when linking with --no-add-needed
+		for l in %{BUILDROOT}/usr/lib/libncurses{,w}.so; do
+			soname=$(basename $(readlink $l))
+			rm -f $l
+			echo "INPUT($soname -ltinfo)" > $l
+		done
+
+		rm -f %{BUILDROOT}/usr/lib/libcurses{,w}.so
+		echo "INPUT(-lncurses)" > %{BUILDROOT}/usr/lib/libcurses.so
+		echo "INPUT(-lncursesw)" > %{BUILDROOT}/usr/lib/libcursesw.so
+		echo "INPUT(-ltinfo)" > %{BUILDROOT}/usr/lib/libtermcap.so
+
+		rm -vf %{BUILDROOT}/usr/lib/terminfo
+		rm -vf %{BUILDROOT}/usr/lib/pkgconfig/{*_g,ncurses++*}.pc
 	end
 end
 
 packages
 	package %{name}
-	
+
 	package %{name}-libs
 		template LIBS
-	
+
 		requires
-			%{name}-base
+			%{name}-base=%{thisver}
 		end
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
@@ -89,6 +158,7 @@ packages
 		conflicts = ncurses<=5.9-1
 
 		files
+			/lib/terminfo
 			/usr/share/terminfo/*/Eterm*
 			/usr/share/terminfo/*/aterm
 			/usr/share/terminfo/*/bterm
@@ -122,5 +192,9 @@ packages
 			/usr/share/terminfo/*/xfce
 			/usr/share/terminfo/*/xterm xterm-*
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

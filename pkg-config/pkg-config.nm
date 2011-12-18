@@ -5,9 +5,9 @@
 
 name       = pkg-config
 version    = 0.25
-release    = 1
+release    = 2
 
-groups     = Build Development/Tools
+groups     = Development/Tools
 url        = http://pkg-config.freedesktop.org/
 license    = GPLv2
 summary    = A tool for determining compilation options.
@@ -37,7 +37,13 @@ end
 
 packages
 	package %{name}
+		groups += Build
+
 		# Say we provide an alternative spelling of the package name.
 		provides = pkgconfig
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

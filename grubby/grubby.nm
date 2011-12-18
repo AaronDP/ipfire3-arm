@@ -13,10 +13,10 @@ license    = GPLv2+
 summary    = Command line tool for updating bootloader configs.
 
 description
-	grubby  is  a command line tool for updating and displaying information about 
-	the configuration files for the grub, lilo, elilo (ia64), yaboot (powerpc)  
+	grubby  is  a command line tool for updating and displaying information about
+	the configuration files for the grub, lilo, elilo (ia64), yaboot (powerpc)
 	and zipl (s390) boot loaders. It is primarily designed to be used from scripts
-	which install new kernels and need to find information about the current boot 
+	which install new kernels and need to find information about the current boot
 	environment.
 end
 
@@ -39,4 +39,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

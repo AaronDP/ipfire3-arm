@@ -16,7 +16,7 @@ description
 	DHCP (Dynamic Host Configuration Protocol) is a protocol which allows
 	individual devices on an IP network to get their own network
 	configuration information (IP address, subnetmask, broadcast address,
-	etc.) from a DHCP server. The overall purpose of DHCP is to make it 
+	etc.) from a DHCP server. The overall purpose of DHCP is to make it
 	easier to administer a large network.
 end
 
@@ -189,7 +189,7 @@ packages
 	package %{name}-common
 		summary = Common files used by the dhcp client and server.
 		description = %{summary}
-		
+
 		files
 			/usr/bin/
 			/usr/share/man/man1/omshell.1*
@@ -204,5 +204,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -5,9 +5,9 @@
 
 name       = jwhois
 version    = 4.0
-release    = 0
+release    = 1
 
-groups     = Base Applications/Internet
+groups     = Applications/Internet
 url        = http://www.gnu.org/software/jwhois/
 license    = GPLv3
 summary    = Internet whois/nicname client.
@@ -41,5 +41,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -43,4 +43,8 @@ end
 
 packages
 	package python-%{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

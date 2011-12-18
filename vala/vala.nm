@@ -42,8 +42,12 @@ packages
 	package %{name}
 		requires = glib2
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

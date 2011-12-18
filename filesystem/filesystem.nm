@@ -88,8 +88,8 @@ build
 		chown root:mail %{BUILDROOT}/var/spool/mail
 		chmod 775 %{BUILDROOT}/var/spool/mail
 	end
-	
-	# XXX not implemented at the moment	
+
+	# XXX not implemented at the moment
 	export QUALITY_AGENT_NO_DIRECTORY_CHECK = yes
 	export QUALITY_AGENT_NO_DIRECTORY_PRUNE = yes
 end
@@ -98,4 +98,7 @@ packages
 	package %{name}
 		prerequires = setup
 	end
+
+	# Although this package is not noarch, it does not
+	# contain any binary data and thus has no debuginfo package.
 end

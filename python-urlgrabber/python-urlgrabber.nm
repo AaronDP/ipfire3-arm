@@ -5,9 +5,9 @@
 
 name       = python-urlgrabber
 version    = 3.9.1
-release    = 2
+release    = 3
 arch       = noarch
-thisap     = urlgrabber-%{version}
+thisapp    = urlgrabber-%{version}
 
 groups     = System/Libraries
 url        = http://urlgrabber.baseurl.org/

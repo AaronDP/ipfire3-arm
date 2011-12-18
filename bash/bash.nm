@@ -5,9 +5,9 @@
 
 name       = bash
 version    = 4.2
-release    = 4
+release    = 5
 
-groups     = Base Build System/Tools
+groups     = System/Tools
 url        = http://www.gnu.org/software/bash/
 license    = GPLv2+
 summary    = Bash is short for born again shell.
@@ -67,6 +67,8 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+
 		prerequires = coreutils
 		requires = /etc/bashrc /etc/profile
 
@@ -109,5 +111,9 @@ packages
 
 			mv -f /etc/shells{.$$,}
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

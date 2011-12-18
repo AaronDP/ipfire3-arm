@@ -37,4 +37,8 @@ packages
 		provides = sshfs=%{thisver}
 		requires = openssh-clients
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

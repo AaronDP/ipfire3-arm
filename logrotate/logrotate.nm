@@ -5,9 +5,9 @@
 
 name       = logrotate
 version    = 3.7.7
-release    = 2
+release    = 3
 
-groups     = Base System/Base
+groups     = System/Base
 url        = https://fedorahosted.org/releases/l/o/logrotate/
 license    = GPL+
 summary    = Rotates, compresses, removes and mails system log files.
@@ -53,5 +53,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

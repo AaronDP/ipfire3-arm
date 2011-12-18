@@ -5,7 +5,9 @@
 
 name       = xz
 version    = 5.0.3
-release    = 4
+release    = 6
+
+compat_version = 4.999.9beta
 
 groups     = Applications/Compression
 url        = http://tukaani.org/xz/
@@ -20,8 +22,28 @@ description
 	tools.
 end
 
-source_url = http://tukaani.org/xz/
-sources    = %{thisapp}.tar.xz
+source_dl  = http://tukaani.org/xz/
+sources    = %{thisapp}.tar.xz %{name}-%{compat_version}.tar.xz
+
+build
+	build_cmds
+		# Build compat version of library.
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		./configure %{configure_options}
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		export LD_LIBRARY_PATH=$(pwd)/src/liblzma/.libs
+		make check
+	end
+
+	install_cmds
+		# Install comapt version of library.
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		cp -vr src/liblzma/.libs/liblzma.so.0* %{BUILDROOT}/usr/lib
+	end
+end
 
 packages
 	package %{name}
@@ -53,5 +75,17 @@ packages
 			/usr/bin/*lz*
 			/usr/share/man/man1/*lz*
 		end
+	end
+
+	package xz-compat-libs
+		summary = Compatibility version of %{name} (%{compat_version}).
+
+		files
+			/usr/lib/lib*.so.0*
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

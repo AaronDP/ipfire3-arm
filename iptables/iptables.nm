@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = iptables
-version    = 1.4.12
+version    = 1.4.12.1
 release    = 1
 
 groups     = Networking/Tools
@@ -18,7 +18,7 @@ description
 	you should install this package.
 end
 
-source_dl  =
+source_dl  = http://ftp.netfilter.org/pub/iptables/
 sources    = %{thisapp}.tar.bz2
 
 build
@@ -79,8 +79,12 @@ packages
 	package %{name}
 		groups += Base
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

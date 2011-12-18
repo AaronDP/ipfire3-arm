@@ -5,9 +5,9 @@
 
 name       = ethtool
 version    = 2.6.34
-release    = 1
+release    = 2
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://sourceforge.net/projects/gkernel/
 license    = GPLv2
 summary    = Ethernet settings tool for PCI ethernet cards.
@@ -27,5 +27,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -112,16 +112,16 @@ packages
 		script prein
 			%{create_user}
 		end
-	
+
 		script postin
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 		end
-	
+
 		script preun
 			/bin/systemctl --no-reload disable freeradius.service >/dev/null 2>&1 || :
 			/bin/systemctl stop freeradius.service >/dev/null 2>&1 || :
 		end
-	
+
 		script postup
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 			/bin/systemctl try-restart freeradius.service >/dev/null 2>&1 || :
@@ -151,5 +151,9 @@ packages
 			/usr/share/man/man8/radsqlrelay.8
 			/usr/share/man/man8/rlm_ippool_tool.8
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

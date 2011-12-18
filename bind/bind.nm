@@ -142,7 +142,7 @@ build
 		tar -C %{BUILDROOT} -xaf %{DIR_DL}/bind-config-8.tar.bz2
 		touch %{BUILDROOT}/etc/rndc.key
 		touch %{BUILDROOT}/etc/rndc.conf
-		
+
 		mkdir %{BUILDROOT}/etc/named
 		install -m 644 bind.keys %{BUILDROOT}/etc/named.iscdlv.key
 		install -m 644 %{DIR_SOURCE}/trusted-key.key %{BUILDROOT}/etc/trusted-key.key
@@ -214,5 +214,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

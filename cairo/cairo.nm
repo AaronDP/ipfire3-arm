@@ -36,7 +36,7 @@ packages
 
 	package %{name}-devel
 		template DEVEL
-	
+
 		# The development package needs the other dependencies as well.
 		requires
 			fontconfig-devel
@@ -44,5 +44,9 @@ packages
 			libpng-devel
 			pixman-devel
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

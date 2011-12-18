@@ -5,9 +5,9 @@
 
 name       = patch
 version    = 2.6.1
-release    = 1
+release    = 2
 
-groups     = Build Development/Tools
+groups     = Development/Tools
 url        = http://www.gnu.org/software/patch/patch.html
 license    = GPLv2+
 summary    = Utility for modifying/upgrading files.
@@ -42,4 +42,10 @@ end
 
 packages
 	package %{name}
+		groups += Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

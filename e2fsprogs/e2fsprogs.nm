@@ -31,10 +31,6 @@ build
 	prepare_cmds
 		mkdir -pv %{DIR_APP}/build
 
-		# Fix DT_TEXTREL in e2fsprogs libraries. --disable-shared and
-		# --with-pic are not options in E2fsprogs:
-		find lib/ -name Makefile.in -exec sed -i "s/\%{ALL_CFLAGS}/& -fPIC/" {} \;
-
 		# At run time libblkid looks for the BLKID_DEBUG environment variable to
 		# enable debbugging, with getenv(3). Some suid-root programs use libblkid,
 		# such as mount(1). e2fsprogs includes a safe_getenv() function, which calls
@@ -42,25 +38,30 @@ build
 		# variables if the user is suid or sgid. So, this command replaces getenv()
 		# with safe_getenv():
 		sed \
-			-e "s/getenv(\"BLKID_DEBUG\")/safe_getenv(\"BLKID_DEBUG\")/" \
+			-e 's/getenv("BLKID_DEBUG")/safe_getenv("BLKID_DEBUG")/' \
 			-i lib/blkid/cache.c
 	end
+
+	configure_options += \
+		--with-root-prefix="" \
+		--enable-elf-shlibs \
+		--disable-libblkid \
+		--disable-fsck \
+		--disable-uuidd \
+		--disable-libuuid
 
 	build
 		cd build
 		../configure \
-			--prefix=/usr \
-			--with-root-prefix="" \
-			--enable-elf-shlibs \
-			--disable-libblkid \
-			--disable-fsck \
-			--disable-uuidd \
-			--disable-libuuid
+			%{configure_options}
 
 		make %{PARALLELISMFLAGS}
 	end
 
 	test
+		# Create empty mtab file if it does not exist.
+		[ -e /etc/mtab ] || touch /etc/mtab
+
 		cd build && make check
 	end
 
@@ -79,8 +80,12 @@ packages
 	package %{name}
 		groups += Base
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

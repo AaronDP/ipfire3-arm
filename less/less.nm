@@ -5,9 +5,9 @@
 
 name       = less
 version    = 444
-release    = 1
+release    = 2
 
-groups     = Base Applications/Text
+groups     = Applications/Text
 url        = http://www.greenwoodsoftware.com/less/
 license    = GPLv3+
 summary    = A text file browser similar to more, but better.
@@ -45,5 +45,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

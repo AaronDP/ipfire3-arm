@@ -52,12 +52,16 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package libdevmapper
 		template LIBS
 	end
-	
+
 	package libdevmapper-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

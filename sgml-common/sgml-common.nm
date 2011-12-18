@@ -44,7 +44,7 @@ build
 	install_cmds
 		mkdir -pv %{BUILDROOT}/etc/{sg,x}ml/docbook
 		mkdir -pv %{BUILDROOT}/usr/share/sgml/docbook
-	
+
 		# Touch SGML catalog
 		touch %{BUILDROOT}/etc/sgml/catalog
 

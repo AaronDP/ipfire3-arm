@@ -1,0 +1,63 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = beecrypt
+version    = 4.2.1
+release    = 2
+
+groups     = System/Libraries
+url        = http://beecrypt.sourceforge.net/
+license    = LGPLv2+
+summary    = An open source cryptography library.
+
+description
+	BeeCrypt is an ongoing project to provide a strong and fast cryptography
+	toolkit. Includes entropy sources, random generators, block ciphers, hash
+	functions, message authentication codes, multiprecision integer routines
+	and public key primitives.
+end
+
+source_dl  = http://downloads.sourceforge.net/sourceforge/%{name}/
+
+build
+	requires
+		autoconf
+		automake
+		gcc-c++
+		libtool
+	end
+
+	prepare_cmds
+		libtoolize
+		autoreconf
+	end
+
+	# Getting weird linking errors without --disable-threads.
+	configure_options += \
+		--disable-expert-mode \
+		--disable-threads \
+		--enable-openmp \
+		--with-cplusplus=no \
+		--with-java=no \
+		--with-python=no
+
+	make_build_targets += OPENMP_LIBS="-lgomp"
+
+	test
+		make check
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

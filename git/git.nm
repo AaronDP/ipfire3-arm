@@ -27,6 +27,7 @@ build
 		gettext
 		libcurl-devel
 		openssl-devel
+		perl-ExtUtils-MakeMaker
 		perl-devel
 		zlib-devel
 	end
@@ -62,6 +63,10 @@ packages
 			rsync
 			/usr/bin/vi
 		end
-	
+
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

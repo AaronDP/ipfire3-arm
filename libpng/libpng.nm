@@ -35,7 +35,11 @@ packages
 
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires = zlib-devel
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

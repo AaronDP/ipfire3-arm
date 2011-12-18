@@ -5,9 +5,9 @@
 
 name       = hdparm
 version    = 9.37
-release    = 1
+release    = 2
 
-groups     = Base Applications/Hardware
+groups     = Applications/Hardware
 url        = http://sourceforge.net/projects/hdparm/
 license    = BSD
 summary    = A utility for displaying and/or setting hard disk parameters.
@@ -32,5 +32,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

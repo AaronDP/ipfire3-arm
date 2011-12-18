@@ -56,15 +56,19 @@ packages
 			sip
 		end
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		files
 			/usr/bin
 			/usr/lib/python*/site-packages/PyQt4/pyqtconfig*
 			/usr/lib/python*/site-packages/PyQt4/uic/pyuic.py*
 			/usr/share/sip
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

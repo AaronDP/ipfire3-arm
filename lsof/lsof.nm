@@ -5,9 +5,9 @@
 
 name       = lsof
 version    = 4.82
-release    = 1
+release    = 2
 
-groups     = Base Development/Debuggers
+groups     = Development/Debuggers
 url        = ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof
 license    = zlib
 summary    = A utility which lists open files on a Linux/UNIX system.
@@ -45,5 +45,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

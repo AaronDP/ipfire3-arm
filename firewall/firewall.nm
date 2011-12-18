@@ -41,4 +41,8 @@ packages
 	package %{name}
 		requires = iproute2 iptables
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

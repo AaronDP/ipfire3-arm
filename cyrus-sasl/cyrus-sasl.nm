@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = cyrus-sasl
-version    = 2.1.23
-release    = 0
+version    = 2.1.25
+release    = 1
 
 groups     = System/Libraries
 url        = http://asg.web.cmu.edu/sasl/sasl-library.html
@@ -18,7 +18,7 @@ description
 	adding authentication support to connection-based protocols.
 end
 
-source_dl  =
+source_dl  = ftp://ftp.cyrusimap.org/cyrus-sasl/
 
 build
 	requires
@@ -50,8 +50,12 @@ packages
 	package %{name}-libs
 		template LIBS
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

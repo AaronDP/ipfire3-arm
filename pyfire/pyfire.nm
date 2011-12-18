@@ -35,4 +35,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

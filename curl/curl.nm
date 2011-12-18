@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = curl
-version    = 7.21.7
-release    = 1
+version    = 7.23.1
+release    = 2
 
 groups     = Application/Internet
 url        = http://www.curl.haxx.se/
@@ -20,7 +20,7 @@ description
 	user authentication, FTP upload, HTTP post, and file transfer resume.
 end
 
-source_dl  =
+source_dl  = http://curl.haxx.se/download/
 
 build
 	requires
@@ -53,20 +53,25 @@ build
 		autoreconf -vfi
 	end
 
-	# Doesn't work
-	#test
-	#	make check
-	#end
+	test
+		make check
+	end
 end
 
 packages
 	package curl
-	
+
 	package libcurl
 		template LIBS
 	end
-	
+
 	package libcurl-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+
+		provides += libcurl-debuginfo
 	end
 end

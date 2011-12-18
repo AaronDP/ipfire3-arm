@@ -1,0 +1,87 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = u-boot
+version    = 2011.09
+release    = 1
+sup_arches = armv5tel armv7hl
+
+groups     = Development/Tools
+url        = http://www.denx.de/wiki/U-Boot
+license    = GPLv2+
+summary    = U-Boot utilities.
+
+description
+	U-Boot is a Boot Loader, i.e. its primary purpose in the shipping
+	system is to load some operating system.
+end
+
+source_dl  = ftp://ftp.denx.de/pub/u-boot/
+sources    = %{thisapp}.tar.bz2
+
+build
+	build
+		while read arch platform target; do
+			# Skip all other architectures.
+			[ "${arch}" = "%{DISTRO_ARCH}" ] || continue
+
+			builddir="$(pwd)/build-${platform}"
+			mkdir -p ${builddir}
+
+			make O=${builddir} ${platform}_config
+			make O=${builddir} ${builddir}/${target}
+		done < %{DIR_SOURCE}/targets
+
+		# Build tools.
+		# Need to create a config because the tools won't build without.
+		make sheevaplug_config
+
+		make tools HOSTCC="gcc %{CFLAGS}" HOSTSTRIP="/bin/true" CROSS_COMPILE=""
+		make env HOSTCC="gcc %{CFLAGS}" HOSTSTRIP="/bin/true"
+	end
+
+	install
+		while read arch platform target; do
+			# Skip all other architectures.
+			[ "${arch}" = "%{DISTRO_ARCH}" ] || continue
+
+			builddir="build-${platform}"
+			installdir="%{BUILDROOT}/usr/lib/%{name}/${platform}"
+			mkdir -pv ${installdir}
+
+			install -D -m 644 ${builddir}/${target} ${installdir}
+			install -D -m 644 ${builddir}/u-boot ${installdir}/uboot.elf
+		done < %{DIR_SOURCE}/targets
+
+		# Install tools.
+		mkdir -pv %{BUILDROOT}/usr/bin %{BUILDROOT}/usr/share/man/man1
+		install -p -m 0755 tools/mkimage %{BUILDROOT}/usr/bin
+		install -p -m 0644 doc/mkimage.1 %{BUILDROOT}/usr/share/man/man1
+		install -p -m 0755 tools/env/fw_printenv %{BUILDROOT}/usr/bin
+		ln -svf fw_printenv %{BUILDROOT}/usr/bin/fw_setenv
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-tools
+		summary = U-Boot utilities.
+		description
+			This package contains a few U-Boot utilities - mkimage
+			for creating boot images and fw_printenv/fw_setenv for
+			manipulating the boot environment variables.
+		end
+
+		files
+			/usr/bin
+			/usr/share/man/man1
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

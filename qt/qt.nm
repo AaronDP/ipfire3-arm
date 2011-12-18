@@ -117,10 +117,10 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		files
 			/usr/lib/*.prl \
 			/usr/lib/qt4/q3porting.xml \
@@ -128,5 +128,9 @@ packages
 			/usr/lib/qt4/*.prl \
 			/usr/lib/qt4/mkspecs
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

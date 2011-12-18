@@ -9,7 +9,7 @@ major_ver  = 0.6
 release    = 1
 
 groups     = System/Libraries
-url        = 
+url        =
 license    = LGPLv2+
 summary    = A CSS2 parsing library.
 
@@ -34,8 +34,12 @@ end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

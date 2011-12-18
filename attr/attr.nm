@@ -46,8 +46,14 @@ end
 packages
 	package lib%{name}
 	end
-	
+
 	package lib%{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+
+		provides += libattr-debuginfo
 	end
 end

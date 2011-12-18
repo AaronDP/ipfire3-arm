@@ -36,4 +36,8 @@ packages
 			python-decorator
 		end
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

@@ -47,4 +47,8 @@ end
 packages
 	package zerofree
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

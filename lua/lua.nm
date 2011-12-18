@@ -58,14 +58,18 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
-	
+
 	package %{name}-libs
 		template LIBS
-	
+
 		files += /usr/lib*/liblua-5.1.so
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

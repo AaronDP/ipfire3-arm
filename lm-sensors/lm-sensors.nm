@@ -42,4 +42,8 @@ packages
 	package %{name}
 		requires = perl rrdtool
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

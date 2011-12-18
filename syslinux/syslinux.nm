@@ -26,7 +26,7 @@ build
 		nasm
 		python-devel
 	end
-	
+
 	CFLAGS = -Werror -Wno-unused -finline-limit=2000
 
 	prepare_cmds
@@ -62,5 +62,9 @@ end
 
 packages
 	package %{name}
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

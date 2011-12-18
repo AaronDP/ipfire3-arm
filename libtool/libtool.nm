@@ -5,9 +5,9 @@
 
 name       = libtool
 version    = 2.4.2
-release    = 1
+release    = 2
 
-groups     = Build System/Libraries
+groups     = System/Libraries
 url        = http://www.gnu.org/software/libtool/
 license    = GPLv2+ and LGPLv2+ and GFDL
 summary    = Runtime libraries for GNU Libtool Dynamic Module Loader.
@@ -23,6 +23,8 @@ source_dl  = http://ftp.gnu.org/gnu/libtool/
 
 packages
 	package %{name}
+		groups += Build
+	end
 
 	package %{name}-libs
 		template LIBS
@@ -33,5 +35,9 @@ packages
 
 		# /usr/share/aclocal must be in main package.
 		files += !/usr/share/aclocal
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

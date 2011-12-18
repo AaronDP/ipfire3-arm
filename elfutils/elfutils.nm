@@ -5,7 +5,7 @@
 
 name       = elfutils
 version    = 0.152
-release    = 2
+release    = 3
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = Development/Libraries
@@ -31,6 +31,8 @@ build
 		xz-devel
 		zlib-devel
 	end
+
+	CFLAGS += -Wno-error
 
 	configure_options += \
 		--program-prefix=eu-
@@ -58,7 +60,7 @@ packages
 
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires = %{name}=%{thisver} %{name}-libs=%{thisver}
 	end
 
@@ -67,5 +69,9 @@ packages
 
 		files += /usr/lib*/lib*%{version}.so
 		files += /usr/lib/elfutils
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

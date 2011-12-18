@@ -5,7 +5,7 @@
 
 name       = pth
 version    = 2.0.7
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.gnu.org/software/pth
@@ -19,18 +19,23 @@ description
 	applications.
 end
 
-source_dl  =
+source_dl  = ftp://ftp.gnu.org/gnu/pth/
 
 build
 	requires
 		libtool
 	end
 
-	PARALLELISMFLAGS = # No parallel build
-
 	configure_options += \
 		--disable-static \
 		--mandir=/usr/share/man
+
+	if "%{DISTRO_ARCH}" == "armv5tel"
+		configure_options += \
+			--with-mctx-mth=sjlj \
+			--with-mctx-dsp=ssjlj \
+			--with-mctx-stk=sas
+	end
 
 	test
 		make check
@@ -39,9 +44,12 @@ end
 
 packages
 	package %{name}
-	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

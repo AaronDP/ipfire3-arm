@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=forking
 ExecStart=/usr/bin/suricata -c /etc/suricata/suricata.conf -q 0 -q 1 -D
-ExecStartPost=/sbin/iptables -I INPUT -j NFQUEUE -–queue-balance 0:1
+ExecStartPost=/sbin/iptables -I INPUT -mark ! --mark 1/1 -j NFQUEUE -–queue-balance 0:1
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStop=/sbin/iptables -D INPUT -j NFQUEUE -–queue-balance 0:1
 ExecStopPost=/bin/kill $MAINPID

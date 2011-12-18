@@ -5,9 +5,9 @@
 
 name       = iproute2
 version    = 2.6.39
-release    = 1
+release    = 2
 
-groups     = Base Networking/Tools
+groups     = Networking/Tools
 url        = http://www.linuxfoundation.org/en/Net:Iproute2
 license    = GPLv2+
 summary    = Advanced IP routing and network device configuration tools.
@@ -41,5 +41,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

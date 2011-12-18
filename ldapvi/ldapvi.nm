@@ -46,4 +46,8 @@ packages
 	package %{name}
 		requires = vim
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

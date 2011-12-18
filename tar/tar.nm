@@ -5,9 +5,9 @@
 
 name       = tar
 version    = 1.26
-release    = 1
+release    = 2
 
-groups     = Base Build System/Packaging
+groups     = System/Packaging
 url        = http://www.gnu.org/software/tar/
 license    = GPLv3+
 summary    = A GNU file archiving program.
@@ -54,5 +54,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

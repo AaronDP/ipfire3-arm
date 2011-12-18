@@ -30,4 +30,8 @@ packages
 	package %{name}
 		requires += usb-modeswitch-data
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

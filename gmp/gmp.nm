@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = gmp
-version    = 5.0.1
-release    = 0
+version    = 5.0.2
+release    = 1
+
+compat_version = 4.3.2
 
 groups     = System/Libraries
 url        = http://gmplib.org/
@@ -13,17 +15,17 @@ license    = LGPLv3+
 summary    = A GNU arbitrary precision library.
 
 description
-	The gmp package contains GNU MP, a library for arbitrary precision \
-	arithmetic, signed integers operations, rational numbers and floating \
-	point numbers. GNU MP is designed for speed, for both small and very \
-	large operands. GNU MP is fast because it uses fullwords as the basic \
-	arithmetic type, it uses fast algorithms, it carefully optimizes \
-	assembly code for many CPUs' most common inner loops, and it generally \
+	The gmp package contains GNU MP, a library for arbitrary precision
+	arithmetic, signed integers operations, rational numbers and floating
+	point numbers. GNU MP is designed for speed, for both small and very
+	large operands. GNU MP is fast because it uses fullwords as the basic
+	arithmetic type, it uses fast algorithms, it carefully optimizes
+	assembly code for many CPUs' most common inner loops, and it generally
 	emphasizes speed over simplicity/elegance in its operations.
 end
 
-source_dl  =
-sources    = %{thisapp}.tar.bz2
+source_dl += ftp://ftp.gmplib.org/pub/%{thisapp}/ ftp://ftp.gmplib.org/pub/%{name}-%{compat_version}/
+sources    = %{thisapp}.tar.bz2 %{name}-%{compat_version}.tar.bz2
 
 build
 	requires
@@ -31,33 +33,145 @@ build
 		m4
 	end
 
+	# Build different versions of gmp to enhance the speed
+	# of the OS.
+	build_versions = base
+
+	export ABI = standard
+
+	if "%{DISTRO_ARCH}" == "x86_64"
+		ABI = 64
+	end
+
+	if "%{DISTRO_ARCH}" == "i686"
+		# Build sse2 enabled version of gmp.
+		build_versions += sse2
+
+		ABI = 32
+	end
+
+	configure_options += \
+		--prefix=/usr \
+		--enable-cxx \
+		--enable-mpbsd \
+		--disable-static
+
+	prepare_cmds
+		for version in %{build_versions}; do
+			mkdir build-${version}
+
+			cd build-${version}
+			ln -svf ../configure .
+			cd ..
+		done
+	end
+
+	build_one
+		CFLAGS="${CFLAGS}" \
+		CXXFLAGS="${CXXFLAGS}" \
+			./configure \
+				%{configure_options}
+
+		# Kill RPATHs.
+		sed -e 's|^hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=""|g' \
+			-e 's|^runpath_var=LD_RUN_PATH|runpath_var=DIE_RPATH_DIE|g' \
+			-e 's|-lstdc++ -lm|-lstdc++|' \
+			-i libtool
+
+		export LD_LIBRARY_PATH=$(pwd)/.libs
+		make %{PARALLELISMFLAGS} \
+			CFLAGS="${CFLAGS}" \
+			CXXFLAGS="${CXXFLAGS}"
+	end
+
 	build
-		if [ "%{MACHINE}" = "x86_64" ]; then
-			ABI=64
-		else
-			ABI=32
-		fi
+		for version in %{build_versions}; do
+			cd build-${version}
 
-		ABI=%{ABI} \
-		./configure \
-			--prefix=/usr \
-			--enable-cxx \
-			--enable-mpbsd \
-			--disable-static
+			CFLAGS="%{CFLAGS}"
+			CXXFLAGS="%{CXXFLAGS}"
+			if [ "${version}" = "sse2" ]; then
+				# Enable sse2.
+				CFLAGS="${CFLAGS} -march=pentium4"
+				CXXFLAGS="${CXXFLAGS} -march=pentium4"
+			fi
 
-		make %{PARALLELISMFLAGS}
+			%{build_one}
+
+			cd ..
+		done
+
+		# Build compat version of library.
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		%{build_one}
 	end
 
 	test
+		for version in %{build_versions}; do
+			cd build-${version}
+
+			export LD_LIBRARY_PATH=$(pwd)/.libs
+			make check
+
+			cd ..
+		done
+
+		# Check compat version of library.
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+
+		export LD_LIBRARY_PATH=$(pwd)/.libs
 		make check
+	end
+
+	install
+		for version in %{build_versions}; do
+			cd build-${version}
+
+			if [ "${version}" = "sse2" ]; then
+				# Manually install sse2 libs.
+				mkdir -pv %{BUILDROOT}/usr/lib/sse2
+
+				install -m 755 .libs/libgmp.so.*.* %{BUILDROOT}/usr/lib/sse2
+				cp -a .libs/libgmp.so.[^.]* %{BUILDROOT}/usr/lib/sse2
+				chmod 755 %{BUILDROOT}/usr/lib/sse2/libgmp.so.[^.]*
+
+				install -m 755 .libs/libgmpxx.so.*.* %{BUILDROOT}/usr/lib/sse2
+				cp -a .libs/libgmpxx.so.? %{BUILDROOT}/usr/lib/sse2
+				chmod 755 %{BUILDROOT}/usr/lib/sse2/libgmpxx.so.?
+
+				install -m 755 .libs/libmp.so.*.* %{BUILDROOT}/usr/lib/sse2
+				cp -a .libs/libmp.so.? %{BUILDROOT}/usr/lib/sse2
+				chmod 755 %{BUILDROOT}/usr/lib/sse2/libmp.so.?
+			else
+				make install DESTDIR="%{BUILDROOT}"
+			fi
+
+			cd ..
+		done
+
+		# Install compat version of library.
+		cd %{DIR_SRC}/%{name}-%{compat_version}
+		install -m 644 .libs/libgmp.so.3.5.2 %{BUILDROOT}/usr/lib/
+		ln -svf libgmp.so.3.5.2 %{BUILDROOT}/usr/lib/libgmp.so.3
 	end
 end
 
 packages
 	package %{name}
-	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-compat
+		summary = Compatibility version of %{thisapp} (%{compat_version}).
+
+		files
+			/usr/lib/libgmp.so.3*
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

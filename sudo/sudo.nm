@@ -5,9 +5,9 @@
 
 name       = sudo
 version    = 1.8.3
-release    = 1
+release    = 2
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://www.sudo.ws/sudo/download.html
 license    = BSD
 summary    = Allows restricted root access for specified users.
@@ -58,5 +58,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

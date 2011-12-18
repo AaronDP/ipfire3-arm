@@ -141,7 +141,7 @@ packages
 			/bin/systemctl try-restart systemd-logind.service >/dev/null 2>&1 || :
 		end
 	end
-	
+
 	# Package information for systemd-units
 	package %{name}-units
 		summary =  Configuration files, directories and installation tool for systemd.
@@ -149,7 +149,7 @@ packages
 			This package contains all needed configuration files, directories
 			and installation / configuration tool for systemd.
 		end
-	
+
 		files
 			/etc/systemd/system
 			/etc/tmpfiles.d
@@ -179,8 +179,12 @@ packages
 			systemctl daemon-reload > /dev/null 2>&1 || :
 		end
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

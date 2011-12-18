@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = binutils
-version    = 2.21.51.0.8
-release    = 5
+version    = 2.22
+release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = Development/Tools
@@ -93,5 +93,9 @@ packages
 			/usr/include
 			/usr/lib/*.a
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -5,7 +5,7 @@
 
 name       = bzip2
 version    = 1.0.6
-release    = 2
+release    = 3
 
 groups     = Applications/Compression
 url        = http://www.bzip.org/
@@ -29,10 +29,12 @@ build
 
 	build
 		%{DO_FIX_LIBTOOL}
-		make -f Makefile-libbz2_so %{PARALLELISMFLAGS}
+		make -f Makefile-libbz2_so %{PARALLELISMFLAGS} \
+			CFLAGS="%{CFLAGS}"
 
 		make clean
-		make %{PARALLELISMFLAGS}
+		make %{PARALLELISMFLAGS} \
+			CFLAGS="%{CFLAGS}"
 	end
 
 	install
@@ -56,8 +58,12 @@ packages
 	package %{name}
 		groups += Build
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

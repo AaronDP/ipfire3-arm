@@ -5,9 +5,9 @@
 
 name       = gawk
 version    = 4.0.0
-release    = 1
+release    = 2
 
-groups     = Base Build System/Tools
+groups     = System/Tools
 url        = http://www.gnu.org/software/gawk/gawk.html
 license    = GPLv3+
 summary    = The GNU version of the awk text processing utility.
@@ -50,5 +50,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

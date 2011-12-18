@@ -4,7 +4,8 @@
 ###############################################################################
 
 name       = pango
-version    = 1.29.3
+major	   = 1.29
+version    = %{major}.5
 release    = 1
 
 groups     = System/Libraries
@@ -17,7 +18,7 @@ description
 	emphasis on internationalization.
 end
 
-source_dl  =
+source_dl  = http://ftp.gnome.org/pub/GNOME/sources/pango/%{major}/
 sources    = %{thisapp}.tar.xz
 
 build
@@ -27,6 +28,7 @@ build
 		freetype-devel
 		gcc-c++
 		glib2-devel
+		glibc-devel
 		perl
 		pkg-config
 	end
@@ -38,12 +40,16 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires
 			glib2-devel
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

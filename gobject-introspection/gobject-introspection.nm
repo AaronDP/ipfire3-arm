@@ -48,10 +48,14 @@ packages
 	package %{name}-libs
 		template LIBS
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires = %{name}=%{thisver}
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

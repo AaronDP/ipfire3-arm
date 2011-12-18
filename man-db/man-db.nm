@@ -5,9 +5,9 @@
 
 name       = man-db
 version    = 2.6.0.2
-release    = 2
+release    = 3
 
-groups     = Base Documentation
+groups     = Documentation
 url        = http://bzr.savannah.gnu.org/r/man-db/
 license    = GPL
 summary    = man-db is an on-line manual database.
@@ -56,6 +56,8 @@ end
 
 packages
 	package %{name}
+		groups += Base
+
 		requires
 			groff
 			less
@@ -65,5 +67,9 @@ packages
 		provides
 			man
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

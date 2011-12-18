@@ -48,4 +48,8 @@ packages
 	package %{name}
 		requires = xorg-x11-server
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

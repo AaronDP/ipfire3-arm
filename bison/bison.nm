@@ -47,4 +47,8 @@ packages
 	package %{name}
 		requires += m4
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

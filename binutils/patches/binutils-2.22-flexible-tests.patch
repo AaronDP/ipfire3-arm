@@ -1,0 +1,45 @@
+making some of the address matches more flexible fixes tests when using
+pax/relro/hash patches
+
+--- binutils/ld/testsuite/ld-i386/hidden2.d
++++ binutils/ld/testsuite/ld-i386/hidden2.d
+@@ -8,6 +8,6 @@
+ Disassembly of section .text:
+ 
+ [a-f0-9]+ <bar>:
+-[ 	]*[a-f0-9]+:	e8 cf fe ff ff       	call   0 .*
++[ 	]*[a-f0-9]+:	e8 ([a-f0-9]{2} ){2}ff ff       	call   0 .*
+ [ 	]*[a-f0-9]+:	c3                   	ret    
+ #pass
+--- binutils/ld/testsuite/ld-x86-64/hidden2.d
++++ binutils/ld/testsuite/ld-x86-64/hidden2.d
+@@ -8,6 +8,6 @@
+ Disassembly of section .text:
+ 
+ [a-f0-9]+ <bar>:
+-[ 	]*[a-f0-9]+:	e8 33 fe ff ff       	callq  0 .*
++[ 	]*[a-f0-9]+:	e8 ([a-f0-9]{2} ){2}ff ff       	callq  0 .*
+ [ 	]*[a-f0-9]+:	c3                   	retq   
+ #pass
+--- binutils/ld/testsuite/ld-ifunc/ifunc-2-local-x86-64.d
++++ binutils/ld/testsuite/ld-ifunc/ifunc-2-local-x86-64.d
+@@ -4,6 +4,6 @@
+ #target: x86_64-*-*
+ 
+ #...
+-[ \t0-9a-f]+:[ \t0-9a-f]+call[ \t0-9a-fq]+<\*ABS\*\+0x220@plt>
+-[ \t0-9a-f]+:[ \t0-9a-f]+lea[ \t]+.*\(%rip\),%rax.*[ \t0-9a-fq]+<\*ABS\*\+0x220@plt>
++[ \t0-9a-f]+:[ \t0-9a-f]+call[ \t0-9a-fq]+<\*ABS\*\+0x[a-f0-9]+@plt>
++[ \t0-9a-f]+:[ \t0-9a-f]+lea[ \t]+.*\(%rip\),%rax.*[ \t0-9a-fq]+<\*ABS\*\+0x[a-f0-9]+@plt>
+ #pass
+--- binutils/ld/testsuite/ld-ifunc/ifunc-2-x86-64.d
++++ binutils/ld/testsuite/ld-ifunc/ifunc-2-x86-64.d
+@@ -4,6 +4,6 @@
+ #target: x86_64-*-*
+ 
+ #...
+-[ \t0-9a-f]+:[ \t0-9a-f]+call[ \t0-9a-fq]+<\*ABS\*\+0x220@plt>
+-[ \t0-9a-f]+:[ \t0-9a-f]+lea[ \t]+.*\(%rip\),%rax.*[ \t0-9a-fq]+<\*ABS\*\+0x220@plt>
++[ \t0-9a-f]+:[ \t0-9a-f]+call[ \t0-9a-fq]+<\*ABS\*\+0x[a-f0-9]+@plt>
++[ \t0-9a-f]+:[ \t0-9a-f]+lea[ \t]+.*\(%rip\),%rax.*[ \t0-9a-fq]+<\*ABS\*\+0x[a-f0-9]+@plt>
+ #pass

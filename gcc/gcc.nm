@@ -8,7 +8,7 @@ build_cloog_ppl = 1
 
 name       = gcc
 version    = 4.6.2
-release    = 3
+release    = 4
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = Development/Compilers
@@ -27,21 +27,20 @@ required_binutils_version = 2.21.51.0.8-1
 source_dl  = http://ftp.gnu.org/gnu/gcc/%{thisapp}/
 sources    = %{thisapp}.tar.gz
 
-patches
-	gcc46-hack.patch0
-	gcc46-c++-builtin-redecl.patch0
-	gcc46-pr33763.patch0
-	gcc46-libgomp-omp_h-multilib.patch0
-	gcc46-libtool-no-rpath.patch0
-	gcc46-cloog-dl.patch0
-	gcc46-pr38757.patch0
-	gcc46-no-add-needed.patch0
-	gcc46-unwind-debughook-sdt.patch0
-	gcc46-ppl-0.10.patch
-	gcc46-Woverlength-string.patch0
-	gcc46-Woverlength-string-asm.patch0
+patches = \
+	gcc46-hack.patch0 \
+	gcc46-c++-builtin-redecl.patch0 \
+	gcc46-pr33763.patch0 \
+	gcc46-libgomp-omp_h-multilib.patch0 \
+	gcc46-libtool-no-rpath.patch0 \
+	gcc46-cloog-dl.patch0 \
+	gcc46-pr38757.patch0 \
+	gcc46-no-add-needed.patch0 \
+	gcc46-unwind-debughook-sdt.patch0 \
+	gcc46-ppl-0.10.patch \
+	gcc46-Woverlength-string.patch0 \
+	gcc46-Woverlength-string-asm.patch0 \
 	gcc-4.6.0-piepatches-20110407.patch
-end
 
 build
 	requires
@@ -54,7 +53,7 @@ build
 		glibc-devel
 		gmp-devel
 		libffi-devel
-		mpc-devel
+		libmpc-devel
 		mpfr-devel
 		texinfo
 		zlib-devel
@@ -65,16 +64,41 @@ build
 		requires += cloog-ppl-devel ppl-devel
 	end
 
+	# Build libquadmath (only on x86).
+	build_libquadmath = 0
+
 	# A couple of configure arguments depending on the architecture and
 	# configuration.
 	configure_options =
 
 	if "%{DISTRO_ARCH}" == "x86_64"
 		configure_options = --disable-multilib
+
+		build_libquadmath = 1
 	end
 
 	if "%{DISTRO_ARCH}" == "i686"
 		configure_options = --with-arch=%{DISTRO_ARCH} --with-tune=generic
+
+		build_libquadmath = 1
+	end
+
+	if "%{DISTRO_ARCH}" == "armv5tel"
+		configure_options += --disable-sjlj-exceptions
+
+		configure_options += --with-float=soft
+	end
+
+	if "${DISTRO_ARCH}" == "armv7hl"
+		configure_options += --disable-sjlj-exceptions
+
+		configure_options += \
+			--with-cpu=cortex-a8 \
+			--with-tune=cortex-a8 \
+			--with-arch=armv7-a \
+			--with-float=hard \
+			--with-fpu=vfpv3-d16 \
+			--with-abi=aapcs-linux
 	end
 
 	if "%{build_cloog_ppl}" == "1"
@@ -125,6 +149,13 @@ build
 		sed -i gcc/Makefile.in \
 			-e "s|^ESP_NOPIE_CFLAGS = .*|ESP_NOPIE_CFLAGS =|"
 
+		# Default to -gdwarf-4 -fno-debug-types-section rather than -gdwarf-2
+		sed -i gcc/common.opt \
+			-e '/UInteger Var(dwarf_version)/s/Init(2)/Init(4)/' \
+			-e '/flag_debug_types_section/s/Init(1)/Init(0)/' \
+			-e '/dwarf_record_gcc_switches/s/Init(0)/Init(1)/' \
+			-e 's/\(may be either 2, 3 or 4; the default version is \)2\./\14./'
+
 		./contrib/gcc_update --touch
 	end
 
@@ -132,12 +163,11 @@ build
 		cd %{DIR_SRC}/gcc-build
 
 		# Modify CFLAGS
-		OPT_FLAGS="%{CFLAGS}"
 		CFLAGS="%{CFLAGS}"
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g')
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-m64//g;s/-m32//g;s/-m31//g')
-		CFLAGS=$(echo  ${CFLAGS} | sed -e 's/-march=i.86//g')
-		#CFLAGS=$(echo ${CFLAGS} | sed -e 's/ -pipe / /g')
+		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-march=i.86//g')
+		CFLAGS=$(echo ${CFLAGS} | sed -e 's/ -pipe / /g')
 		CFLAGS=$(echo "${CFLAGS}" | sed -e 's/[[:blank:]]\+/ /g')
 		CXXFLAGS=$(echo  ${CFLAGS} | sed -e 's/ -Wall//g')
 
@@ -169,7 +199,7 @@ build
 			%{configure_options}
 
 		# GCC does not support a parallel build.
-		make profiledbootstrap BOOT_CFLAGS="${OPT_FLAGS}" #%{PARALLELISMFLAGS}
+		make profiledbootstrap BOOT_CFLAGS="${CFLAGS}"
 	end
 
 	#test
@@ -181,6 +211,10 @@ build
 		cd %{DIR_SRC}/gcc-build
 		make install DESTDIR=%{BUILDROOT}
 
+		# Check if the installation path exists.
+		FULLPATH="%{BUILDROOT}/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}"
+		[ -d "${FULLPATH}" ] || exit 1
+
 		mkdir -pv %{BUILDROOT}/lib
 		ln -sfv ../usr/bin/cpp %{BUILDROOT}/lib/cpp
 		ln -sfv gcc %{BUILDROOT}/usr/bin/cc
@@ -191,6 +225,25 @@ build
 
 		# Remove some GNU debugger stuff.
 		rm -vf %{BUILDROOT}/usr/lib/lib*.py
+
+		# libgomp
+		mv -vf %{BUILDROOT}/usr/lib/libgomp.spec ${FULLPATH}/
+		ln -svf ../../../libgomp.so.1.0.0 ${FULLPATH}/libgomp.so
+		chmod 755 %{BUILDROOT}/usr/lib/libgomp.so.1.*
+
+		# libstdc++
+		ln -svf ../../../libstdc++.so.6.0.16 ${FULLPATH}/libstdc++.so
+
+		# libmudflap
+		ln -svf ../../../libmudflap.so.0.0.0 ${FULLPATH}/libmudflap.so
+		ln -svf ../../../libmudflapth.so.0.0.0 ${FULLPATH}/libmudflapth.so
+		chmod 755 %{BUILDROOT}/usr/lib/libmudflap{,th}.so.0.*
+
+		# libquadmath
+		if [ "%{build_libquadmath}" = "1" ]; then
+			ln -svf ../../../libquadmath.so.0.* ${FULLPATH}/libquadmath.so
+			chmod 755 %{BUILDROOT}/usr/lib/libquadmath.so.0.*
+		fi
 	end
 
 	keep_libraries
@@ -207,7 +260,9 @@ packages
 			binutils>=%{required_binutils_version}
 			glibc-devel
 			gmp-devel
-			libgcc-devel
+			cpp=%{thisver}
+			libgcc=%{thisver}
+			libgomp=%{thisver}
 		end
 
 		if "%{build_cloog_ppl}" == "1"
@@ -215,10 +270,19 @@ packages
 		end
 	end
 
-	# XXX add package descriptions
-
 	package %{name}-c++
-		requires = gcc=%{thisver} libstdc++-devel
+		summary = C++ support for GCC.
+		description
+			This package adds C++ support to the GNU Compiler Collection.
+			It includes support for most of the current C++ specification,
+			including templates and exception handling.
+		end
+
+		requires
+			gcc=%{thisver}
+			libstdc++=%{thisver}
+			libstdc++-devel=%{thisver}
+		end
 
 		files
 			/usr/bin/*++
@@ -227,27 +291,76 @@ packages
 		end
 	end
 
+	package cpp
+		summary = The C Preprocessor.
+		description
+			Cpp is the GNU C-Compatible Compiler Preprocessor.
+			Cpp is a macro processor which is used automatically
+			by the C compiler to transform your program before actual
+			compilation. It is called a macro processor because it allows
+			you to define macros, abbreviations for longer
+			constructs.
+
+			The C preprocessor provides four separate functionalities: the
+			inclusion of header files (files of declarations that can be
+			substituted into your program); macro expansion (you can define macros,
+			and the C preprocessor will replace the macros with their definitions
+			throughout the program); conditional compilation (using special
+			preprocessing directives, you can include or exclude parts of the
+			program according to various conditions); and line control (if you use
+			a program to combine or rearrange source files into an intermediate
+			file which is then compiled, you can use line control to inform the
+			compiler about where each source line originated).
+
+			You should install this package if you are a C programmer and you use
+			macros.
+		end
+		group = Development/Languages
+
+		files
+			/lib/cpp
+			/usr/bin/cpp
+			/usr/share/man/man1/cpp.1*
+			/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/cc1
+		end
+	end
+
 	package libgcc
+		summary = GCC shared support library.
+		description
+			This package contains GCC shared support library which is needed
+			e.g. for exception handling support.
+		end
+
 		files
 			/lib/libgcc*.so.*
 		end
 	end
 
-	package libgcc-devel
-		requires = libgcc=%{thisver}
-
-		files
-			/usr/lib/libgcc*.so
-		end
-	end
-
 	package libstdc++
+		summary = GNU Standard C++ Library.
+		description
+			The libstdc++ package contains a rewritten standard compliant GCC Standard
+			C++ Library.
+		end
+
 		files
 			/usr/lib/libstdc++*.so.*
 		end
 	end
 
 	package libstdc++-devel
+		summary = Header files and libraries for C++ development.
+		description
+			This is the GNU implementation of the standard C++ libraries. This
+			package includes the header files and libraries needed for C++
+			development. This includes rewritten implementation of STL.
+		end
+
+		requires
+			libstdc++=%{thisver}
+		end
+
 		files
 			/usr/include/c++
 			/usr/lib/libstdc++*.so
@@ -255,39 +368,104 @@ packages
 	end
 
 	package libgomp
+		summary = GCC OpenMP v3.0 shared support library.
+		description
+			This package contains GCC shared support library which is needed
+			for OpenMP v3.0 support.
+		end
+
 		files
 			/usr/lib/libgomp*.so.*
 		end
 	end
 
-	package libgomp
-		files
-			/usr/lib/libgomp*.so
-			/usr/lib/libgomp.spec
-		end
-	end
-
 	package libmudflap
+		summary = GCC mudflap shared support library.
+		description
+			This package contains GCC shared support library which is needed
+			for mudflap support.
+		end
+
 		files
 			/usr/lib/libmudflap*.so.*
 		end
 	end
 
 	package libmudflap-devel
+		summary = Development files for GCC mudflap support.
+		description
+			This package contains headers for building mudflap-instrumented programs.
+
+			To instrument a non-threaded program, add -fmudflap
+			option to GCC and when linking add -lmudflap, for threaded programs
+			also add -fmudflapth and -lmudflapth.
+		end
+
+		requires
+			libmudflap=%{thisver}
+		end
+
 		files
-			/usr/lib/libmudflap*.so
+			/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/include/mf-runtime.h
+			/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/libmudflap.so
+			/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/libmudflapth.so
 		end
 	end
 
-	package libquadmath
-		files
-			/usr/lib/libquadmath*.so.*
+	if "%{build_libquadmath}" == "1"
+		package libquadmath
+			summary = GCC __float128 shared support library.
+			description
+				This package contains GCC shared support library which is needed
+				for __float128 math support and for Fortran REAL*16 support.
+			end
+
+			files
+				/usr/lib/libquadmath*.so.*
+			end
+		end
+
+		package libquadmath-devel
+			summary = Development files for GCC __float128 support.
+			description
+				This package contains headers for building Fortran programs using
+				REAL*16 and programs using __float128 math.
+			end
+
+			requires
+				gcc=%{thisver}
+				libquadmath=%{thisver}
+			end
+
+			files
+				/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/include/quadmath.h
+				/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/include/quadmath_weak.h
+				/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/libquadmath.so
+			end
 		end
 	end
 
-	package libquadmath-devel
-		files
-			/usr/lib/libquadmath*.so
+	package gcc-plugin-devel
+		summary = Support for compiling GCC plugins.
+		description
+			This package contains header files and other support files
+			for compiling GCC plugins.  The GCC plugin ABI is currently
+			not stable, so plugins must be rebuilt any time GCC is updated.
 		end
+
+		requires
+			gcc=%{thisver}
+			gmp-devel>=4.1.2-8
+			mpfr-devel>=2.2.1
+			libmpc-devel>=0.8.1
+		end
+
+		files
+			/usr/lib/gcc/%{DISTRO_BUILDTARGET}/%{version}/plugin
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

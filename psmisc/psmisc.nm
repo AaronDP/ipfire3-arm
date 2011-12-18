@@ -5,9 +5,9 @@
 
 name       = psmisc
 version    = 22.10
-release    = 1
+release    = 2
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://sourceforge.net/projects/psmisc
 license    = GPLv2+
 summary    = Utilities for managing processes on your system.
@@ -36,4 +36,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

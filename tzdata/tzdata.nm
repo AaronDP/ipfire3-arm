@@ -1,0 +1,56 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+tzdata_version = 2011n
+tzcode_version = 2011i
+
+name       = tzdata
+version    = %{tzdata_version}
+release    = 1
+arch       = noarch
+
+groups     = System/Base
+url        = ftp://munnari.oz.au/pub/
+license    = Public Domain
+summary    = Timezone data.
+
+description
+	This package contains data files with rules for various timezones around
+	the world.
+end
+
+source_dl += ftp://elsie.nci.nih.gov/pub/
+sources    = tzdata-base-0.tar.bz2 tzdata%{tzdata_version}.tar.gz tzcode%{tzcode_version}.tar.gz
+
+build
+	requires
+		gawk
+		perl
+	end
+
+	DIR_APP = %{DIR_SRC}/tzdata
+
+	prepare
+		%{MACRO_EXTRACT} %{DIR_DL}/tzdata-base-0.tar.bz2
+		cd %{DIR_APP}
+
+		mkdir tzdata%{tzdata_version} tzcode%{tzcode_version}
+		%{MACRO_EXTRACT} %{DIR_DL}/tzdata%{tzdata_version}.tar.gz -C tzdata%{tzdata_version}
+		%{MACRO_EXTRACT} %{DIR_DL}/tzcode%{tzcode_version}.tar.gz -C tzcode%{tzcode_version}
+
+		sed -e 's|@objpfx@|'`pwd`'/obj/|' \
+			-e 's|@datadir@|/usr/share|' \
+			-e 's|@install_root@|%{BUILDROOT}|' \
+			Makeconfig.in > Makeconfig
+	end
+
+	#test
+	#	make check
+	#end
+end
+
+packages
+	package %{name}
+end

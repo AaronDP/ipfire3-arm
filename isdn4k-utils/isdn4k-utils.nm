@@ -6,7 +6,7 @@
 name       = isdn4k-utils
 version    = 3.2
 devel_ver  = CVS-2010-05-01
-release    = 3
+release    = 4
 thisapp    = %{name}-%{devel_ver}-patched
 
 groups     = Networking/Tools
@@ -16,7 +16,7 @@ summary    = Utilities for configuring an ISDN subsystem.
 
 description
 	The isdn4k-utils package contains a collection of utilities needed
-	for configuring and running an ISDN subsystem. 
+	for configuring and running an ISDN subsystem.
 end
 
 source_dl  = ftp://ftp.isdn4linux.de/pub/isdn4linux/utils/
@@ -38,7 +38,7 @@ build
 		-D_LARGEFILE_SOURCE
 
 	prepare_cmds
-		# remove useless files 
+		# remove useless files
 		find -type d -name CVS | xargs rm -rf
 
 		# enable capi20.new
@@ -61,9 +61,9 @@ build
 		echo "CONFIG_FAQ=y" >> .config
 		echo "CONFIG_FAQDIR='/usr/share/doc/isdn4k-utils'" >> .config
 		echo "CONFIG_DATADIR='/usr/share/isdn'" >> .config
-		echo "LIBDIR='/usr/lib'" >> .config 
-		echo "CONFIG_FIRMWAREDIR='/usr/share/isdn'" >> .config 
-		echo "CONFIG_CARD_SBINDIR='/sbin'" >> .config 
+		echo "LIBDIR='/usr/lib'" >> .config
+		echo "CONFIG_FIRMWAREDIR='/usr/share/isdn'" >> .config
+		echo "CONFIG_CARD_SBINDIR='/sbin'" >> .config
 		sed -e "s,',,g" .config > .config.h
 	end
 
@@ -113,5 +113,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

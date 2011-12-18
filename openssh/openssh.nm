@@ -96,11 +96,11 @@ packages
 			openssh-server=%{thisver}
 		end
 	end
-	
+
 	package openssh-clients
 		summary = OpenSSH client applications.
 		description = %{summary}
-	
+
 		files
 			/etc/ssh/ssh_config
 			/usr/bin/scp
@@ -126,14 +126,14 @@ packages
 			/etc/ssh/ssh_config
 		end
 	end
-	
+
 	package openssh-server
 		summary = OpenSSH server applications.
 		description = %{summary}
-	
+
 		# /usr/bin/ssh-keygen is needed to generate keys for the ssh server.
 		requires = /usr/bin/ssh-keygen
-	
+
 		files
 			/etc/pam.d/sshd
 			/etc/ssh/moduli
@@ -178,5 +178,9 @@ packages
 		script postup
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

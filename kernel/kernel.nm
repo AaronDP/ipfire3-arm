@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = kernel
-version    = 3.0.4
-release    = 11
+version    = 3.1.4
+release    = 3
 thisapp    = linux-%{version}
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -37,26 +37,77 @@ build
 	requires
 		binutils-devel
 		elfutils-devel
+		gettext
 		module-init-tools
 		ncurses-devel
 		net-tools
-		newt-devel
 		perl
 		python-devel
-		slang-devel
 		xz-lzma-compat
 	end
 
-	# A list of kernels to build.
-	kernels = default
+	tools_cpupower_requires
+		newt-devel
+		pcituils-devel
+		slang-devel
+	end
 
+	# A list of kernels to build.
+	kernels =
+
+	# Should we build cpupower?
+	build_cpupower = 1
+
+	kernel_target = bzImage
 	if "%{DISTRO_ARCH}" == "i686"
-		# Build a PAE-enabled kernel for the i686 architecture.
-		kernels += PAE
+		# Build a default and PAE-enabled kernel for the
+		# i686 architecture.
+		build_kernel_default = 1
+		build_kernel_pae = 1
 
 		kernel_arch  = x86
 		kernel_image = arch/%{kernel_arch}/boot/bzImage
-		kernel_target = bzImage
+
+	end
+
+	if "%{DISTRO_ARCH}" == "armv5tel"
+		# Build versatile kernel.
+		build_kernel_versatile = 1
+
+		kernel_arch  = arm
+		kernel_image = arch/%{kernel_arch}/boot/zImage
+
+		# ARM does not support cpupower.
+		build_cpupower = 0
+	end
+
+	if "%{DISTRO_ARCH}" == "armv7hl"
+		# Currently build no kernel images.
+
+		kernel_arch  = arm
+
+		# ARM does not support cpupower.
+		build_cpupower = 0
+	end
+
+	# Build default kernel.
+	if "%{build_kernel_default}" == "1"
+		kernels += default
+	end
+
+	# Build PAE-enabled kernel.
+	if "%{build_kernel_pae}" == "1"
+		kernels += PAE
+	end
+
+	# Build ARM versatile kernel.
+	if "%{build_kernel_versatile}" == "1"
+		kernels += versatile
+	end
+
+	# Add tools' build requirements if build is requested.
+	if "%{build_cpupower}" == "1"
+		requires += %{tools_cpupower_requires}
 	end
 
 	prepare_cmds
@@ -138,8 +189,14 @@ build
 			# Install modules.
 			make ARCH=%{kernel_arch} INSTALL_MOD_PATH=%{BUILDROOT} mod-fw= \
 				KERNELRELEASE=${fullversion} modules_install
-			#make ARCH=%{kernel_arch} INSTALL_MOD_PATH=%{BUILDROOT} \
-			#	KERNELRELEASE=${fullversion} vdso_install
+
+			# Install vdso.
+			case "%{DISTRO_ARCH}" in
+				i686)
+					make ARCH=%{kernel_arch} INSTALL_MOD_PATH=%{BUILDROOT} \
+						KERNELRELEASE=${fullversion} vdso_install
+					;;
+			esac
 
 			# Create an empty settings file for dracut
 			mkdir -pv %{BUILDROOT}/etc/ld.so.conf.d
@@ -195,11 +252,22 @@ build
 		for kernel in %{kernels}; do
 			build_kernel ${kernel}
 		done
+
+		# Build tools.
+		# cpupower
+		if [ "%{build_cpupower}" = "1" ]; then
+			chmod +x tools/power/cpupower/utils/version-gen.sh
+			make -C tools/power/cpupower CPUFREQ_BENCH=false %{PARALLELISMFLAGS}
+
+			cd tools/power/cpupower/debug/i386
+			make %{PARALLELISMFLAGS} centrino-decode powernow-k8-decode
+			cd -
+		fi
 	end
 
 	install
 		# Install the header files
-		make ARCH=x86 INSTALL_HDR_PATH=dest headers_install
+		make ARCH=%{kernel_arch} INSTALL_HDR_PATH=dest headers_install
 		mkdir -pv %{BUILDROOT}/usr/include
 		find dest/include \( -name .install -o -name ..install.cmd \) -delete
 		cp -rv dest/include/* %{BUILDROOT}/usr/include
@@ -218,6 +286,17 @@ build
 		make -C tools/perf DESTDIR=%{BUILDROOT} \
 			HAVE_CPLUS_DEMANGLE=1 prefix=/usr perfexecdir=lib/perf-core \
 			install #install-man
+
+		# cpupower
+		if [ "%{build_cpupower}" = "1" ]; then
+			make -C tools/power/cpupower DESTDIR=%{BUILDROOT} libdir=/usr/lib \
+				mandir=/usr/share/man CPUFREQ_BENCH=false install
+			cd tools/power/cpupower/debug/i386
+			install -m 755 centrino-decode %{BUILDROOT}/usr/bin/centrino-decode
+			install -m 755 powernow-k8-decode %{BUILDROOT}/usr/bin/powernow-k8-decode
+			cd -
+			chmod 0755 %{BUILDROOT}/usr/lib/libcpupower.so*
+		fi
 	end
 end
 
@@ -229,7 +308,7 @@ packages
 		summary = The Linux kernel %{kernel_release}.
 
 		prerequires = dracut grubby module-init-tools
-		provides = kernel
+		provides = kernel=%{kernel_release}
 		requires
 			%{prerequires}
 			linux-firmware
@@ -291,32 +370,52 @@ packages
 		end
 	end
 
-	package kernel
-		template KERNEL
+	if "%{build_kernel_default}" == "1"
+		package kernel
+			template KERNEL
 
-		kernel_name = kernel
-		kernel_release = %{fullver}
+			kernel_name = kernel
+			kernel_release = %{fullver}
+		end
+
+		package kernel-devel
+			template KERNELDEVEL
+
+			kernel_name = kernel
+			kernel_release = %{fullver}
+		end
 	end
 
-	package kernel-devel
-		template KERNELDEVEL
+	if "%{build_kernel_pae}" == "1"
+		package kernel-PAE
+			template KERNEL
 
-		kernel_name = kernel
-		kernel_release = %{fullver}
+			kernel_name = kernel-PAE
+			kernel_release = %{fullver}.PAE
+		end
+
+		package kernel-PAE-devel
+			template KERNELDEVEL
+
+			kernel_name = kernel-PAE
+			kernel_release = %{fullver}.PAE
+		end
 	end
 
-	package kernel-PAE
-		template KERNEL
+	if "%{build_kernel_versatile}" == "1"
+		package kernel-versatile
+			template KERNEL
 
-		kernel_name = kernel-PAE
-		kernel_release = %{fullver}.PAE
-	end
+			kernel_name = kernel-versatile
+			kernel_release = %{fullver}.versatile
+		end
 
-	package kernel-PAE-devel
-		template KERNELDEVEL
+		package kernel-versatile-devel
+			kernel KERNELDEVEL
 
-		kernel_name = kernel-PAE
-		kernel_release = %{fullver}.PAE
+			kernel_name = kernel-versatile
+			kernel_release = %{fullver}.versatile
+		end
 	end
 
 	package kernel-headers

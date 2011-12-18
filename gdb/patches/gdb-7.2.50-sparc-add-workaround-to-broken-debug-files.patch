@@ -1,0 +1,51 @@
+Index: gdb-7.3.50.20110722/gdb/dwarf2read.c
+===================================================================
+--- gdb-7.3.50.20110722.orig/gdb/dwarf2read.c	2011-07-22 19:37:15.000000000 +0200
++++ gdb-7.3.50.20110722/gdb/dwarf2read.c	2011-07-22 19:44:42.000000000 +0200
+@@ -67,12 +67,14 @@
+ #ifdef HAVE_ZLIB_H
+ #include <zlib.h>
+ #endif
++#ifndef __sparc__
+ #ifdef HAVE_MMAP
+ #include <sys/mman.h>
+ #ifndef MAP_FAILED
+ #define MAP_FAILED ((void *) -1)
+ #endif
+ #endif
++#endif
+ 
+ typedef struct symbol *symbolp;
+ DEF_VEC_P (symbolp);
+@@ -1618,6 +1620,7 @@ dwarf2_read_section (struct objfile *obj
+         }
+     }
+ 
++#ifndef __sparc__
+ #ifdef HAVE_MMAP
+   if (pagesize == 0)
+     pagesize = getpagesize ();
+@@ -1641,6 +1644,7 @@ dwarf2_read_section (struct objfile *obj
+ 	}
+     }
+ #endif
++#endif
+ 
+   /* If we get here, we are a normal, not-compressed section.  */
+   info->buffer = buf
+@@ -15983,6 +15987,7 @@ munmap_section_buffer (struct dwarf2_sec
+ {
+   if (info->map_addr != NULL)
+     {
++#ifndef __sparc__
+ #ifdef HAVE_MMAP
+       int res;
+ 
+@@ -15992,6 +15997,7 @@ munmap_section_buffer (struct dwarf2_sec
+       /* Without HAVE_MMAP, we should never be here to begin with.  */
+       gdb_assert_not_reached ("no mmap support");
+ #endif
++#endif
+     }
+ }
+ 

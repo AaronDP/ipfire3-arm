@@ -5,10 +5,10 @@
 
 name       = grub
 version    = 1.99
-release    = 2
+release    = 3
 sup_arches = i686
 
-groups     = Base System/Boot
+groups     = System/Boot
 url        = http://www.gnu.org/software/grub/
 license    = GPLv2+
 summary    = Grand Unified Boot Loader.
@@ -83,5 +83,9 @@ packages
 			/usr/bin/grub-mkfont --output /boot/grub/unifont.pf2 \
 				--range=0x0000-0x0241,0x2190-0x21FF,0x2500-0x259f /usr/share/X11/fonts/misc/unifont.pcf.gz
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

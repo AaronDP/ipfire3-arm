@@ -72,25 +72,29 @@ packages
 		configfiles
 			/etc/lighttpd.conf
 		end
-	
+
 		prerequires = shadow-utils systemd-units
 
 		script prein
 			%{create_user}
 		end
-	
+
 		script postin
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 		end
-	
+
 		script preun
 			/bin/systemctl --no-reload disable lighttpd.service >/dev/null 2>&1 || :
 			/bin/systemctl stop lighttpd.service >/dev/null 2>&1 || :
 		end
-	
+
 		script postup
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 			/bin/systemctl try-restart lighttpd.service >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

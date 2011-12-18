@@ -6,6 +6,7 @@
 name       = l7-protocols
 version    = 2007-11-22
 release    = 1
+arch       = noarch
 
 groups     = Networking/Firewall
 url        = http://l7-filter.sourceforge.net/
@@ -34,5 +35,4 @@ end
 
 packages
 	package %{name}
-	end
 end

@@ -115,7 +115,7 @@ build
 		cp -vf %{DIR_DL}/unifont-5.1.20080820.pcf.gz \
 			%{BUILDROOT}/usr/share/X11/fonts/misc/unifont.pcf.gz
 
-		# XXX Do we need to create these symlinks to use the fonts - check this in a running X environment. 
+		# XXX Do we need to create these symlinks to use the fonts - check this in a running X environment.
 		# Install catalogue symlinks
 		#mkdir -pv %{BUILDROOT}/etc/X11/fontpath.d
 		#ln -svf ../../../usr/share/X11/fonts/100dpi %{BUILDROOT}/etc/X11/fontpath.d/xorg-x11-fonts-100dpi
@@ -395,9 +395,9 @@ packages
 		description
 			GNU Unifont, contains glyphs for every printable code point in the Unicode 5.1 Basic Multilingual Plane (BMP).
 		end
-	
+
 		files
-			/usr/share/X11/fonts/misc/unifont.pcf.gz	
+			/usr/share/X11/fonts/misc/unifont.pcf.gz
 		end
 	end
 end

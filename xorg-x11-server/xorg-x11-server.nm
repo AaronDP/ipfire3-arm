@@ -146,13 +146,17 @@ packages
 			xorg-x11-xkb-utils
 		end
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires
 			libpciaccess-devel
 			pixman-devel
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

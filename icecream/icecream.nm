@@ -112,8 +112,12 @@ packages
 				icecc-scheduler.service >/dev/null 2>&1 || :
 		end
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

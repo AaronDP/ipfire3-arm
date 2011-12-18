@@ -39,15 +39,19 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		files
 			/usr/bin/
 			/usr/include/
 			/usr/lib/pkgconfig/
 			*/lib/*.so
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

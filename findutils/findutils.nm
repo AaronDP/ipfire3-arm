@@ -5,9 +5,9 @@
 
 name       = findutils
 version    = 4.5.10
-release    = 1
+release    = 2
 
-groups     = Base Build System/Tools
+groups     = System/Tools
 url        = http://www.gnu.org/software/findutils/
 license    = GPLv3+
 summary    = The GNU versions of find utilities (find and xargs).
@@ -46,5 +46,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = gdb
-version    = 7.3.1
+version    = 7.3.50.20110722
 release    = 1
 
 groups     = Development/Debuggers
@@ -18,27 +18,68 @@ description
 	and printing their data.
 end
 
-source_dl  = ftp://ftp.gnu.org/gnu/gdb/
-sources    = %{thisapp}.tar.gz
+#source_dl  = ftp://ftp.gnu.org/gnu/gdb/
+source_dl  = ftp://sourceware.org/pub/gdb/snapshots/current/
+sources    = %{thisapp}.tar.bz2
 
 build
 	requires
+		bison
+		expat-devel
 		ncurses-devel
-		readline-devel
+		texinfo
 		zlib-devel
 	end
 
 	configure_options += \
+		--with-system-gdbinit=/etc/gdbinit \
 		--mandir=/usr/share/man \
-	        --disable-werror
+		--enable-gdb-build-warnings=,-Wno-unused \
+		--with-separate-debug-dir=/usr/lib/debug \
+		--disable-sim \
+		--disable-rpath \
+		--without-system-readline \
+	        --disable-werror \
+		--with-expat \
+		--without-libexpat-prefix \
+		--enable-tui \
+		--with-python \
+		--without-rpm \
+		--without-libunwind \
+		--enable-64-bit-bfd \
+		%{DISTRO_MACHINE}
+
+	prepare_cmds
+		echo "%{DISTRO_NAME} (%{thisver})" > gdb/version.in
+	end
+
+	# Testsuite does not succeed. Needs to be fixed eventually.
+	#test
+	#	make check
+	#end
+
+	install_cmds
+		# Install gcore script.
+		cp -v gdb/gdb_gcore.sh %{BUILDROOT}/usr/bin/gcore
+		chmod -v 755 %{BUILDROOT}/usr/bin/gcore
+
+		# Remove gdb/gdbtui binaries duplicity.
+		ln -svf gdb %{BUILDROOT}/usr/bin/gdbtui
+		ln -svf gdb.1 %{BUILDROOT}/usr/share/man/man1/gdbtui.1
+
+		mkdir -pv %{BUILDROOT}/etc/gdbinit.d
+		cp -vf %{DIR_SOURCE}/gdbinit %{BUILDROOT}/etc/gdbinit
+	end
 end
 
 packages
 	package %{name}
-		requires = python
-	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

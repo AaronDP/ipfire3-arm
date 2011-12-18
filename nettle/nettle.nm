@@ -44,4 +44,8 @@ packages
 
 		requires += gmp-devel
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

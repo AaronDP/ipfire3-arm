@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = pakfire
-version    = 0.9.17
+version    = 0.9.18
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -97,5 +97,9 @@ packages
 		end
 
 		requires = binutils file grep
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -4,10 +4,10 @@
 ###############################################################################
 
 name       = grep
-version    = 2.9
-release    = 1
+version    = 2.10
+release    = 2
 
-groups     = Base Build Applications/Text
+groups     = Applications/Text
 url        = http://www.gnu.org/software/grep/
 license    = GPLv3+
 summary    = A pattern matching utilities.
@@ -18,7 +18,7 @@ description
 	prints the matching lines. GNU's grep utilities include grep, egrep and fgrep.
 end
 
-source_dl  =
+source_dl  = ftp://ftp.gnu.org/gnu/grep/
 sources    = %{thisapp}.tar.xz
 
 build
@@ -36,5 +36,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

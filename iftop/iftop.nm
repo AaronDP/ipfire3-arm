@@ -5,9 +5,9 @@
 
 name       = iftop
 version    = 0.17
-release    = 1
+release    = 2
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://www.ex-parrot.com/pdw/iftop/
 license    = GPL+
 summary    = Interactive traffic listings
@@ -32,5 +32,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

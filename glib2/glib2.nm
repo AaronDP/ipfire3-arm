@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = glib2
-ver_major  = 2.30
-version    = %{ver_major}.1
+ver_major  = 2.31
+version    = %{ver_major}.2
 release    = 1
 thisapp    = glib-%{version}
 
@@ -56,5 +56,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

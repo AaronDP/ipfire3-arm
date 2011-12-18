@@ -50,4 +50,8 @@ packages
 
 		requires = gmp-devel libtool-devel
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

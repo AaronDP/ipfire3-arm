@@ -60,21 +60,21 @@ packages
 			which
 		end
 	end
-	
+
 	package %{name}-network
 		summary = Network support for the initramdisk.
 		description
 			This package requires everything which is needed to build a generic
 			all purpose initramfs with network support with dracut.
 		end
-	
+
 		requires
 			bridge-utils
 			dhclient
 			iproute2
 			nfs-utils
 		end
-	
+
 		files
 			/usr/share/dracut/modules.d/40network
 			/usr/share/dracut/modules.d/95fcoe
@@ -85,12 +85,12 @@ packages
 			/usr/share/dracut/modules.d/95znet
 		end
 	end
-	
-	
+
+
 	package %{name}-utils
 		summary = Command line utils for dracut.
 		description = %{summary}
-	
+
 		files
 			/sbin/dracut-*
 			/sbin/*initrd

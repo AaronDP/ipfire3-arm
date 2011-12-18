@@ -5,9 +5,9 @@
 
 name       = memtest86+
 version    = 4.20
-release    = 1
+release    = 2
 
-groups     = Base System/Base
+groups     = System/Base
 url        = http://www.memtest.org/
 license    = GPLv2
 summary    = Stand-alone memory tester for x86 and x86-64 computers.
@@ -40,4 +40,8 @@ end
 
 packages
 	package %{name}
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

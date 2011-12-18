@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = ebtables
-version    = v2.0.9-2
-release    = 2
+version    = v2.0.10-3
+release    = 1
 
 groups     = Networking/Tools
 url        = http://ebtables.sourceforge.net/
@@ -18,7 +18,7 @@ description
 	layer filtering and some basic filtering on higher network layers.
 end
 
-source_dl  =
+source_dl  = http://downloads.sourceforge.net/ebtables/
 
 build
 	CFLAGS += -Wall
@@ -48,5 +48,9 @@ packages
 		filter_requires
 			libebt
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

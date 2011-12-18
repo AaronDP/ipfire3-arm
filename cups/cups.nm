@@ -78,14 +78,18 @@ packages
 	package %{name}
 		requires = ghostscript
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 
 		requires += %{name}-libs=%{thisver}
 	end
-	
+
 	package %{name}-libs
 		template LIBS
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

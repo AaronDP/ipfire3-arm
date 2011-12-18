@@ -1,0 +1,48 @@
+patch by David Lamparter to fix build errors for hardened/arm systems.
+the logic in setjmp/__longjmp incorrectly tie to "PIC" to figure out
+whether the code is going into a shared library when it should be using
+"SHARED".  otherwise, building static PIC code goes wrong.
+
+https://bugs.gentoo.org/336914
+http://sourceware.org/ml/libc-ports/2011-09/msg00018.html
+
+--- ports/sysdeps/arm/eabi/setjmp.S
++++ ports/sysdeps/arm/eabi/setjmp.S
+@@ -37,7 +37,7 @@
+ 	add	a3, a3, a4
+ 	ldr	a3, [a3, #RTLD_GLOBAL_RO_DL_HWCAP_OFFSET]
+ #else
+-#ifdef PIC
++#ifdef SHARED
+ 	ldr	a3, 1f
+ 	ldr	a4, Lrtld_global_ro
+ 0:	add	a3, pc, a3
+@@ -84,7 +84,7 @@
+ Lrtld_local_ro:
+ 	.long	C_SYMBOL_NAME(_rtld_local_ro)(GOTOFF)
+ #else
+-#ifdef PIC
++#ifdef SHARED
+ 1:	.long	_GLOBAL_OFFSET_TABLE_ - 0b - 8
+ Lrtld_global_ro:
+ 	.long	C_SYMBOL_NAME(_rtld_global_ro)(GOT)
+--- ports/sysdeps/arm/eabi/__longjmp.S
++++ ports/sysdeps/arm/eabi/__longjmp.S
+@@ -43,7 +43,7 @@
+ 	add	a2, a2, a3
+ 	ldr	a2, [a2, #RTLD_GLOBAL_RO_DL_HWCAP_OFFSET]
+ #else
+-#ifdef PIC
++#ifdef SHARED
+   	ldr	a2, 1f
+ 	ldr	a3, Lrtld_global_ro
+ 0:	add	a2, pc, a2
+@@ -87,7 +87,7 @@
+ Lrtld_local_ro:
+ 	.long	C_SYMBOL_NAME(_rtld_local_ro)(GOTOFF)
+ #else
+-#ifdef PIC
++#ifdef SHARED
+ 1:	.long	_GLOBAL_OFFSET_TABLE_ - 0b - 8
+ Lrtld_global_ro:
+ 	.long	C_SYMBOL_NAME(_rtld_global_ro)(GOT)

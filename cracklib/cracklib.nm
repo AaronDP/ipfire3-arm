@@ -70,27 +70,31 @@ packages
 	package %{name}
 		requires = %{name}-dicts
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
-	
+
 	# We build an extra package with the dictionaries.
 	package %{name}-dicts
 		summary = Dictionaries for %{thisapp}.
 		description = %{summary}
-	
+
 		files
 			/lib/cracklib
 			/usr/share/dict*
 		end
 	end
-	
+
 	# We build an extra python package with the bindings for it.
 	package python-cracklib
 		summary = Python bindings for ${thisapp}.
 		description = %{summary}
-	
+
 		files = /usr/lib*/python*
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

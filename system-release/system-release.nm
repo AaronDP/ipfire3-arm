@@ -64,6 +64,5 @@ end
 packages
 	package %{name}
 		provides = system-release
-		obsoletes = system-release
 	end
 end

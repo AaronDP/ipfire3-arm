@@ -1,0 +1,64 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = dev86
+version    = 0.16.18
+release    = 2
+
+maintainer = Ben Schweikert <ben.schweikert@ipfire.org>
+groups     = Development/Languages
+url        = http://www.debath.co.uk/dev86/
+license    = GPL+
+summary    = Cross development C compiler.
+
+description
+	This is a cross development C compiler, assembler and linker
+	environment for the production of 8086 executables
+	(Optionally MSDOS COM)
+end
+
+source_dl = http://www.debath.co.uk/dev86/
+sources   = Dev86src-%{version}.tar.gz
+
+build
+	requires
+		ncurses-devel
+	end
+
+	build
+		make bcc86 unproto copt as86 ld86 CFLAGS="%{CFLAGS}"
+		make -C cpp CFLAGS="%{CFLAGS}" %{PARALLELISMFLAGS}
+		make -C ar CFLAGS="%{CFLAGS}" %{PARALLELISMFLAGS}
+		make -C ld CFLAGS="%{CFLAGS}" %{PARALLELISMFLAGS}
+
+		# ncc doesn't support gcc optflags and no parallel build
+		make
+	end
+
+	make_install_targets = \
+		DIST=%{BUILDROOT} \
+		MANDIR=/usr/share/man \
+		LIBDIR=/usr/lib/bcc \
+		INCLDIR=/usr/include/bcc \
+		LOCLAPREFIX=/usr \
+		install install-man
+
+	install_cmds
+		# Remove useless files.
+		rm -rf %{BUILDROOT}/usr/share/{applications,pixmaps}
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

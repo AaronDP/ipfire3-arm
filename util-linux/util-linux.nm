@@ -124,7 +124,7 @@ packages
 			This is the block device identification library,
 			part of util-linux.
 		end
-	
+
 		files
 			/lib/libblkid.*
 		end
@@ -134,7 +134,7 @@ packages
 	package libblkid-devel
 		summary =  Development library and header of libblkid.
 		description = %{summary}
-	
+
 		files
 			/usr/include/blkid/
 			/usr/lib/libblkid.*
@@ -150,7 +150,7 @@ packages
 			This is the universally unique ID library,
 			part of util-linux.
 		end
-	
+
 		files
 			/lib/libuuid.*
 		end
@@ -160,7 +160,7 @@ packages
 	package libuuid-devel
 		summary =  Development library and header of libuuid.
 		description = %{summary}
-	
+
 		files
 			/usr/include/uuid/
 			/usr/lib/libuuid.*
@@ -176,7 +176,7 @@ packages
 			This is the device mounting library,
 			part of util-linux.
 		end
-	
+
 		files
 			/lib/libmount.*
 		end
@@ -186,12 +186,16 @@ packages
 	package libmount-devel
 		summary =  Development library and header of libmount.
 		description = %{summary}
-	
+
 		files
 			/usr/include/mount/
 			/usr/lib/libmount.*
 			/usr/lib/pkgconfig/mount.pc
 			/usr/share/man/man3/*mount*
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

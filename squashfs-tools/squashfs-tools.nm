@@ -43,4 +43,8 @@ packages
 	package %{name}
 		requires = libgcc_s.so.1
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

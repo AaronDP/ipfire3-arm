@@ -98,4 +98,8 @@ packages
 
 		requires += %{name}-libs=%{thisver}
 	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

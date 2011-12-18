@@ -5,9 +5,9 @@
 
 name       = diffutils
 version    = 3.2
-release    = 1
+release    = 2
 
-groups     = Base Build Development/Tools
+groups     = Development/Tools
 url        = http://www.gnu.org/software/diffutils/diffutils.html
 license    = GPLv2+
 summary    = A GNU collection of diff utilities.
@@ -32,4 +32,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

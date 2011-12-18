@@ -63,7 +63,7 @@ packages
 		prerequires +=\
 			docbook-dtds>=1.0-3 \
 			libxml2 \
-			sgml-common 
+			sgml-common
 
 		script postin
 			# Install catalog files on system.
@@ -92,5 +92,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

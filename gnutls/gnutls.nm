@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = gnutls
-version    = 3.0.7
+version    = 3.0.9
 release    = 1
 
 groups     = System/Libraries
@@ -52,5 +52,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

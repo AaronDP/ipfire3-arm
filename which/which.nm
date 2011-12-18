@@ -5,9 +5,9 @@
 
 name       = which
 version    = 2.20
-release    = 1
+release    = 2
 
-groups     = Base Build Applications/System
+groups     = Applications/System
 url        = http://www.xs4all.nl/~carlo17/which/
 license    = GPLv3
 summary    = Displays where a particular program in your path is located.
@@ -21,4 +21,10 @@ source_dl  = http://carlo17.home.xs4all.nl/which/
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

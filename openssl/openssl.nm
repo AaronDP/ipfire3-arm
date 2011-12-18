@@ -5,7 +5,7 @@
 
 name       = openssl
 version    = 1.0.0e
-release    = 2
+release    = 3
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = System/Libraries
@@ -43,7 +43,12 @@ build
 	end
 
 	if "%{DISTRO_ARCH}" == "i686"
-		SSL_ARCH = no-asm 386 # 386 implies no-sse2
+		# 386 implies no-sse2
+		ssl_arch = linux-elf no-asm 386
+	end
+
+	if "%{DISTRO_ARCH}" == "armv5tel"
+		ssl_arch = linux-generic32
 	end
 
 	build
@@ -51,7 +56,6 @@ build
 			--prefix=/usr \
 			--openssldir=/etc/pki/tls \
 			--enginesdir=/usr/lib/openssl/engines \
-			linux-elf \
 			shared \
 			zlib-dynamic \
 			enable-camellia \
@@ -62,8 +66,9 @@ build
 			no-idea \
 			no-mdc2 \
 			no-rc5 \
+			no-ec no-ecdh no-ecdsa \
 			-DSSL_FORBID_ENULL \
-			 %{SSL_ARCH}
+			 %{ssl_arch}
 
 		# Build.
 		make depend all build-shared RPM_OPT_FLAGS="%{CFLAGS}" #%{PARALLELISMFLAGS}
@@ -121,5 +126,9 @@ packages
 
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -1,0 +1,64 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = dialog
+version    = 1.1
+svn_ver    = 20111020
+release    = 1.%{svn_ver}
+thisapp    = %{name}-%{version}-%{svn_ver}
+
+groups     = Applications/System
+url        = http://invisible-island.net/dialog/dialog.html
+license    = LGPLv2
+summary    = A utility for creating TTY dialog boxes.
+
+description
+	Dialog is a utility that allows you to show dialog boxes (containing
+	questions or messages) in TTY (text mode) interfaces.  Dialog is called
+	from within a shell script.  The following dialog boxes are implemented:
+	yes/no, menu, input, message, text, info, checklist, radiolist, and
+	gauge.
+end
+
+source_dl  = ftp://invisible-island.net/dialog/
+sources    = %{thisapp}.tgz
+
+build
+	requires
+		findutils
+		gettext
+		libtool
+		ncurses-devel
+	end
+
+	configure_options += \
+		--enable-nls \
+		--with-libtool \
+		--with-ncursesw \
+		--includedir=/usr/include/dialog \
+		--mandir=/usr/share/man
+
+	install_cmds
+		chmod -v 755 %{BUILDROOT}/usr/lib/libdialog.so.*.*.*
+	end
+end
+
+quality-agent
+	whitelist_rpath
+		/usr/lib
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

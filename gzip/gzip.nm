@@ -5,9 +5,9 @@
 
 name       = gzip
 version    = 1.4
-release    = 1
+release    = 2
 
-groups     = Base Build Applications/Compression
+groups     = Applications/Compression
 url        = http://www.gzip.org/
 license    = GPLv2
 summary    = The GNU data compression program.
@@ -46,5 +46,10 @@ end
 
 packages
 	package %{name}
+		groups += Base Build
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

@@ -5,9 +5,9 @@
 
 name       = iputils
 version    = s20071127
-release    = 2
+release    = 3
 
-groups     = Base Networking/Tools
+groups     = Networking/Tools
 url        = http://www.skbuff.net/iputils
 license    = BSD
 summary    = Network monitoring tools including ping.
@@ -80,5 +80,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

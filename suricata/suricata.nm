@@ -5,7 +5,7 @@
 
 name       = suricata
 version    = 1.1
-release    = 1
+release    = 2
 
 groups     = Networking/IDS
 url        = http://www.openinfosecfoundation.org/
@@ -78,8 +78,12 @@ packages
 		end
 
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

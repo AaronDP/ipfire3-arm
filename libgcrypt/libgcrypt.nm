@@ -41,10 +41,14 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
-	
+
 		requires = libgpg-error-devel
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

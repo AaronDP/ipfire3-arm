@@ -5,9 +5,9 @@
 
 name       = procps
 version    = 3.2.8
-release    = 2
+release    = 3
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://procps.sourceforge.net/
 license    = GPLv2+ and LGPLv2+
 summary    = System and process monitoring utilities.
@@ -41,4 +41,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
 end

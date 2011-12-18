@@ -59,11 +59,11 @@ end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
-	
+
 	package %{name}-utils
 		summary = SELinux libselinux utitlities.
 		description
@@ -83,5 +83,8 @@ packages
 		def files
 			/usr/lib/python*
 		end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

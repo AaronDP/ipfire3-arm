@@ -48,8 +48,7 @@ end
 
 packages
 	package %{name}
-	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end
@@ -57,9 +56,13 @@ packages
 	package python-libsemanage
 		summary =  SELinux manage python bindings.
 		description = SELinux python bindings for libsemanage.
-	
+
 		files
 			/usr/lib/python*
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

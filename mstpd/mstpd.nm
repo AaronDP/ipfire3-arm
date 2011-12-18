@@ -5,8 +5,8 @@
 
 name       = mstpd
 version    = 0.01
-svn_ver    = 16
-release    = 0.2-svn%{svn_ver}.1
+svn_ver    = 22
+release    = 0.3-svn%{svn_ver}.1
 thisapp    = %{name}-%{version}-svn%{svn_ver}
 
 groups     = Networking/Tools
@@ -20,8 +20,7 @@ description
 end
 
 # Tarballs are created as follows:
-# svn export http://svn.code.sf.net/p/mstpd/code/trunk mstpd-%{version}-svn%{svn_ver}
-# tar cvfz mstpd-%{version}-svn%{svn_ver}.tar.gz mstpd-%{version}-svn%{svn_ver}
+# ./svn-export.sh %{version} %{svn_ver}
 
 build
 	# Compile for release.
@@ -36,9 +35,9 @@ packages
 	package %{name}
 		requires = network
 
-		# A regression in the Linux kernel causes that no port
-		# was brought up. It was fixed in 3.0.4-11.
-		requires += kernel>=3.0.4-11
+		# Replace rstp.
+		provides  += rstp=0.21-9
+		obsoletes += rstp<0.21-9
 
 		script postin
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
@@ -54,5 +53,9 @@ packages
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 			/bin/systemctl try-restart mstpd.service >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

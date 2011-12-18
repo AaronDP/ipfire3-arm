@@ -78,21 +78,25 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package libiscsi
 		template LIBS
-	
+
 		files
 			/usr/lib*/libiscsi.so.*
 		end
 	end
-	
+
 	package libiscsi-devel
 		template DEVEL
-	
+
 		files
 			/usr/lib/libiscsi.so
 			/usr/include
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

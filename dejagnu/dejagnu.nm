@@ -41,7 +41,7 @@ packages
 	package %{name}
 		requires = expect tcl
 	end
-	
+
 	package %{name}-devel
 		template DEVEL
 	end

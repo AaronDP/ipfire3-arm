@@ -1,0 +1,12 @@
+# HOST_ARCH		platform	target
+# --------------------------------------------
+armv5tel		dockstar	u-boot.kwb
+# Dreamplug is not supported by this version of uboot.
+#armv5tel		dreamplug	u-boot.kwb
+armv5tel		guruplug	u-boot.kwb
+armv5tel		openrd_ultimate	u-boot.kwb
+armv5tel		sheevaplug	u-boot.kwb
+armv7hl			efikamx		u-boot.imx
+armv7hl			igep0020	u-boot.bin
+armv7hl			omap3_beagle	u-boot.bin
+armv7hl			omap4_panda	u-boot.bin

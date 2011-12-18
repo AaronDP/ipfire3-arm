@@ -47,7 +47,7 @@ end
 
 packages
 	package %{name}
-	
+
 	package %{name}-devel
 		template DEVEL
 
@@ -64,5 +64,9 @@ packages
 			/usr/lib/libgettextsrc-*.so
 			/usr/lib/preloadable_libintl.so
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

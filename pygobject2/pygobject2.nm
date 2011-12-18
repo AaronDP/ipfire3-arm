@@ -43,24 +43,28 @@ end
 packages
 	package %{name}
 	end
-	
+
 	package %{name}-codegen
 		summary = The code generation program for PyGObject.
 		description
 			This package contains the C code generation
 			program for PyGObject.
 		end
-	
+
 		files
 			/usr/bin/pygobject-codegen-2.0
 			/usr/share/pygobject/2.0/codegen
 		end
 	end
-	
+
 	package %{name}-devel
 		requires
 			glib2-devel
 			%{name}-codegen
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

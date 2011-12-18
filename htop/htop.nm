@@ -4,10 +4,10 @@
 ###############################################################################
 
 name       = htop
-version    = 0.9
-release    = 1
+version    = 1.0
+release    = 2
 
-groups     = Base Applications/System
+groups     = Applications/System
 url        = http://htop.sourceforge.net/
 license    = GPL+
 summary    = Interactive process viewer.
@@ -17,7 +17,7 @@ description
 	top(1).
 end
 
-source_dl  =
+source_dl  = http://sourceforge.net/projects/htop/files
 
 build
 	requires
@@ -34,5 +34,10 @@ end
 
 packages
 	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end
