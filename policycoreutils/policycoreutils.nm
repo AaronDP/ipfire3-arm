@@ -5,7 +5,7 @@
 
 name       = policycoreutils
 version    = 2.1.8
-release    = 2
+release    = 3
 
 groups     = System/Base
 url        = http://www.selinuxproject.org
@@ -100,7 +100,10 @@ packages
 
 		requires
 			policycoreutils>=%{thisver}
+			python-audit
+			python-libsemanage
 			python-selinux>=2.1.7-3
+			python-setools
 		end
 
 		files
