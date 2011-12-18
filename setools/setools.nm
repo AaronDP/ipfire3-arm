@@ -1,0 +1,87 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = setools
+version    = 3.3.7
+release    = 1
+
+groups     = System/Base
+url        = http://oss.tresys.com/projects/setools
+license    = GPv2
+summary    = Policy analysis tools for SELinux.
+
+description
+	SETools is a collection of graphical tools, command-line tools, and
+	libraries designed to facilitate SELinux policy analysis.
+end
+
+source_dl  = http://oss.tresys.com/projects/setools/chrome/site/dists/%{thisapp}/
+sources    = %{thisapp}.tar.bz2
+
+build
+	requires
+		autoconf
+		automake
+		bison
+		flex
+		gcc-c++
+		libselinux-devel
+		libsepol-devel
+		libsepol-static
+		libxml2-devel
+		python-devel
+		sqlite-devel
+		swig
+	end
+
+	configure_options += \
+		--libdir=/usr/lib \
+		--disable-static \
+		--disable-gui \
+		--disable-bwidget-check \
+		--disable-selinux-check \
+		--enable-swig-python \
+		--disable-swig-java \
+		--disable-swig-tcl
+
+	prepare_cmds
+		# Fixup expected version of SWIG:
+		sed -i -e "s|AC_PROG_SWIG(1.3.28)|AC_PROG_SWIG(2.0.0)|g" configure.ac
+
+		autoreconf -v -f -i
+	end
+
+end
+
+packages
+	package %{name}
+	
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package python-%{name}
+		summary = Python bindings for setools-libs.
+		description
+			This package includes Python bindings for libapol, libpoldiff, libqpol, libseaudit and libsefs.
+		end
+
+		requires
+			setools-libs=%{thisver}
+		end
+
+		files
+			/usr/lib/python*
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
