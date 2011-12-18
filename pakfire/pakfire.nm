@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = pakfire
-version    = 0.9.18
-release    = 1
+version    = 0.9.19
+release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = System/Packaging
@@ -22,17 +22,25 @@ source_dl  = http://source.ipfire.org/releases/pakfire/
 
 build
 	requires
+		beecrypt-devel
+		elfutils-devel
 		gettext
 		libcap-devel
 		libsolv-devel
+		popt-devel
 		python-devel
+		xz-devel
 	end
+
+	# libgomp was broken in earlier releases.
+	requires += gcc>=4.6.2-4 beecrypt>=4.2.1-2
 
 	CFLAGS += -fno-strict-aliasing
 
 	test
-		# Check, if the binary module is loadable.
+		# Check, if the binary modules are loadable.
 		cd %{DIR_APP}/python/src/ && python -c "import _pakfire"
+		cd %{DIR_APP}/python/src/ && python -c "import _lzma"
 	end
 end
 
@@ -45,7 +53,6 @@ packages
 
 	package %{name}-common
 		requires
-			pyliblzma
 			python-progressbar
 			python-urlgrabber
 			system-release
@@ -68,12 +75,16 @@ packages
 		requires
 			%{name}=%{thisver}
 			quality-agent=%{thisver}
+
+			cpio
+			elfutils
 		end
 		provides = pakfire-build=%{thisver}
 		obsoletes = pakfire-build<%{thisver}
 		conflicts = build-essentials
 
 		files
+			/usr/lib/libpakfire_preload.so
 			/usr/bin/pakfire-builder
 			/usr/bin/pakfire-server
 			/usr/lib/pakfire/*

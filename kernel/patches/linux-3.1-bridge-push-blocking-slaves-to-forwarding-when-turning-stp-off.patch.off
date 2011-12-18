@@ -1,0 +1,86 @@
+From vitas@nppfactor.kiev.ua Tue Dec 13 10:36:46 2011
+Return-Path: <vitas@nppfactor.kiev.ua>
+Delivered-To: <ms@ipfire.org>
+Received: from mail01.ipfire.org by hedwig.ipfire.org (Dovecot) with LMTP
+ id JdGONK4c504YFwAAVNLeVg for <ms@ipfire.org>; Tue, 13 Dec 2011 10:36:46
+ +0100
+Received: from mx3.cyfra.ua (mx3.cyfra.ua [62.80.160.182]) by
+ mail01.ipfire.org (Postfix) with ESMTPS id B6735115 for
+ <michael.tremer@ipfire.org>; Tue, 13 Dec 2011 10:36:35 +0100 (CET)
+Received: from c.1.173.a246.dynamic.cyfra.net ([62.80.173.1]
+ helo=nppfactor.kiev.ua) by mx3.cyfra.ua with esmtp (Exim 4.63)
+ (envelope-from <vitas@nppfactor.kiev.ua>) id 1RaOmo-0005Hq-Jy; Tue, 13 Dec
+ 2011 11:36:34 +0200
+Received: from [192.168.0.20] (LUX [192.168.0.20]) by nppfactor.kiev.ua
+ (Postfix) with ESMTP id 0F9BA22F128; Tue, 13 Dec 2011 11:36:26 +0200 (EET)
+From: Vitalii Demianets <vitas@nppfactor.kiev.ua>
+Organization: Factor-SPE
+To: netdev@vger.kernel.org
+Subject: [PATCH] bridge: push blocking slaves to forwarding when turning
+ stp off
+Date: Tue, 13 Dec 2011 11:36:25 +0200
+User-Agent: KMail/1.9.10
+Cc: bridge@lists.linux-foundation.org, Stephen Hemminger
+ <shemminger@vyatta.com>, Michael Tremer <michael.tremer@ipfire.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Message-Id: <201112131136.25919.vitas@nppfactor.kiev.ua>
+X-Evolution-Source: 1292431680.19116.5@rice-oxley.tremer.info
+Content-Transfer-Encoding: 8bit
+
+If there is a slave in blocking state when stp is turned off, that slave will 
+remain in blocking state for indefinitely long time until interface state 
+changed. We should push all blocking slaves into forwarding state after 
+turning stp off.
+
+Signed-off-by: Vitalii Demianets <vitas@nppfactor.kiev.ua>
+
+---
+ net/bridge/br_stp.c    |    5 ++++-
+ net/bridge/br_stp_if.c |   10 +++++-----
+ 2 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/net/bridge/br_stp.c b/net/bridge/br_stp.c
+index dd147d7..aed7e21 100644
+--- a/net/bridge/br_stp.c
++++ b/net/bridge/br_stp.c
+@@ -415,7 +415,10 @@ void br_port_state_selection(struct net_bridge *br)
+ 			} else {
+ 				p->config_pending = 0;
+ 				p->topology_change_ack = 0;
+-				br_make_blocking(p);
++				if(br->stp_enabled == BR_NO_STP)
++					br_make_forwarding(p);
++				else
++					br_make_blocking(p);
+ 			}
+ 		}
+ 
+diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+index 19308e3..38d8dd7 100644
+--- a/net/bridge/br_stp_if.c
++++ b/net/bridge/br_stp_if.c
+@@ -153,14 +153,14 @@ static void br_stp_stop(struct net_bridge *br)
+ 	if (br->stp_enabled == BR_USER_STP) {
+ 		r = call_usermodehelper(BR_STP_PROG, argv, envp, UMH_WAIT_PROC);
+ 		br_info(br, "userspace STP stopped, return code %d\n", r);
+-
+-		/* To start timers on any ports left in blocking */
+-		spin_lock_bh(&br->lock);
+-		br_port_state_selection(br);
+-		spin_unlock_bh(&br->lock);
+ 	}
+ 
+ 	br->stp_enabled = BR_NO_STP;
++
++	/* To push in forwarding state any ports left in blocking */
++	spin_lock_bh(&br->lock);
++	br_port_state_selection(br);
++	spin_unlock_bh(&br->lock);
+ }
+ 
+ void br_stp_set_enabled(struct net_bridge *br, unsigned long val)
+-- 
+1.7.3.4
+

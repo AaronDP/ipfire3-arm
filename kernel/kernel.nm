@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = kernel
-version    = 3.1.4
-release    = 3
+version    = 3.1.5
+release    = 1
 thisapp    = linux-%{version}
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -37,6 +37,7 @@ build
 	requires
 		binutils-devel
 		elfutils-devel
+		gcc-plugin-devel
 		gettext
 		module-init-tools
 		ncurses-devel
@@ -48,7 +49,7 @@ build
 
 	tools_cpupower_requires
 		newt-devel
-		pcituils-devel
+		pciutils-devel
 		slang-devel
 	end
 
@@ -441,6 +442,8 @@ packages
 			!/lib/modules
 			!/usr/include
 			!/usr/src
+			!/usr/src/debug
+			!/usr/lib/debug
 		end
 	end
 end

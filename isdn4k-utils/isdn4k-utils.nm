@@ -6,7 +6,7 @@
 name       = isdn4k-utils
 version    = 3.2
 devel_ver  = CVS-2010-05-01
-release    = 4
+release    = 5
 thisapp    = %{name}-%{devel_ver}-patched
 
 groups     = Networking/Tools
@@ -85,12 +85,22 @@ build
 		mkdir -pv %{BUILDROOT}/etc
 		install -m 644 capiinit/capi.conf %{BUILDROOT}/etc
 		install -m 644 %{DIR_SOURCE}/capi20.conf %{BUILDROOT}/etc
+
+		# Install ipppd configuration files.
+		mkdir -pv %{BUILDROOT}/etc/ppp
+		touch %{BUILDROOT}/etc/ppp/ioptions
 	end
 end
 
 packages
 	package %{name}
 		prerequires += systemd-units
+
+		configfiles
+			/etc/capi.conf
+			/etc/capi20.conf
+			/etc/ppp/ioptions
+		end
 
 		script postin
 			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
