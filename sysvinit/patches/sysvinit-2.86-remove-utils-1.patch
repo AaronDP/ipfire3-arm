@@ -1,6 +1,6 @@
---- sysvinit-2.86/src/Makefile.old	2009-08-05 17:57:57.000000000 +0200
-+++ sysvinit-2.86/src/Makefile	2009-08-05 19:03:04.000000000 +0200
-@@ -10,32 +10,26 @@
+--- sysvinit-2.86/src/Makefile.old	2004-06-09 14:47:45.000000000 +0200
++++ sysvinit-2.86/src/Makefile	2011-12-17 18:20:12.067186698 +0100
+@@ -10,32 +10,30 @@
  
  CC	= gcc
  CFLAGS	= -Wall -O2 -fomit-frame-pointer -D_GNU_SOURCE
@@ -26,19 +26,23 @@
 -USRBIN	+= utmpdump wall
 -MAN1	+= mountpoint.1 wall.1
 -MAN8	+= sulogin.8 bootlogd.8
++SBIN	+= sulogin
 +USRBIN	+= utmpdump
 +MAN1	+= mountpoint.1
++MAN8	+= sulogin.8
  endif
  
  ifeq ($(DISTRO),Debian)
  BIN	+= mountpoint
 -SBIN	+= sulogin bootlogd
++SBIN	+= sulogin
  MAN1	+= mountpoint.1
 -MAN8	+= sulogin.8 bootlogd.8
++MAN8	+= sulogin.8
  endif
  
  ifeq ($(DISTRO),Owl)
-@@ -50,7 +44,7 @@
+@@ -50,7 +48,7 @@
  MANDIR		= /usr/share/man
  
  # Additional libs for GNU libc.
@@ -47,7 +51,7 @@
  LCRYPT		= -lcrypt
  endif
  
-@@ -120,14 +114,10 @@
+@@ -120,14 +118,10 @@
  			$(INSTALL) -m 755 $$i $(ROOT)/usr/bin/; \
  		done
  		# $(INSTALL) -m 755 etc/initscript.sample $(ROOT)/etc/
@@ -62,7 +66,7 @@
  		for i in $(MAN1); do \
  			$(INSTALL) -m 644 ../man/$$i $(ROOT)$(MANDIR)/man1/; \
  		done
-@@ -137,12 +127,3 @@
+@@ -137,12 +131,3 @@
  		for i in $(MAN8); do \
  			$(INSTALL) -m 644 ../man/$$i $(ROOT)$(MANDIR)/man8/; \
  		done
