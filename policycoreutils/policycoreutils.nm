@@ -5,7 +5,7 @@
 
 name       = policycoreutils
 version    = 2.1.8
-release    = 1
+release    = 2
 
 groups     = System/Base
 url        = http://www.selinuxproject.org
@@ -46,6 +46,7 @@ build
 		libsepol-devel
 		libsepol-static
 		pam-devel
+		python-devel
 	end
 
 	# Manually add policycoreutils-sepolgen.patch because it has to be applied to the sepolgen source.
@@ -70,7 +71,11 @@ build
 
 	install_cmds
 		# Install sepolgen
-		make -C %{DIR_SRC}/sepolgen-%{sepolgen_ver} %{make_install_targets}
+		make -C %{DIR_SRC}/sepolgen-%{sepolgen_ver} DESTDIR=%{BUILDROOT} %{make_install_targets}
+
+		# Install bash_completion for semanage.
+		mkdir -pv %{BUILDROOT}/etc/bash_completion.d
+		install -m 755 %{DIR_SOURCE}/semanage-bash-completion.sh %{BUILDROOT}/etc/bash_completion.d/
 
 		# Remove unneeded stuff.
 		rm -vrf %{BUILDROOT}/etc/{rc.d,xdg,sysconfig}
@@ -112,6 +117,7 @@ packages
 			/usr/share/man/man8/chcat.8
 			/usr/share/man/man8/sandbox.8
 			/usr/share/man/man8/semanage.8
+			/var/lib/sepolgen
 		end
 	end
 end
