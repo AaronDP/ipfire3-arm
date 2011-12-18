@@ -6,7 +6,7 @@
 name       = initscripts
 epoch      = 1
 version    = 2.99
-release    = 12
+release    = 13
 
 groups     = System/Boot
 url        =
@@ -14,7 +14,7 @@ license    = GPLv3+
 summary    = The set of scripts that initalize the system.
 
 description
-	The initscripts package contains the basic system scripts used to boot \
+	The initscripts package contains the basic system scripts used to boot
 	your system and shut the system down cleanly.
 end
 
@@ -50,6 +50,15 @@ build
 		# Install udev rules
 		mkdir -pv %{BUILDROOT}/lib/udev/rules.d/
 		cp -vf %{DIR_SOURCE}/udev/* %{BUILDROOT}/lib/udev/rules.d/
+
+		# Install selinux-autorelabel.
+		mkdir -pv %{BUILDROOT}/lib/systemd
+		install -v -m 755 %{DIR_SOURCE}/selinux-autorelabel %{BUILDROOT}/lib/systemd/
+
+		# Add autorelabel services to systemd basic.target
+		mkdir -pv %{BUILDROOT}/lib/systemd/system/basic.target.wants
+		ln -s ../selinux-autorelabel.service %{BUILDROOT}/lib/systemd/system/basic.target.wants/selinux-autorelabel.service
+		ln -s ../selinux-autorelabel-mark.service %{BUILDROOT}/lib/systemd/system/basic.target.wants/selinux-autorelabel-mark.service
 	end
 end
 
@@ -64,9 +73,11 @@ packages
 			grep
 			iproute2
 			module-init-tools
+			policycoreutils>=2.1.8
 			procps
 			sed
 			system-release
+			sysvinit>=2.86-4
 			udev
 			util-linux
 		end
@@ -75,7 +86,7 @@ packages
 			/etc/rc.local
 		end
 
-		prerequires = coreutils shadow-utils
+		prerequires = coreutils shadow-utils systemd-units
 
 		script prein
 			groupadd -g 22 -r -f utmp
