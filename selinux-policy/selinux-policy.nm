@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = selinux-policy
-version    = 3.10.0
+version    = 000
 release    = 1
 arch       = noarch
 
@@ -17,11 +17,7 @@ description
 	Targeted policy rules for SELinux.
 end
 
-thisapp    = serefpolicy-%{version}
-source_dl  = http://oss.tresys.com/files/refpolicy/
-sources    = \
-	%{thisapp}.tgz \
-	%{name}-%{version}-config.tgz
+sources   += %{thisapp}-config.tgz
 
 build
 	requires
@@ -47,11 +43,9 @@ build
 		SEPOLGEN=
 
 	prepare
-		cd %{DIR_SRC} && %{MACRO_EXTRACT} %{DIR_DL}/%{thisapp}.tgz
+		cd %{DIR_SRC} && %{MACRO_EXTRACT} %{DIR_DL}/%{thisapp}.tar.gz
 
-		cd %{DIR_APP} && %{MACRO_PATCHES}
-
-		mkdir -pv selinux_config
+		cd %{DIR_APP} && mkdir -pv selinux_config
 		cp -avf %{DIR_SOURCE}/targeted/* selinux_config
 
 		%{MACRO_EXTRACT} %{DIR_DL}/%{name}-%{version}-config.tgz
