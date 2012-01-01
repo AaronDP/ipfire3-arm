@@ -1,0 +1,241 @@
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 1848a7b..f53a499 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -111,6 +111,19 @@ typedef struct class_datum {
+ 	symtab_t permissions;	/* class-specific permission symbol table */
+ 	constraint_node_t *constraints;	/* constraints on class permissions */
+ 	constraint_node_t *validatetrans;	/* special transition rules */
++/* Options how a new object user and role should be decided */
++#define DEFAULT_SOURCE		1
++#define DEFAULT_TARGET		2
++	char default_user;
++	char default_role;
++/* Options how a new object range should be decided */
++#define DEFAULT_SOURCE_LOW	1
++#define DEFAULT_SOURCE_HIGH	2
++#define DEFAULT_SOURCE_LOW_HIGH	3
++#define DEFAULT_TARGET_LOW	4
++#define DEFAULT_TARGET_HIGH	5
++#define DEFAULT_TARGET_LOW_HIGH	6
++	char default_range;
+ } class_datum_t;
+ 
+ /* Role attributes */
+@@ -667,10 +680,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_BOUNDARY	24
+ #define POLICYDB_VERSION_FILENAME_TRANS	25
+ #define POLICYDB_VERSION_ROLETRANS	26
++#define POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	27
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_ROLETRANS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
+ 
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+@@ -686,9 +700,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define MOD_POLICYDB_VERSION_ROLETRANS		12
+ #define MOD_POLICYDB_VERSION_ROLEATTRIB		13
+ #define MOD_POLICYDB_VERSION_TUNABLE_SEP	14
++#define MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS	15
+ 
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_TUNABLE_SEP
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS
+ 
+ #define POLICYDB_CONFIG_MLS    1
+ 
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 493e478..73b9107 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -358,6 +358,35 @@ static int constraint_node_clone(constraint_node_t ** dst,
+ 	return -1;
+ }
+ 
++static int class_copy_default_new_object(expand_state_t *state,
++					 class_datum_t *olddatum,
++					 class_datum_t *newdatum)
++{
++	if (olddatum->default_user) {
++		if (newdatum->default_user && olddatum->default_user != newdatum->default_user) {
++			ERR(state->handle, "Found conflicting default user definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_user = olddatum->default_user;
++
++	}
++	if (olddatum->default_role) {
++		if (newdatum->default_role && olddatum->default_role != newdatum->default_role) {
++			ERR(state->handle, "Found conflicting default role definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_role = olddatum->default_role;
++	}
++	if (olddatum->default_range) {
++		if (newdatum->default_range && olddatum->default_range != newdatum->default_range) {
++			ERR(state->handle, "Found conflicting default range definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_range = olddatum->default_range;
++	}
++	return 0;
++}
++
+ static int class_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			       void *data)
+ {
+@@ -393,6 +422,12 @@ static int class_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 	new_class->s.value = class->s.value;
+ 	state->out->p_classes.nprim++;
+ 
++	ret = class_copy_default_new_object(state, class, new_class);
++	if (ret) {
++		free(new_class);
++		return ret;
++	}
++	
+ 	new_id = strdup(id);
+ 	if (!new_id) {
+ 		ERR(state->handle, "Out of memory!");
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index ee9675b..01d3231 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -205,6 +205,34 @@ static int permission_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 	return ret;
+ }
+ 
++static int class_copy_default_new_object(link_state_t *state,
++					 class_datum_t *olddatum,
++					 class_datum_t *newdatum)
++{
++	if (olddatum->default_user) {
++		if (newdatum->default_user && olddatum->default_user != newdatum->default_user) {
++			ERR(state->handle, "Found conflicting default user definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_user = olddatum->default_user;
++	}
++	if (olddatum->default_role) {
++		if (newdatum->default_role && olddatum->default_role != newdatum->default_role) {
++			ERR(state->handle, "Found conflicting default role definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_role = olddatum->default_role;
++	}
++	if (olddatum->default_range) {
++		if (newdatum->default_range && olddatum->default_range != newdatum->default_range) {
++			ERR(state->handle, "Found conflicting default range definitions");
++			return SEPOL_ENOTSUP;
++		}
++		newdatum->default_range = olddatum->default_range;
++	}
++	return 0;
++}
++
+ static int class_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			       void *data)
+ {
+@@ -287,6 +315,11 @@ static int class_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 	state->dest_class = new_class;
+ 	state->dest_class_name = (char *)key;
+ 
++	/* copy default new object rules */
++	ret = class_copy_default_new_object(state, cladatum, new_class);
++	if (ret)
++		return ret;
++
+ 	ret =
+ 	    hashtab_map(cladatum->permissions.table, permission_copy_callback,
+ 			state);
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 136b450..a84de2f 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -151,6 +151,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -228,6 +235,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
+ 	{
++	 .type = POLICY_BASE,
++	 .version = MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_NODE6 + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
++	{
+ 	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+ 	 .sym_num = SYM_NUM,
+@@ -304,6 +318,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = 0,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_MOD,
++	 .version = MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = 0,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ };
+ 
+ #if 0
+@@ -2064,6 +2085,18 @@ static int class_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 			goto bad;
+ 	}
+ 
++	if ((p->policy_type == POLICY_KERN &&
++	     p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) ||
++	    (p->policy_type == POLICY_BASE &&
++	     p->policyvers >= MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS)) {
++		rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
++		if (rc < 0)
++			goto bad;
++		cladatum->default_user = le32_to_cpu(buf[0]);
++		cladatum->default_role = le32_to_cpu(buf[1]);
++		cladatum->default_range = le32_to_cpu(buf[2]);
++	}
++
+ 	if (hashtab_insert(h, key, cladatum))
+ 		goto bad;
+ 
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index e34ab52..22e6143 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -976,6 +976,18 @@ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 			return POLICYDB_ERROR;
+ 	}
+ 
++	if ((p->policy_type == POLICY_KERN &&
++	     p->policyvers >= POLICYDB_VERSION_NEW_OBJECT_DEFAULTS) ||
++	    (p->policy_type == POLICY_BASE &&
++	     p->policyvers >= MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS)) {
++		buf[0] = cpu_to_le32(cladatum->default_user);
++		buf[1] = cpu_to_le32(cladatum->default_role);
++		buf[2] = cpu_to_le32(cladatum->default_range);
++		items = put_entry(buf, sizeof(uint32_t), 3, fp);
++		if (items != 3)
++			return POLICYDB_ERROR;
++	}
++
+ 	return POLICYDB_SUCCESS;
+ }
+ 
