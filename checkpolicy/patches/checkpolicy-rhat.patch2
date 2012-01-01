@@ -1,0 +1,206 @@
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index d19fc61..a86c6b3 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -351,6 +351,102 @@ static int read_classes(ebitmap_t *e_classes)
+ 	return 0;
+ }
+ 
++int define_default_user(int which)
++{
++	char *id;
++	class_datum_t *cladatum;
++
++	if (pass == 1) {
++		while ((id = queue_remove(id_queue)))
++			free(id);
++		return 0;
++	}
++
++	while ((id = queue_remove(id_queue))) {
++		if (!is_id_in_scope(SYM_CLASSES, id)) {
++			yyerror2("class %s is not within scope", id);
++			return -1;
++		}
++		cladatum = hashtab_search(policydbp->p_classes.table, id);
++		if (!cladatum) {
++			yyerror2("unknown class %s", id);
++			return -1;
++		}
++		if (cladatum->default_user && cladatum->default_user != which) {
++			yyerror2("conflicting default user information for class %s", id);
++			return -1;
++		}
++		cladatum->default_user = which;
++		free(id);
++	}
++
++	return 0;
++}
++
++int define_default_role(int which)
++{
++	char *id;
++	class_datum_t *cladatum;
++
++	if (pass == 1) {
++		while ((id = queue_remove(id_queue)))
++			free(id);
++		return 0;
++	}
++
++	while ((id = queue_remove(id_queue))) {
++		if (!is_id_in_scope(SYM_CLASSES, id)) {
++			yyerror2("class %s is not within scope", id);
++			return -1;
++		}
++		cladatum = hashtab_search(policydbp->p_classes.table, id);
++		if (!cladatum) {
++			yyerror2("unknown class %s", id);
++			return -1;
++		}
++		if (cladatum->default_role && cladatum->default_role != which) {
++			yyerror2("conflicting default role information for class %s", id);
++			return -1;
++		}
++		cladatum->default_role = which;
++		free(id);
++	}
++
++	return 0;
++}
++
++int define_default_range(int which)
++{
++	char *id;
++	class_datum_t *cladatum;
++
++	if (pass == 1) {
++		while ((id = queue_remove(id_queue)))
++			free(id);
++		return 0;
++	}
++
++	while ((id = queue_remove(id_queue))) {
++		if (!is_id_in_scope(SYM_CLASSES, id)) {
++			yyerror2("class %s is not within scope", id);
++			return -1;
++		}
++		cladatum = hashtab_search(policydbp->p_classes.table, id);
++		if (!cladatum) {
++			yyerror2("unknown class %s", id);
++			return -1;
++		}
++		if (cladatum->default_range && cladatum->default_range != which) {
++			yyerror2("conflicting default range information for class %s", id);
++			return -1;
++		}
++		cladatum->default_range = which;
++		free(id);
++	}
++
++	return 0;
++}
++
+ int define_common_perms(void)
+ {
+ 	char *id = 0, *perm = 0;
+diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+index 92a9be7..ccbe56f 100644
+--- a/checkpolicy/policy_define.h
++++ b/checkpolicy/policy_define.h
+@@ -24,6 +24,9 @@ int define_av_perms(int inherits);
+ int define_bool_tunable(int is_tunable);
+ int define_category(void);
+ int define_class(void);
++int define_default_user(int which);
++int define_default_role(int which);
++int define_default_range(int which);
+ int define_common_perms(void);
+ int define_compute_type(int which);
+ int define_conditional(cond_expr_t *expr, avrule_t *t_list, avrule_t *f_list );
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index d808111..d92cc32 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -143,6 +143,8 @@ typedef int (* require_func_t)();
+ %token POLICYCAP
+ %token PERMISSIVE
+ %token FILESYSTEM
++%token DEFAULT_USER DEFAULT_ROLE DEFAULT_RANGE
++%token LOW_HIGH LOW HIGH
+ 
+ %left OR
+ %left XOR
+@@ -157,7 +159,7 @@ base_policy             : { if (define_policy(pass, 0) == -1) return -1; }
+                           classes initial_sids access_vectors
+                           { if (pass == 1) { if (policydb_index_classes(policydbp)) return -1; }
+                             else if (pass == 2) { if (policydb_index_others(NULL, policydbp, 0)) return -1; }}
+-			  opt_mls te_rbac users opt_constraints 
++			  opt_default_rules opt_mls te_rbac users opt_constraints 
+                          { if (pass == 1) { if (policydb_index_bools(policydbp)) return -1;}
+ 			   else if (pass == 2) { if (policydb_index_others(NULL, policydbp, 0)) return -1;}}
+ 			  initial_sid_contexts opt_fs_contexts opt_fs_uses opt_genfs_contexts net_contexts opt_dev_contexts
+@@ -195,6 +197,39 @@ av_perms_def		: CLASS identifier '{' identifier_list '}'
+                         | CLASS identifier INHERITS identifier '{' identifier_list '}'
+ 			{if (define_av_perms(TRUE)) return -1;}
+ 			;
++opt_default_rules	: default_rules
++			|
++			;
++default_rules		: default_user_def
++			| default_role_def
++			| default_range_def
++			| default_rules default_user_def
++			| default_rules default_role_def
++			| default_rules default_range_def
++			;
++default_user_def	: DEFAULT_USER names SOURCE ';'
++			{if (define_default_user(DEFAULT_SOURCE)) return -1; }
++			| DEFAULT_USER names TARGET ';'
++			{if (define_default_user(DEFAULT_TARGET)) return -1; }
++			;
++default_role_def	: DEFAULT_ROLE names SOURCE ';'
++			{if (define_default_role(DEFAULT_SOURCE)) return -1; }
++			| DEFAULT_ROLE names TARGET ';'
++			{if (define_default_role(DEFAULT_TARGET)) return -1; }
++			;
++default_range_def	: DEFAULT_RANGE names SOURCE LOW ';'
++			{if (define_default_range(DEFAULT_SOURCE_LOW)) return -1; }
++			| DEFAULT_RANGE names SOURCE HIGH ';'
++			{if (define_default_range(DEFAULT_SOURCE_HIGH)) return -1; }
++			| DEFAULT_RANGE names SOURCE LOW_HIGH ';'
++			{if (define_default_range(DEFAULT_SOURCE_LOW_HIGH)) return -1; }
++			| DEFAULT_RANGE names TARGET LOW ';'
++			{if (define_default_range(DEFAULT_TARGET_LOW)) return -1; }
++			| DEFAULT_RANGE names TARGET HIGH ';'
++			{if (define_default_range(DEFAULT_TARGET_HIGH)) return -1; }
++			| DEFAULT_RANGE names TARGET LOW_HIGH ';'
++			{if (define_default_range(DEFAULT_TARGET_LOW_HIGH)) return -1; }
++			;
+ opt_mls			: mls
+                         | 
+ 			;
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 9b24db5..e767b5f 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -221,6 +221,18 @@ policycap |
+ POLICYCAP			{ return(POLICYCAP); }
+ permissive |
+ PERMISSIVE			{ return(PERMISSIVE); }
++default_user |
++DEFAULT_USER			{ return(DEFAULT_USER); }
++default_role |
++DEFAULT_ROLE			{ return(DEFAULT_ROLE); }
++default_range |
++DEFAULT_RANGE			{ return(DEFAULT_RANGE); }
++low-high |
++LOW-HIGH			{ return(LOW_HIGH); }
++high |
++HIGH				{ return(HIGH); }
++low |
++LOW				{ return(LOW); }
+ "/"({alnum}|[_\.\-/])*	        { return(PATH); }
+ \"({alnum}|[_\.\-\~])+\"	{ return(FILENAME); }
+ {letter}({alnum}|[_\-])*([\.]?({alnum}|[_\-]))*	{ return(IDENTIFIER); }
