@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = selinux-policy
-version    = 000
+version    = 001
 release    = 1
 arch       = noarch
 
@@ -109,7 +109,7 @@ build
 		rm -rvf %{BUILDROOT}/usr/share/selinux/targeted/*pp*
 
 		/usr/sbin/semodule -s targeted -n -B -v -p %{BUILDROOT}
-		/usr/bin/md5sum %{BUILDROOT}/etc/selinux/targeted/policy/policy.26 | \
+		/usr/bin/md5sum %{BUILDROOT}/etc/selinux/targeted/policy/policy.27 | \
 			cut -d' ' -f 1 > %{BUILDROOT}/etc/selinux/targeted/.policymd5
 
 		rm -rf %{BUILDROOT}/etc/selinux/targeted/contexts/netfilter_contexts 
