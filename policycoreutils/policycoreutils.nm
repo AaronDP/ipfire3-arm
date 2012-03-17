@@ -5,7 +5,7 @@
 
 name       = policycoreutils
 version    = 2.1.8
-release    = 3
+release    = 4
 
 groups     = System/Base
 url        = http://www.selinuxproject.org
@@ -56,13 +56,13 @@ build
 
 	make_build_targets += \
 		LSPP_PRIV=y \
-		LIBDIR=/usr/lib \
+		LIBDIR=%{libdir} \
 		CFLAGS="%{CFLAGS}" \
 		all
 
 	make_install_targets +=\
 		LSPP_PRIV=y \
-		LIBDIR=%{BUILDROOT}/usr/lib
+		LIBDIR=%{BUILDROOT}%{libdir}
 
 	# Build sepolgen.
 	build_cmds
@@ -113,7 +113,7 @@ packages
 			/usr/bin/sandbox
 			/usr/bin/sepolgen-ifgen
 			/usr/bin/sepolgen-ifgen-attr-helper
-			/usr/lib/python*
+			%{libdir}/python*
 			/usr/sbin/semanage
 			/usr/share/man/man1/audit2allow.1
 			/usr/share/man/man1/audit2why.1
