@@ -5,7 +5,7 @@
 
 name       = checkpolicy
 version    = 2.1.8
-release    = 1
+release    = 2
 
 groups     = Development/System
 url        = http://userspace.selinuxproject.org
@@ -35,7 +35,7 @@ build
 	end
 
 	make_build_targets += \
-		LIBDIR="/usr/lib" \
+		LIBDIR="%{libdir}" \
 		CFLAGS="%{CFLAGS}" \
 		LEX=flex
 
@@ -45,7 +45,7 @@ build
 	end
 
 	make_install_cmds += \
-		LIBDIR=%{BUILDROOT}/usr/lib
+		LIBDIR=%{BUILDROOT}%{libdir}
 
 	install_cmds
 		install test/dismod %{BULDROOT}/usr/bin
