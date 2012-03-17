@@ -25,6 +25,7 @@ build
 		autoconf
 		automake
 		bison
+		bzip2-devel
 		flex
 		gcc-c++
 		libselinux-devel
@@ -37,7 +38,7 @@ build
 	end
 
 	configure_options += \
-		--libdir=/usr/lib \
+		--libdir=%{libdir} \
 		--disable-static \
 		--disable-gui \
 		--disable-bwidget-check \
@@ -77,7 +78,7 @@ packages
 		end
 
 		files
-			/usr/lib/python*
+			%{libdir}/python*
 		end
 	end
 
