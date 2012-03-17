@@ -5,7 +5,7 @@
 
 name       = libsepol
 version    = 2.1.4
-release    = 3
+release    = 4
 
 groups     = System/Libraries
 url        = http://www.selinuxproject.org
@@ -22,12 +22,17 @@ sources    = %{thisapp}.tgz
 build
 	# Keep static libsepol.a for some selinux tools, that needs to link 
 	# against it. We will put it into an own package.
-	keep_libraries = /usr/lib/libsepol.a
+	keep_libraries = %{libdir}/libsepol.a
 
 	build
 		make clean
 		make CFLAGS="%{CFLAGS}" %{PARALELLISMFLAGS}
 	end
+
+	# Install libraries to correct place.
+	make_install_targets += \
+		LIBDIR="%{BUILDROOT}%{libdir}" \
+		SHLIBDIR="%{BUILDROOT}/%{lib}"
 
 	install_cmds
 		# Remove binaries
@@ -51,7 +56,7 @@ packages
 		groups = Development/Libraries
 
 		files
-			/usr/lib/libsepol.a
+			%{libdir}/libsepol.a
 		end
 	end
 
