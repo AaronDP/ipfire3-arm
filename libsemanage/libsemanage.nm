@@ -5,7 +5,7 @@
 
 name       = libsemanage
 version    = 2.1.5
-release    = 2
+release    = 3
 
 groups     = System/Libraries
 url        = http://www.selinuxproject.org
@@ -25,7 +25,7 @@ build
 		bzip2-devel
 		flex
 		libselinux-devel
-		libsepol-devel
+		libsepol-devel >= 2.1.4
 		python-devel
 		swig
 		ustr-devel
@@ -33,13 +33,18 @@ build
 
 	build
 		make clean
-		make CC=gcc LIBDIR="/usr/lib" CFLAGS="-g %{CFLAGS}" swigify
-		make CC=gcc LIBDIR="/usr/lib" CFLAGS="-g %{CFLAGS}" all
-		make CC=gcc LIBDIR="/usr/lib" CFLAGS="-g %{CFLAGS}" pywrap
+		make CC=gcc LIBDIR="%{libdir}" CFLAGS="-g %{CFLAGS}" swigify
+		make CC=gcc LIBDIR="%{libdir}" CFLAGS="-g %{CFLAGS}" all
+		make CC=gcc LIBDIR="%{libdir}" CFLAGS="-g %{CFLAGS}" pywrap
 	end
 
+	# Install libraries to correct place.
+	make_install_targets += \
+		LIBDIR="%{BUILDROOT}%{libdir}" \
+		SHLIBDIR="%{BUILDROOT}%{libdir}"
+
 	install_cmds
-		make install-pywrap DESTDIR=%{BUILDROOT}
+		make install-pywrap %{make_install_targets} DESTDIR=%{BUILDROOT}
 
 		# Install our config file
 		cp -vf %{DIR_SOURCE}/semanage.conf %{BUILDROOT}/etc/selinux/semanage.conf
@@ -58,7 +63,7 @@ packages
 		description = SELinux python bindings for libsemanage.
 
 		files
-			/usr/lib/python*
+			%{libdir}/python*
 		end
 	end
 
