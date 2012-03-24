@@ -1,0 +1,124 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = selinux-policy
+version    = 000
+release    = 1
+arch       = noarch
+
+config_ver = 000
+
+maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
+groups     = System/Base
+url        = http://oss.tresys.com/projects/refpolicy
+license    = GPLv2+
+summary    = Selinux policy configuration.
+
+description
+	Targeted policy rules for SELinux.
+end
+
+sources   += %{name}-config-%{config_ver}.tgz
+
+build
+	requires
+		bzip2
+		checkpolicy
+		coreutils
+		m4
+		policycoreutils
+		libxml2
+	end
+
+	selinux_flags = \
+		UNK_PERMS=allow \
+		NAME=targeted \
+		TYPE=mcs \
+		DISTRO=redhat \
+		UBAC=n \
+		DIRECT_INITRC=n \
+		MONOLITHIC=n \
+		POLY=y \
+		MLS_CATS=1024 \
+		MCS_CATS=1024 \
+		SEPOLGEN=
+
+	prepare
+		cd %{DIR_SRC} && %{MACRO_EXTRACT} %{DIR_DL}/%{thisapp}.tar.gz
+
+		cd %{DIR_APP} && mkdir -pv selinux_config
+		cp -avf %{DIR_SOURCE}/targeted/* selinux_config
+
+		%{MACRO_EXTRACT} %{DIR_DL}/%{name}-config-%{config_ver}.tgz
+	end
+
+	build
+		make clean
+		make %{selinux_flags} bare
+		make %{selinux_flags} conf
+
+		cp -f selinux_config/modules-targeted.conf  ./policy/modules.conf
+		cp -f selinux_config/booleans-targeted.conf ./policy/booleans.conf
+		cp -f selinux_config/users-targeted ./policy/users
+	end
+
+	install
+		# Crate basic directory layout.
+		mkdir -pv %{BUILDROOT}/etc/selinux
+		mkdir -pv %{BUILDROOT}/usr/share/selinux/{targeted,modules}/
+		touch  %{BUILDROOT}/etc/selinux/config
+
+		make %{selinux_flags} base.pp
+		make validate %{selinux_flags} modules
+		make %{selinux_flags} DESTDIR=%{BUILDROOT} install
+		make %{selinux_flags} DESTDIR=%{BUILDROOT} install-appconfig
+
+		# Create directories for policy.
+		mkdir -pv %{BUILDROOT}/etc/selinux/targeted/policy
+		mkdir -pv %{BUILDROOT}/etc/selinux/targeted/modules/active/modules
+		mkdir -pv %{BUILDROOT}/etc/selinux/targeted/contexts/files
+
+		# Create lock files for semanage.
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/semanage.read.LOCK
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/semanage.trans.LOCK
+
+		# Remove wrong booleans.
+		rm -rvf %{BUILDROOT}/etc/selinux/targeted/booleans
+
+		touch %{BUILDROOT}/etc/selinux/targeted/policy/policy.26
+		touch %{BUILDROOT}/etc/selinux/targeted/contexts/files/file_contexts.subs
+
+		install -m0644 selinux_config/securetty_types-targeted %{BUILDROOT}/etc/selinux/targeted/contexts/securetty_types
+		install -m0644 selinux_config/file_contexts.subs_dist %{BUILDROOT}/etc/selinux/targeted/contexts/files
+		install -m0644 selinux_config/setrans-targeted.conf %{BUILDROOT}/etc/selinux/targeted/setrans.conf
+		install -m0644 selinux_config/customizable_types %{BUILDROOT}/etc/selinux/targeted/contexts/customizable_types
+
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/active/seusers
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/active/file_contexts.local
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/active/nodes.local
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/active/users_extra.local
+		touch %{BUILDROOT}/etc/selinux/targeted/modules/active/users.local
+
+		# Compress base.pp and remove old one.
+		bzip2 -c %{BUILDROOT}/usr/share/selinux/targeted/base.pp  > %{BUILDROOT}/etc/selinux/targeted/modules/active/base.pp
+		rm -rvf %{BUILDROOT}/usr/share/selinux/targeted/base.pp
+
+		# Compress all pp files from modules and remove the old ones.
+		for i in %{BUILDROOT}/usr/share/selinux/targeted/*.pp; do 
+			bzip2 -c $i > %{BUILDROOT}/etc/selinux/targeted/modules/active/modules/$(basename $i)
+		done
+		rm -rvf %{BUILDROOT}/usr/share/selinux/targeted/*pp*
+
+		/usr/sbin/semodule -s targeted -n -B -v -p %{BUILDROOT}
+		/usr/bin/md5sum %{BUILDROOT}/etc/selinux/targeted/policy/policy.27 | \
+			cut -d' ' -f 1 > %{BUILDROOT}/etc/selinux/targeted/.policymd5
+
+		rm -rf %{BUILDROOT}/etc/selinux/targeted/contexts/netfilter_contexts 
+	end
+end
+
+packages
+	package %{name}
+end
