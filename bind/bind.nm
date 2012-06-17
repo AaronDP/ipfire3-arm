@@ -5,7 +5,7 @@
 
 name       = bind
 version    = 9.8.1
-release    = 3
+release    = 4
 
 groups     = Networking/Tools
 url        = http://www.isc.org/products/BIND/
@@ -117,11 +117,11 @@ build
 		mkdir -pv %{BUILDROOT}/var/named/chroot/var/{log,named,run/named,tmp}
 		mkdir -pv %{BUILDROOT}/var/named/chroot/etc/{pki/dnssec-keys,named}
 		mkdir -pv %{BUILDROOT}/var/named/chroot/usr/lib/bind
-		mkdir -pv %{BUILDROOT}/var/named/chroot/dev/null
-		mkdir -pv %{BUILDROOT}/var/named/chroot/dev/random
-		mkdir -pv %{BUILDROOT}/var/named/chroot/dev/zero
-		mkdir -pv %{BUILDROOT}/var/named/chroot/etc/localtime
 
+		touch %{BUILDROOT}/var/named/chroot/dev/null
+		touch %{BUILDROOT}/var/named/chroot/dev/random
+		touch %{BUILDROOT}/var/named/chroot/dev/zero
+		touch %{BUILDROOT}/var/named/chroot/etc/localtime
 		touch %{BUILDROOT}/var/named/chroot/etc/named.conf
 
 		# Run make install
