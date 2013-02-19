@@ -1,0 +1,120 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = ruby
+version    = %{ver_major}.%{ver_minor}-p%{ver_plevel}
+ver_major  = 1.9
+ver_minor  = 3
+ver_plevel = 374
+release    = 1
+
+groups     = Development/Languages
+url        = http://ruby-lang.org/
+license    = (Ruby or BSD) and Public Domain
+summary    = An interpreter of object-oriented scripting language.
+
+description
+	Ruby is the interpreted scripting language for quick and easy
+	object-oriented programming.  It has many features to process text
+	files and to do system management tasks (as in Perl).  It is simple,
+	straight-forward, and extensible.
+end
+
+source_dl  = ftp://ftp.ruby-lang.org/pub/%{name}/%{ver_major}/
+
+build
+	requires
+		autoconf
+		automake
+		gdbm-devel
+		libdb-devel
+		libffi-devel
+		libtool
+		libyaml-devel
+		ncurses-devel
+		openssl-devel
+		procps
+		readline-devel
+		zlib-devel
+	end
+
+	configure_options += \
+		--with-rubylibprefix=%{datadir}/ruby \
+		--with-archdir=%{libdir}/ruby \
+		--with-sitedir=%{datadir}/ruby/site_ruby \
+		--with-sitearchdir=%{libdir}/ruby/site_ruby \
+		--with-vendordir=%{datadir}/ruby/vendor_ruby \
+		--with-vendorarchdir=%{libdir}/ruby/vendor_ruby \
+		--with-rubyhdrdir=%{includedir} \
+		--with-rubygemsdir=%{datadir}/rubygems \
+		--disable-rpath \
+		--enable-shared \
+		--disable-versioned-paths
+
+	prepare_cmds
+		autoreconf -vfi
+	end
+
+	# Disable parallel build.
+	PARALLELISMFLAGS =
+
+	# Set test options.
+	test_options= -v
+
+	# Disable tests on testsuite.
+	disabled_tests = \
+		-x test_gem_doc_manager.rb
+
+	test
+		make check TESTS="%{test_options} %{disabled_tests}"
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package rubygems
+		summary = The Ruby standard for packaging ruby libraries.
+		description
+			RubyGems is the Ruby standard for publishing and managing third party
+			libraries.
+		end
+		arch = noarch
+
+		files
+			%{bindir}/gem
+			%{bindir}/rake
+			%{bindir}/rdoc
+			%{bindir}/ri
+			%{datadir}/rubygems
+		end
+	end
+
+	package irb
+		summary = The Interactive Ruby.
+		description
+			The irb is acronym for Interactive Ruby.  It evaluates ruby expression
+			from the terminal.
+		end
+
+		files
+			%{bindir}/irb
+			%{libdir}/ruby/irb*
+			%{mandir}/man1/irb*
+		end
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
