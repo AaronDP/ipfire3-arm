@@ -1,0 +1,115 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = webkitgtk3
+version    = 1.11.5
+release    = 1
+
+groups     = Development/Tools
+url        = http://www.webkitgtk.org/
+license    = LGPLv2+ and BSD
+summary    = GTK+ Web content engine library.
+
+description
+	WebKitGTK+ is the port of the portable web rendering engine WebKit to the
+	GTK+ platform.
+end
+
+thisapp = webkitgtk-%{version}
+
+source_dl  = http://webkitgtk.org/releases/
+sources    = %{thisapp}.tar.xz
+
+build
+	requires
+		bison
+		cairo-devel
+		chrpath
+		flex
+		fontconfig-devel
+		freetype-devel
+		gettext
+		gobject-introspection-devel
+		gperf
+		gtk2-devel
+		gtk3-devel
+		harfbuzz-devel >= 0.9.12-2
+		libicu-devel
+		libjpeg-devel
+		libpng-devel
+		libsecret-devel
+		libsoup-devel >= 2.40.0
+		libwebp-devel
+		libxslt-devel
+		libXcomposite-devel
+		libXt-devel
+		mesa-devel
+		ruby
+		rubygems
+		pcre-devel
+		sqlite-devel
+	end
+
+	prepare_cmds
+		# Don't create thin archives with ar.
+		sed -e "s/cruT/cru/g" -i configure*
+	end
+
+	configure_options += \
+		--enable-introspection \
+		--enable-dependency-tracking \
+		--with-gtk=3.0 \
+		--disable-webgl \
+		--disable-gamepad \
+		--disable-video \
+		--disable-media-stream \
+		--disable-geolocation \
+		--disable-web-audio \
+		--disable-coverage \
+		--with-acceleration-backend=none
+
+	if "${DISTRO_PLATFORM}" == "x86"
+		configure_options += --enable-jit
+	end
+
+	if "${DISTRO_PLATFORM}" == "arm"
+		configure_options += --disable-jit
+	end
+
+	configure_cmds
+		# Create required folders, which haven't be done
+		# by the configure script.
+		mkdir -p DerivedSources/webkit
+		mkdir -p DerivedSources/WebCore
+		mkdir -p DerivedSources/ANGLE
+		mkdir -p DerivedSources/WebKit2
+		mkdir -p DerivedSources/webkitdom/
+		mkdir -p DerivedSources/InjectedBundle
+	end
+
+	CFLAGS += -DLIBSOUP_I_HAVE_READ_BUG_594377_AND_KNOW_SOUP_PASSWORD_MANAGER_MIGHT_GO_AWAY
+	CFLAGS := %(echo "%{CFLAGS}" | sed -e "s/-g /-g1 /")
+
+	if "${DISTRO_PLATFORM}" == "arm"
+		CFLAGS += -Wl,--no-keep-memory -Wl,--reduce-memory-overheads
+	end
+
+	# webkitgtk3 lacks parallel build.
+	#PARALLELISMFLAGS = -j8
+
+	make_build_targets += V=1
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
