@@ -1,0 +1,51 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = libvorbis
+version    = 1.3.3
+release    = 1
+
+groups     = System/Libraries
+url        = http://www.xiph.org/
+license    = BSD
+summary    = The Vorbis General Audio Compression Codec.
+
+description
+	Ogg Vorbis is a fully open, non-proprietary, patent- and royalty-free,
+	general-purpose compressed audio format for audio and music at fixed
+	and variable bitrates.
+end
+
+source_dl  = http://downloads.xiph.org/releases/vorbis/
+sources    = %{thisapp}.tar.xz
+
+build
+	requires
+		libogg-devel
+	end
+
+	configure_options += \
+		--disable-static
+
+	prepare_cmds
+		# User our CFLAGS.
+		sed -i "s/-O20/%{CFLAGS}/" configure
+		
+		# Enable fast-math.
+		sed -i "s/-ffast-math//" configure
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
