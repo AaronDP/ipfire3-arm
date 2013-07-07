@@ -1,0 +1,56 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = ffmpeg
+version    = 1.2.1
+release    = 1
+
+groups     = Application/Multimedia
+url        = http://ffmpeg.org/
+license    = GPLv2+
+summary    = Digital VCR and streaming server.
+
+description
+	FFmpeg is a complete and free Internet live audio and video
+	broadcasting solution for Linux/Unix. It also includes a digital
+	VCR. It can encode in real time in many formats including MPEG1 audio
+	and video, MPEG4, h263, ac3, asf, avi, real, mjpeg, and flash.
+end
+
+source_dl  = http://ffmpeg.org/releases/
+
+build
+	configure_options = \
+		--prefix=%{prefix} \
+		--libdir=%{libdir} \
+		--shlibdir=%{libdir} \
+		--disable-yasm \
+		--disable-shared \
+		--enable-shared \
+		--enable-thumb \
+		--enable-gpl
+
+
+	install_cmds
+		#Remove examples.
+		rm -rvf %{BUILDROOT}/usr/share/ffmpeg/examples
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
