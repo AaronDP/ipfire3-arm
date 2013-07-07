@@ -1,0 +1,123 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = minidlna
+version    = 1.0.26
+release    = 1
+
+groups     = System/Daemons
+url        = http://sourceforge.net/projects/minidlna/
+license    = GPLv2
+summary    = Lightweight DLNA/UPnP-AV server.
+
+description
+	MiniDLNA (aka ReadyDLNA) is server software with the aim of being fully 
+	compliant with DLNA/UPnP-AV clients.
+
+	The minidlna daemon serves media files (music, pictures, and video) to 
+	clients on your network.  Example clients include applications such as 
+	Totem and XBMC, and devices such as portable media players, smartphones, 
+	and televisions.
+end
+
+source_dl  = http://downloads.sourceforge.net/%{name}/
+
+build
+	requires
+		ffmpeg-devel
+		flac-devel
+		libexif-devel
+		libid3tag-devel
+		libjpeg-devel
+		libuuid-devel
+		libvorbis-devel
+		sqlite-devel
+	end
+
+	prepare_cmds
+		# Honor our CFLAGS and include ffmpeg headers
+		sed -i 's!CFLAGS = -Wall -g -O3!CFLAGS += -I/usr/include/ffmpeg/!' Makefile
+
+		# Verbose Makefile
+		sed -i 's/@$(CC)/$(CC)/;s/&& exit 0\; \\//;/echo "The following command failed:/d' Makefile
+
+		# Edit the default config file to run the daemon with the minidlna user
+		sed -i 's/#db_dir=\/var\/cache\/minidlna/db_dir=\/var\/cache\/minidlna/' \
+			%{name}.conf
+		sed -i 's/#log_dir=\/var\/log/log_dir=\/var\/log\/minidlna/' \
+			%{name}.conf
+
+		# Create minidlna user and group.
+		%{create_user}
+	end
+
+	install_cmds
+		# Install configuration file.
+		make install-conf DESTDIR=%{BUILDROOT}
+
+		# Create cache and log directories.
+		mkdir -pv %{BUILDROOT}%{localstatedir}/cache
+		install -d -m 0755 %{BUILDROOT}%{localstatedir}/cache/%{name}/
+
+		mkdir -pv %{BUILDROOT}%{localstatedir}/log
+		install -d -m 0755 %{BUILDROOT}%{localstatedir}/log/%{name}/
+
+		mkdir -pv %{BUILDROOT}/run/%{name}
+
+		# Set correct ownership.
+		chown minidlna:minidlna %{BUILDROOT}%{localstatedir}/cache/%{name}
+		chown minidlna:minidlna %{BUILDROOT}%{localstatedir}/log/%{name}
+		chown minidlna:minidlna %{BUILDROOT}/run/%{name}
+
+	end
+end
+
+create_user
+	getent group minidlna >/dev/null || groupadd -r minidlna
+	getent passwd minidlna >/dev/null || \
+		useradd -r -g minidlna -d /dev/null -s /sbin/nologin \
+			-c "minidlna user account" minidlna
+end
+
+packages
+	package %{name}
+		prerequires += \
+			shadow-utils
+
+		configfiles
+			%{sysconfdir}/%{name}.conf
+		end
+
+		datafiles
+			%{localstatedir}/log/%{name}
+		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			systemctl --no-reload disable minidlna.service >/dev/null 2>&1 || :
+			systemctl stop minidlna.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+			systemctl try-restart minidlna.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
