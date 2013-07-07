@@ -1,0 +1,61 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = flac
+version    = 1.3.0
+release    = 1
+
+groups     = Application/Multimedia
+url        = http://www.xiph.org/flac/
+license    = BSD and GPLv2+ and GFDL
+summary    = An encoder/decoder for the Free Lossless Audio Codec.
+
+description
+	FLAC stands for Free Lossless Audio Codec. Grossly oversimplified, FLAC
+	is similar to Ogg Vorbis, but lossless. The FLAC project consists of
+	the stream format, reference encoders and decoders in library form,
+	flac, a command-line program to encode and decode FLAC files, metaflac,
+	a command-line metadata editor for FLAC files and input plugins for
+	various music players.
+end
+
+source_dl  = http://downloads.xiph.org/releases/%{name}/
+sources = %{thisapp}.tar.xz
+
+build
+	requires
+		autoconf
+		automake
+		gettext-devel
+		libogg-devel
+		libtool
+	end
+
+	configure_options += \
+		--disable-xmms-plugin \
+		--disable-silent-rules \
+		--disable-thorough-tests
+
+	prepare_cmds
+		# Run autogen to avoid problems with RPATH.
+		./autogen.sh -V
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
