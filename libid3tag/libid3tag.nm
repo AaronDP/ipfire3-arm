@@ -1,0 +1,65 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = libid3tag
+version    = 0.15.1b
+release    = 1
+
+groups     = System/Libraries
+url        = http://www.underbit.com/products/mad/
+license    = GPLv2+
+summary    = ID3 tag manipulation library.
+
+description
+	libid3tag is a library for reading and (eventually) writing ID3 tags,
+	both ID3v1 and the various versions of ID3v2.
+end
+
+source_dl  = http://sourceforge.net/projects/mad/files/%{name}/%{version}/
+
+build
+	requires
+		zlib-devel
+	end
+
+	configure_options += \
+		--disable-static
+
+	# Honor our CFLAGS.
+	make_build_targets += \
+		CFLAGS="%{CFLAGS}"
+
+	install_cmds
+		# Generate pkg-config file for libid3tag.
+		cat << \EOF > %{name}.pc
+			prefix=%{prefix}
+			exec_prefix=%{exec_prefix}
+			libdir=%{libdir}
+			includedir=%{includedir}
+
+			Name: id3tag
+			Description: ID3 tag manipulation library
+			Requires:
+			Version: %{version}
+			Libs: -lid3tag
+			Cflags:
+		EOF
+
+		# Install generated libid3tag.pc file.
+		install -Dpm 644 %{name}.pc %{BUILDROOT}%{libdir}/pkgconfig/id3tag.pc
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
