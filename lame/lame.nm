@@ -1,0 +1,58 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = lame
+version    = 3.99.5
+release    = 1
+
+groups     = System/Libraries
+url        = http://lame.sourceforge.net/
+license    = GPLv2+
+summary    = A free MP3 audio compressor.
+
+description
+	LAME is an open source MP3 encoder whose quality and speed matches
+	commercial encoders. LAME handles MPEG1,2 and 2.5 layer III encoding
+	with both constant and variable bitrates.
+end
+
+source_dl  = http://downloads.sourceforge.net/sourceforge/%{name}/
+
+build
+	requires
+	end
+
+	configure_options += \
+		--disable-static
+
+	prepare_cmds
+		sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
+	end
+
+	test
+		make test
+	end
+
+	install_cmds
+		# Some apps still expect to find <lame.h>
+		ln -sf lame/lame.h %{BUILDROOT}%{includedir}/lame.h
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
