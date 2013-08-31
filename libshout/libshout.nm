@@ -1,0 +1,43 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = libshout
+version    = 2.3.1
+release    = 1
+
+groups     = System/Libraries
+url        = http://www.icecast.org
+license    = LGPLv2
+summary    = A library for communicating and sendig data to an icecast server.
+
+description
+	Libshout is a library for communicating with and sending data to an
+	icecast server.  It handles the socket connection, the timing of the
+	data, and prevents bad data from getting to the icecast server.
+end
+
+source_dl  = http://downloads.xiph.org/releases/%{name}
+
+build
+	requires
+		libogg-devel
+		libvorbis-devel
+	end
+
+	configure_options += \
+		--disable-static
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
