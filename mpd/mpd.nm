@@ -1,0 +1,126 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = mpd
+version    = 0.17.3
+release    = 1
+
+groups     = Networking/Daemons
+url        = http://mpd.wikia.com/
+license    = GPLv2+
+summary    = The Music Player Daemon.
+
+description
+	Music Player Daemon (MPD) is a flexible, powerful, server-side application
+	for playing music. Through plugins and libraries it can play a variety of
+	sound files and can be controlled remotely via its network protocol. It can
+	be used as a desktop music player, but is also great for streaming music to
+	a stereo system over a local network.
+end
+
+source_dl  = http://downloads.sourceforge.net/musicpd/
+sources    = %{thisapp}.tar.bz2
+
+build
+	requires
+		bzip2-devel
+		curl-devel
+		ffmpeg-devel
+		flac-devel
+		glib2-devel
+		lame-devel
+		libid3tag-devel
+		libogg-devel
+		libshout-devel
+		libvorbis-devel
+		shadow-utils
+		sqlite-devel
+		systemd-devel
+		zlib-devel
+	end
+
+	configure_options += \
+		--with-systemdsystemunitdir=%{unitdir} \
+		--enable-lastfm
+
+	prepare_cmds
+		%{create_user}
+	end
+
+	install_cmds
+		# Create directories.
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/%{name}
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/%{name}/music
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/%{name}/playlists
+		mkdir -pv %{BUILDROOT}/run/%{name}
+
+		# Create missing files.
+		touch %{BUILDROOT}%{sharedstatedir}/%{name}/mpd.db
+		touch %{BUILDROOT}%{sharedstatedir}/%{name}/mpdstate
+
+		# Logging.
+		mkdir -pv %{BUILDROOT}%{localstatedir}/log/%{name}
+		touch %{BUILDROOT}%{localstatedir}/log/%{name}/%{name}.log
+
+		# Install config file.
+		install -D -p -m644 %{DIR_SOURCE}/mpd.conf \
+			%{BUILDROOT}%{sysconfdir}/%{name}.conf
+
+		# Set correct ownership.
+		chown -Rv mpd.mpd %{BUILDROOT}%{sharedstatedir}/%{name}
+		chown -Rv mpd.mpd %{BUILDROOT}%{localstatedir}/log/%{name}
+		chown -v mpd.mpd %{BUILDROOT}/run/%{name}
+	end
+end
+
+create_user
+	getent group mpd >/dev/null || /usr/sbin/groupadd -r mpd
+	getent passwd mpd >/dev/null || /usr/sbin/useradd -r -g mpd \
+		-d %{sharedstatedir}/%{name} -s /sbin/nologin mpd
+end
+
+packages
+	package %{name}
+		prerequires
+			shadow-utils
+			systemd-units
+		end
+
+		configfiles
+			%{sysconfdir}/%{name}.conf
+		end
+
+		datafiles
+			%{sharedstatedir}/%{name}
+			%{localstatedir}/log/%{name}
+		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			/bin/systemctl --no-reload disable mpd.service >/dev/null 2>&1 || :
+			/bin/systemctl stop mpd.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+			/bin/systemctl try-restart mpd.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
