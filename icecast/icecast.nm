@@ -1,0 +1,118 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = icecast
+version    = 2.3.3
+release    = 1
+
+groups     = Network/Daemons
+url        = http://www.icecast.org
+license    = GPLv2
+summary    = A ShoutCast compatible streaming media server.
+
+description
+	Icecast is a streaming media server which currently supports Ogg Vorbis
+	and MP3 audio streams. It can be used to create an Internet radio
+	station or a privately running jukebox and many things in between.
+end
+
+source_dl  = http://downloads.xiph.org/releases/%{name}
+
+build
+	requires
+		curl-devel
+		libogg-devel
+		libvorbis-devel
+		libxml2-devel
+		libxslt-devel
+		openssl-devel
+		zlib-devel
+	end
+
+	configure_options += \
+		--disable-static \
+		--with-curl \
+		--with-openssl \
+		--with-ogg
+
+	prepare_cmds
+		# Create minidlna user and group.
+		%{create_user}
+
+		# Fix icecast version on manpage.
+		sed -i -e 's/icecast2/icecast/g' debian/icecast2.1
+	end
+
+	install_cmds
+		# Create missing folder.
+		mkdir -pv %{BUILDROOT}/run/%{name}
+		mkdir -pv %{BUILDROOT}%{localstatedir}/log/%{name}
+
+		# Install manpage.
+		install -D -m 644 debian/icecast2.1 %{BUILDROOT}%{mandir}/man1/icecast.1
+
+		# Install icecast xsl file.
+		install -D -m 644 %{DIR_SOURCE}/status3.xsl \
+			%{BUILDROOT}%{datadir}/%{name}/web/status3.xsl
+
+		# Install icecast config file.
+		install -D -m640 %{DIR_SOURCE}/icecast.xml \
+			%{BUILDROOT}%{sysconfdir}/icecast.xml
+
+		# Fix ownerships.
+		chown -Rv icecast.icecast %{BUILDROOT}%{localstatedir}/log/%{name}
+		chown -Rv icecast.icecast %{BUILDROOT}%{datadir}/%{name}
+	end
+end
+
+create_user
+	getent group icecast >/dev/null || groupadd -r icecast
+	getent passwd icecast >/dev/null || \
+		useradd -r -g icecast -d %{datadir}/icecast -s /sbin/nologin \
+			-c "icecast user account" icecast
+end
+
+packages
+	package %{name}
+		prerequires
+			shadow-utils
+			systemd-units
+		end
+
+		configfiles
+			%{sysconfdir}/icecast.xml
+		end
+
+		datafiles
+			%{localstatedir}/log/%{name}
+		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			systemctl --no-reload disable icecast.service >/dev/null 2>&1 || :
+			systemctl stop icecast.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+			systemctl try-restart icecast.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
