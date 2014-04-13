@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = minidlna
-version    = 1.0.26
+version    = 1.1.2
 release    = 1
 
 groups     = System/Daemons
@@ -26,6 +26,7 @@ source_dl  = http://downloads.sourceforge.net/%{name}/
 
 build
 	requires
+		gettext
 		ffmpeg-devel
 		flac-devel
 		libexif-devel
@@ -36,13 +37,14 @@ build
 		sqlite-devel
 	end
 
+	configure_options += \
+		--disable-silent-rules \
+		--disable-rpath \
+		--with-db-path=%{localstatedir}/cache/%{name} \
+		--with-log-path=%{localstatedir}/log/%{name} \
+		--enable-tivo
+
 	prepare_cmds
-		# Honor our CFLAGS and include ffmpeg headers
-		sed -i 's!CFLAGS = -Wall -g -O3!CFLAGS += -I/usr/include/ffmpeg/!' Makefile
-
-		# Verbose Makefile
-		sed -i 's/@$(CC)/$(CC)/;s/&& exit 0\; \\//;/echo "The following command failed:/d' Makefile
-
 		# Edit the default config file to run the daemon with the minidlna user
 		sed -i 's/#db_dir=\/var\/cache\/minidlna/db_dir=\/var\/cache\/minidlna/' \
 			%{name}.conf
@@ -55,7 +57,15 @@ build
 
 	install_cmds
 		# Install configuration file.
-		make install-conf DESTDIR=%{BUILDROOT}
+		mkdir -pv %{BUILDROOT}%{sysconfdir}
+		install -m 644 %{name}.conf %{BUILDROOT}%{sysconfdir}
+
+		# Install man pages
+		mkdir -p %{BUILDROOT}%{mandir}/man5
+		install -m 644 minidlna.conf.5 %{BUILDROOT}%{mandir}/man5/
+
+		mkdir -p %{BUILDROOT}%{mandir}/man8
+		install -m 644 minidlnad.8 %{BUILDROOT}%{mandir}/man8/
 
 		# Create cache and log directories.
 		mkdir -pv %{BUILDROOT}%{localstatedir}/cache
@@ -64,6 +74,7 @@ build
 		mkdir -pv %{BUILDROOT}%{localstatedir}/log
 		install -d -m 0755 %{BUILDROOT}%{localstatedir}/log/%{name}/
 
+		# Create run directory.
 		mkdir -pv %{BUILDROOT}/run/%{name}
 
 		# Set correct ownership.
