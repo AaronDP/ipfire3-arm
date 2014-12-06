@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = ddns
-version    = 004
+version    = 005
 release    = 1
 arch       = noarch
 
@@ -18,11 +18,11 @@ description
 	written in Python.
 end
 
+source_dl = http://source.ipfire.org/releases/ddns/
 sources = %{thisapp}.tar.xz
 
 build
 	requires
-		%{bindir}/nsupdate
 		autoconf
 		automake
 		gettext-devel
@@ -46,7 +46,7 @@ end
 
 packages
 	package %{name}
-		requires
+		recommends
 			%{bindir}/nsupdate
 		end
 
