@@ -6,7 +6,7 @@ After=syslog.target local-fs.target network.target
 User=minidlna
 Group=minidlna
 Type=simple
-ExecStart=/usr/sbin/minidlna -S
+ExecStart=/usr/sbin/minidlnad -S
 
 [Install]
 WantedBy=multi-user.target

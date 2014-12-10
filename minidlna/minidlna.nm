@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = minidlna
-version    = 1.1.2
+version    = 1.1.4
 release    = 1
 
 groups     = System/Daemons
@@ -27,7 +27,7 @@ source_dl  = http://downloads.sourceforge.net/%{name}/
 build
 	requires
 		gettext
-		ffmpeg-devel
+		ffmpeg-devel >= 2.5
 		flac-devel
 		libexif-devel
 		libid3tag-devel
