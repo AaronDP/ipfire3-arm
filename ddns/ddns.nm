@@ -1,0 +1,57 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = ddns
+version    = 004
+release    = 1
+arch       = noarch
+
+groups     = System/Tools
+url        = http://www.ipfire.org
+license    = GPLv3
+summary    = A python based dynamic DNS updater.
+
+description
+	ddns is a simple, extensible, cross-distribution, cross-platform dynamic DNS updater
+	written in Python.
+end
+
+sources = %{thisapp}.tar.xz
+
+build
+	requires
+		%{bindir}/nsupdate
+		autoconf
+		automake
+		gettext-devel
+		intltool
+		m4
+	end
+
+	configure_options += \
+		--prefix=%{prefix} \
+		--sysconfdir=%{sysconfdir}
+
+	prepare_cmds
+		./autogen.sh
+	end
+
+	install_cmds
+		# Ship an empty configuration file.
+		touch %{BUILDROOT}%{sysconfdir}/%{name}/ddns.conf
+	end
+end
+
+packages
+	package %{name}
+		requires
+			%{bindir}/nsupdate
+		end
+
+		configfiles
+			%{sysconfdir}/%{name}/ddns.conf
+		end
+	end
+end
