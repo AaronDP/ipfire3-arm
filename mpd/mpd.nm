@@ -4,11 +4,14 @@
 ###############################################################################
 
 name       = mpd
-version    = 0.17.3
+ver_major  = 0.19
+ver_minor  = 7
+
+version    = %{ver_major}.%{ver_minor}
 release    = 1
 
 groups     = Networking/Daemons
-url        = http://mpd.wikia.com/
+url        = http://www.musicpd.org
 license    = GPLv2+
 summary    = The Music Player Daemon.
 
@@ -20,17 +23,19 @@ description
 	a stereo system over a local network.
 end
 
-source_dl  = http://downloads.sourceforge.net/musicpd/
-sources    = %{thisapp}.tar.bz2
+source_dl  = http://www.musicpd.org/download/%{name}/%{ver_major}/
+sources    = %{thisapp}.tar.xz
 
 build
 	requires
+		boost-devel >= 1.46
 		bzip2-devel
 		curl-devel
-		ffmpeg-devel
+		ffmpeg-devel >= 2.5
 		flac-devel
 		glib2-devel
 		lame-devel
+		libicu-devel
 		libid3tag-devel
 		libogg-devel
 		libshout-devel
@@ -42,8 +47,7 @@ build
 	end
 
 	configure_options += \
-		--with-systemdsystemunitdir=%{unitdir} \
-		--enable-lastfm
+		--with-systemdsystemunitdir=%{unitdir}
 
 	prepare_cmds
 		%{create_user}
