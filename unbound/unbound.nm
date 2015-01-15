@@ -1,0 +1,134 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = unbound
+version    = 1.5.1
+release    = 1
+
+groups     = System/Daemons
+url        = http://www.nlnetlabs.nl/unbound/
+license    = BSD
+summary    = A validating, recursive, and caching DNS(SEC) resolver.
+
+description
+	Unbound is a validating, recursive, and caching DNS(SEC) resolver.
+	The C implementation of Unbound is developed and maintained by NLnet
+	Labs and is based on ideas and algorithms taken from a java prototype
+	developed by Verisign labs, Nominet, Kirei and ep.net. Unbound is
+	designed as a set of modular components, so that also
+	DNSSEC (secure DNS) validation and stub-resolvers are easily possible.
+end
+
+source_dl  = http://www.unbound.net/downloads/
+
+build
+	requires
+		expat-devel
+		libevent-devel
+		openssl-devel >= 1.0.1h-2
+	end
+
+	configure_options += \
+		--with-conf-file=%{sysconfdir}/%{name}/unbound.conf \
+		--with-pidfile=%{localstatedir}/run/%{name}/%{name}.pid \
+		--with-rootkey-file=%{sharedstatedir}/unbound/root.key \
+		--with-libevent \
+		--with-pthreads \
+		--disable-rpath \
+		--disable-static \
+		--with-ssl \
+		--enable-sha2
+
+	test
+		make check
+	end
+
+	install_cmds
+		# Create directories.
+		mkdir -pv %{BUILDROOT}%{localstatedir}/run/%{name}
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/%{name}
+
+		# Install unbound config file.
+		install -p -m 0664 %{DIR_SOURCE}/%{name}.conf \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+
+		# Install pem file for icannbundle.
+		install -p -m 0664 %{DIR_SOURCE}/icannbundle.pem \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+
+		# Install root and DLV keys.
+		install -p -m 0644 %{DIR_SOURCE}/root.key \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+		install -p -m 0664 %{DIR_SOURCE}/dlv.isc.org.key \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+		install -p -m 0664 %{DIR_SOURCE}/root.anchor \
+			%{BUILDROOT}%{sharedstatedir}/%{name}/root.key
+	end
+end
+
+create_user
+	getent group unound >/dev/null || /usr/sbin/groupadd -r unbound
+	getent passwd unbound >/dev/null || /usr/sbin/useradd -r -g unbound \
+		-d %{sysconfdir}/%{name} -s /sbin/nologin unbound
+end
+
+packages
+	package %{name}
+		prerequires
+			/usr/sbin/runuser
+			shadow-utils
+			sudo
+			systemd-units
+		end
+
+		requires += \
+			openssl >= 1.0.1h-2
+
+		configfiles
+			%{sysconfdir}/%{name}.conf
+		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+			# Setup root anchor for DNSSEC validation.
+			/sbin/runuser --shell /bin/sh -c "/usr/sbin/unbound-anchor \
+				-a /var/lib/unbound/root.key \
+				-c /etc/unbound/icannbundle.pem" unbound
+		end
+
+		script preun
+			/bin/systemctl --no-reload disable squid.service >/dev/null 2>&1 || :
+			/bin/systemctl stop unbound.service >/dev/null 2>&1 || :
+			/bin/systemctl stop unbound-keygen.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+			/bin/systemctl try-restart unbound-keygen.service >/dev/null 2>&1 || :
+			/bin/systemctl try-restart unbound.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

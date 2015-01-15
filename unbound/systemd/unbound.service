@@ -1,0 +1,16 @@
+[Unit]
+Description=Unbound recursive Domain Name Server
+After=syslog.target network.target
+After=unbound-keygen.service
+Wants=unbound-keygen.service
+Before=nss-lookup.target
+Wants=nss-lookup.target
+
+[Service]
+Type=simple
+ExecStartPre=/sbin/runuser --shell /bin/sh -c "/usr/sbin/unbound-anchor -a /var/lib/unbound/root.key -c /etc/unbound/icannbundle.pem" unbound
+ExecStartPre=/usr/sbin/unbound-checkconf
+ExecStart=/usr/sbin/unbound -d
+
+[Install]
+WantedBy=multi-user.target
