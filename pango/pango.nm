@@ -7,7 +7,9 @@ name       = pango
 version    = %{ver_major}.%{ver_minor}
 ver_major  = 1.36
 ver_minor  = 8
-release    = 1
+release    = 2
+
+bin_version = 1.8.0
 
 groups     = System/Libraries
 url        = http://www.pango.org/
@@ -39,10 +41,24 @@ build
 	configure_options += \
 		--enable-introspection=yes
 
+
+	install_cmds
+		touch %{BUILDROOT}%{libdir}/pango/%{bin_version}/modules.cache
+	end
 end
 
 packages
 	package %{name}
+		script postin
+			/usr/bin/pango-querymodules --update-cache || :
+		end
+
+		script postup
+			if [ ! -e "%{libdir}/pango/%{bin_version}/modules.cache" ]; then
+				/usr/bin/pango-querymodules --update-cache || :
+			fi
+		end
+	end
 
 	package %{name}-devel
 		template DEVEL
