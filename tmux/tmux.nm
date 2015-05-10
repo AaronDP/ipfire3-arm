@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = tmux
-version    = 1.9a
-release    = 2
+version    = 2.0
+release    = 1
 
 groups     = Application/System
 url        = http://sourceforge.net/projects/tmux
