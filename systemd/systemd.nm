@@ -5,7 +5,7 @@
 
 name       = systemd
 version    = 215
-release    = 1
+release    = 2
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -48,6 +48,8 @@ build
 		libuuid-devel
 		pam-devel
 		pciutils-devel
+		python-devel
+		python-lxml
 		usbutils
 		vala
 		xz-devel
@@ -56,6 +58,7 @@ build
 	configure_options += \
 		--with-sysvinit-path= \
 		--with-sysvrcnd-path= \
+		--with-python \
 		--enable-introspection=yes \
 		--disable-networkd \
 		--disable-resolvd \
@@ -323,6 +326,10 @@ packages
 					' /etc/nsswitch.conf
 			fi
 		end
+	end
+
+	package python-%{name}
+		template PYTHON
 	end
 
 	package %{name}-devel
