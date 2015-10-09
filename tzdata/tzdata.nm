@@ -3,12 +3,12 @@
 # Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
 ###############################################################################
 
-tzdata_version = 2014j
-tzcode_version = 2014j
+tzdata_version = 2015g
+tzcode_version = 2015g
 
 name       = tzdata
 version    = %{tzdata_version}
-release    = 2
+release    = 1
 arch       = noarch
 
 groups     = System/Base
