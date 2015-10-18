@@ -5,7 +5,7 @@
 
 name       = systemd
 version    = 221
-release    = 2
+release    = 3
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -164,6 +164,8 @@ create_groups
 	getent group tape >/dev/null || groupadd -g 33 tape || :
 	getent group dialout >/dev/null || groupadd -g 18 dialout || :
 	getent group floppy >/dev/null || groupadd -g 19 floppy || :
+	getent group input >/dev/null || groupadd -r input || :
+	getent group utmp >/dev/null || groupadd -r -g 22 utmp || :
 
 	# Create group for journald.
 	getent group systemd-journal >/dev/null || /usr/sbin/groupadd -r systemd-journal
