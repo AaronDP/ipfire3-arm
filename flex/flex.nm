@@ -5,7 +5,7 @@
 
 name       = flex
 version    = 2.5.39
-release    = 2
+release    = 2.1
 
 groups     = Development/Tools
 url        = http://flex.sourceforge.net/
