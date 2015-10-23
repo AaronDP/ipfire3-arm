@@ -1,0 +1,162 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = unbound
+version    = 1.5.5
+release    = 1
+
+groups     = System/Daemons
+url        = http://www.nlnetlabs.nl/unbound/
+license    = BSD
+summary    = A validating, recursive, and caching DNS(SEC) resolver.
+
+description
+	Unbound is a validating, recursive, and caching DNS(SEC) resolver.
+	The C implementation of Unbound is developed and maintained by NLnet
+	Labs and is based on ideas and algorithms taken from a java prototype
+	developed by Verisign labs, Nominet, Kirei and ep.net. Unbound is
+	designed as a set of modular components, so that also
+	DNSSEC (secure DNS) validation and stub-resolvers are easily possible.
+end
+
+source_dl  = http://www.unbound.net/downloads/
+
+build
+	requires
+		expat-devel
+		libevent-devel
+		openssl-devel >= 1.0.1h-2
+		python3-devel >= 3.4
+		swig
+	end
+
+	configure_options += \
+		--with-conf-file=%{sysconfdir}/%{name}/unbound.conf \
+		--with-pidfile=%{localstatedir}/run/%{name}/%{name}.pid \
+		--with-rootkey-file=%{sharedstatedir}/unbound/root.key \
+		--with-libevent \
+		--with-pthreads \
+		--disable-rpath \
+		--disable-static \
+		--with-ssl \
+		--enable-sha2 \
+		--with-pythonmodule \
+		--with-pyunbound PYTHON=%{python3}
+
+	prepare_cmds
+		%{create_user}
+	end
+
+	test
+		make check
+	end
+
+	install_cmds
+		# Create directories.
+		mkdir -pv %{BUILDROOT}%{localstatedir}/run/%{name}
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/%{name}
+
+		# Directory for user specified and additional config files.
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/%{name}/conf.d/
+
+		# Directory for stub and forward zones.
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/%{name}/local.d/
+
+		# Directory for trusted-keys-file.
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/%{name}/keys.d/
+
+		# Install unbound config file.
+		install -p -m 0664 %{DIR_SOURCE}/%{name}.conf \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+
+		# Install pem file for icannbundle.
+		install -p -m 0664 %{DIR_SOURCE}/icannbundle.pem \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+
+		# Install root and DLV keys.
+		install -p -m 0644 %{DIR_SOURCE}/root.key \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+		install -p -m 0664 %{DIR_SOURCE}/dlv.isc.org.key \
+			%{BUILDROOT}%{sysconfdir}/%{name}/
+		install -p -m 0664 %{DIR_SOURCE}/root.anchor \
+			%{BUILDROOT}%{sharedstatedir}/%{name}/root.key
+
+		# Fix ownership.
+		chown -R unbound:unbound %{BUILDROOT}%{sharedstatedir}/%{name}/
+	end
+end
+
+create_user
+	getent group unound >/dev/null || /usr/sbin/groupadd -r unbound
+	getent passwd unbound >/dev/null || /usr/sbin/useradd -r -g unbound \
+		-d %{sysconfdir}/%{name} -s /sbin/nologin unbound
+end
+
+packages
+	package %{name}
+		prerequires
+			shadow-utils
+			systemd-units
+		end
+
+		requires += \
+			openssl >= 1.0.1h-2
+
+		configfiles
+			%{sysconfdir}/%{name}.conf
+		end
+
+		datafiles
+			%{sysconfdir}/%{name}/conf.d/
+			%{sysconfdir}/%{name}/local.d/
+			%{sysconfdir}/%{name}/keys.d/
+		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+			# Enable root anchor for DNSSEC validation.
+			systemctl enable unbound-anchor.timer >/dev/null 2>&1 || :
+		end
+
+		script preun
+			systemctl --no-reload disable unbound-anchor.timer >/dev/null 2>&1 || :
+			systemctl --no-reload disable unbound-keygen.service >/dev/null 2>&1 || :
+			systemctl --no-reload disable unbound.service >/dev/null 2>&1 || :
+			systemctl stop unbound.service >/dev/null 2>&1 || :
+			systemctl stop unbound-keygen.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+			systemctl try-restart unbound-keygen.service >/dev/null 2>&1 || :
+			systemctl try-restart unbound.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package python3-%{name}
+		template PYTHON3
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

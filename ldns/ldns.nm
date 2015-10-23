@@ -3,14 +3,14 @@
 # Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
 ###############################################################################
 
-name       = flex
-version    = 2.5.39
-release    = 2
+name       = ldns
+version    = 1.6.17
+release    = 1
 
-groups     = Development/Tools
-url        = http://flex.sourceforge.net/
+groups     = Networking/DNS
+url        = http://www.nlnetlabs.nl/projects/ldns/
 license    = BSD
-summary    = A tool for creating scanners (text pattern recognizers).
+summary    = Low-level DNS(SEC) library with API
 
 description
 	The flex program generates scanners. Scanners are programs which can
@@ -24,35 +24,54 @@ description
 	build process.
 end
 
-source_dl  = http://prdownloads.sourceforge.net/flex/
+source_dl  = http://www.nlnetlabs.nl/downloads/%{name}/
 
 build
 	requires
-		bison
+		ca-certificates
+		doxygen
 		gcc-c++
-		m4
+		libpcap-devel
+		openssl-devel
 	end
 
-	keep_libraries = %{libdir}/libfl_pic.a
+	prepare_cmds
+		sed -i "s/@includedir@/@includedir@\/ldns/" \
+			packaging/libldns.pc.in
+	end
 
-	test
-		make check
+	configure_options += \
+		--enable-gost \
+		--enable-ecdsa \
+		--with-ca-file=/etc/pki/tls/certs/ca-bundle.trust.crt \
+		--with-ca-path=/etc/pki/tls/certs/ \
+		--with-trust-anchor=%{sharedstatedir}/unbound/root.key \
+		--enable-rrtype-cds \
+		--enable-rrtype-uri
+
+	build_cmds
+		pushd drill
+		./configure %{configure_options}
+		make %{PARALLELISMFLAGS}
+		popd
 	end
 
 	install_cmds
-		echo "#!/bin/sh"			>  %{BUILDROOT}/usr/bin/lex
-		echo "exec /usr/bin/flex -l \"\$@\""	>> %{BUILDROOT}/usr/bin/lex
-		chmod 755 %{BUILDROOT}/usr/bin/lex
+		install -D -m644 packaging/libldns.pc \
+			%{BUILDROOT}%{libdir}/pkgconfig/ldns.pc
+
+		make -C drill DESTDIR=%{BUILDROOT} install
 	end
 end
 
 packages
 	package %{name}
-		requires = m4
-	end
 
 	package %{name}-devel
 		template DEVEL
+
+		files += %{bindir}/ldns-config
+		files += %{mandir}/man1/ldns-config.1*
 	end
 
 	package %{name}-debuginfo

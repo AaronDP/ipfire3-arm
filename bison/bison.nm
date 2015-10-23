@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = bison
-version    = 2.7.1
+version    = 3.0.4
 release    = 1
 
 groups     = Development/Tools
@@ -13,14 +13,16 @@ license    = GPLv2+
 summary    = GNU Bison is a parser generator.
 
 description
-	Bison is a general-purpose parser generator that converts an annotated \
+	Bison is a general-purpose parser generator that converts an annotated
 	context-free grammar into an LALR(1) or GLR parser for that grammar.
 end
 
 source_dl  = http://ftp.gnu.org/gnu/bison/
+sources    = %{thisapp}.tar.xz
 
 build
 	requires
+		flex >= 2.5.37
 		m4 >= 1.4.16
 		perl
 	end
@@ -43,8 +45,8 @@ build
 		mkdir -pv %{BUILDROOT}%{libdir}
 		cd lib
 		install -v liby.so.%{version} %{BUILDROOT}%{libdir}/liby.so.%{version}
-		ln -vsf liby.so.%{version} %{BUILDROOT}%{libdir}/liby.so.2
-		ln -vsf liby.so.2 %{BUILDROOT}%{libdir}/liby.so
+		ln -vsf liby.so.%{version} %{BUILDROOT}%{libdir}/liby.so.3
+		ln -vsf liby.so.3 %{BUILDROOT}%{libdir}/liby.so
 	end
 end
 

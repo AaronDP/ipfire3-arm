@@ -5,9 +5,8 @@
 
 name       = network
 epoch      = 1
-version    = 006
-release    = 2
-arch       = noarch
+version    = 007
+release    = 1.1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = Base Networking/Tools
@@ -26,14 +25,21 @@ source_dl  = http://source.ipfire.org/releases/network/
 
 build
 	requires
+		autoconf
+		automake
 		docbook-xsl
 		libxslt
+		systemd-devel
+	end
+
+	prepare_cmds
+		[ -e "configure" ] || ./autogen.sh
 	end
 
 	install_cmds
 		# Create some dummy configuration files.
-		mkdir -pv %{BUILDROOT}%{sysconfdir}/{firewall,network}
-		touch %{BUILDROOT}%{sysconfdir}/network/{config,dns-servers,routes}
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/network
+		touch %{BUILDROOT}%{sysconfdir}/network/{settings,dns-servers,routes}
 	end
 end
 
@@ -60,28 +66,27 @@ packages
 			systemd-units
 			tunctl
 			wpa_supplicant >= 1.0-2
-			/usr/bin/ipcalc
 			/usr/bin/logger
 		end
 
 		configfiles
-			/etc/firewall
 			/etc/network
 		end
 
-		# Enable network service, so it starts at the first boot.
 		script postin
 			systemctl daemon-reload >/dev/null 2>&1 || :
-			systemctl --no-reload enable network.service >/dev/null 2>&1 || :
 		end
 
-		script preun
-			systemctl --no-reload disable network.service >/dev/null 2>&1 || :
-			systemctl stop network.service >/dev/null 2>&1 || :
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
 		end
 
 		script postup
 			systemctl daemon-reload >/dev/null 2>&1 || :
 		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
 	end
 end

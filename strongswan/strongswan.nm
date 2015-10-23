@@ -5,7 +5,7 @@
 
 name       = strongswan
 version    = 5.3.3
-release    = 2
+release    = 3
 
 groups     = Networking/VPN
 url        = http://www.strongswan.org/
@@ -30,6 +30,7 @@ build
 		flex
 		gmp-devel
 		gperf
+		ldns-devel
 		libcap-devel
 		libcurl-devel
 		libgcrypt-devel
@@ -39,6 +40,7 @@ build
 		perl
 		sqlite-devel
 		systemd-devel >= 221-2
+		unbound-devel
 	end
 
 	configure_options += \
@@ -62,7 +64,7 @@ build
 		--enable-eap-mschapv2 \
 		--enable-eap-identity \
 		--with-capabilities=libcap \
-		--enable-swanctl \
+		--enable-unbound \
 		--enable-systemd
 
 	if "%{DISTRO_ARCH}" == "i686"
@@ -93,14 +95,11 @@ packages
 		script postup
 			systemctl daemon-reload >/dev/null 2>&1 || :
 			systemctl reload-or-try-restart strongswan.service >/dev/null 2>&1 || :
-			systemctl reload-or-try-restart strongswan-swanctl.service >/dev/null 2>&1 || :
 		end
 
 		script preun
 			systemctl disable --no-reload strongswan.service >/dev/null 2>&1 || :
-			systemctl disable --no-reload strongswan-swanctl.service >/dev/null 2>&1 || :
 			systemctl stop strongswan.service >/dev/null 2>&1 || :
-			systemctl stop strongswan-swanctl.service >/dev/null 2>&1 || :
 		end
 
 		script postun
