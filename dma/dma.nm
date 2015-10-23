@@ -1,0 +1,48 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = dma
+version    = 0.10
+release    = 1
+
+groups     = Mail
+url        = https://github.com/corecode/dma
+license    = BSD
+summary    = DragonFly Mail Agent
+
+description
+	dma is a small Mail Transport Agent (MTA), designed for home and
+	office use. It accepts mails from locally installed Mail User Agents
+	(MUA) and delivers the mails either locally or to a remote destination.
+
+	Remote delivery includes several features like TLS/SSL support and
+	SMTP authentication.
+end
+
+build
+	requires
+		bison
+		flex
+		openssl-devel
+	end
+
+	make_build_targets += PREFIX=%{prefix}
+
+	# Workaround for #10952
+	make_build_targets += LEX="flex -l"
+
+	make_install_targets += PREFIX=%{prefix} \
+		sendmail-link mailq-link install-spool-dirs install-etc
+end
+
+packages
+	package %{name}
+		groups += Base
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
