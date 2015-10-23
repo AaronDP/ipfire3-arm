@@ -1,0 +1,9 @@
+[Unit]
+Description=Periodly flushing of the DMA mail queue.
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

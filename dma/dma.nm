@@ -40,6 +40,29 @@ end
 packages
 	package %{name}
 		groups += Base
+
+		script postin
+			systemctl daemon-reload >/dev/null 2>&1 || :
+			systemctl --no-reload enable dma-queue-flush.timer >/dev/null 2>&1 || :
+			systemctl --no-reload enable dma-cleanup-spool.timer >/dev/null 2>&1 || :
+		end
+
+		script preun
+			systemctl --no-reload disable dma-queue-flush.timer >/dev/null 2>&1 || :
+			systemctl --no-reload disable dma-cleanup-spool.timer >/dev/null 2>&1 || :
+			systemctl stop dma-queue-flush.timer >/dev/null 2>&1 || :
+			systemctl stop dma-cleanup-spool.timer >/dev/null 2>&1 || :
+			systemctl stop dma-queue-flush.service >/dev/null 2>&1 || :
+			systemctl stop dma-cleanup-spool.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
 	end
 
 	package %{name}-debuginfo
