@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = c_icap
-version    = 0.1.7
-release    = 4
+ver_major  = 0.4
+ver_minor  = 2
+version    = %{ver_major}.%{ver_minor}
+release    = 1
 
 groups     = Networking/Daemons
 url        = http://c-icap.sourceforge.net
@@ -13,49 +15,91 @@ license    = GPLv2
 summary    = c-icap is an implementation of an ICAP server.
 
 description
-	c-icap is an implementation of an ICAP server. It can be used with \
-	HTTP proxies that support the ICAP protocol to implement content \
+	c-icap is an implementation of an ICAP server. It can be used with
+	HTTP proxies that support the ICAP protocol to implement content
 	adaptation and filtering services.
 end
 
-source_dl  = http://downloads.sourceforge.net/project/c-icap/c-icap/0.1.x/
+source_dl  = http://downloads.sourceforge.net/project/c-icap/c-icap/%{ver_major}.x/
 
 build
 	requires
-		autoconf
-		automake
+		bzip2-devel
 		libdb-devel
-		libtool-devel
+		pcre-devel
 		zlib-devel
 	end
 
 	configure_options += \
+		--sysconfdir=%{sysconfdir}/c-icap \
 		--enable-large-files \
-		--enable-ipv6 \
-		--sysconfdir=/etc/c-icap \
-		--localstatedir=/var
+		--enable-ipv6
 
 	prepare_cmds
-		autoreconf -vfi
+		%{create_user}
+	end
+
+	install_cmds
+		# Install configuration file
+		cp -vf %{DIR_SOURCE}/c-icap.conf %{BUILDROOT}%{sysconfdir}/c-icap/
+
+		# Create folders.
+		mkdir -pv %{BUILDROOT}%{sharedstatedir}/c-icap
+
+		# Set permissions.
+		chown -Rv c-icap:c-icap %{BUILDROOT}%{localstatedir}/run/c-icap \
+			%{BUILDROOT}%{sharedstatedir}/c-icap
 	end
 end
 
-quality-agent
-	whitelist_rpath
-		/usr/lib
-	end
+create_user
+	getent group c-icap >/dev/null || /usr/sbin/groupadd -r c-icap
+	getent passwd c-icap >/dev/null || /usr/sbin/useradd -r -g c-icap \
+		-d /var/lib/c-icap -s /sbin/nologin c-icap
 end
 
 packages
 	package %{name}
-		requires = %{name}_modules
+		prerequires += shadow-utils
+
+		recomends
+			%{name}_modules > %{ver_major}
+		end
 
 		configfiles
-			/etc/c-icap/c-icap.conf
-			/etc/c-icap/c-icap.conf.default
-			/etc/c-icap/c-icap.magic
-			/etc/c-icap/c-icap.magic.default
+			%{sysconfdir}/c-icap/c-icap.conf
+			%{sysconfdir}/c-icap/c-icap.magic
 		end
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			/bin/systemctl --no-reload disable c-icap.service >/dev/null 2>&1 || :
+			/bin/systemctl stop c-icap.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preup
+			%{create_user}
+		end
+
+		script postup
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+			/bin/systemctl try-restart c-icap.service >/dev/null 2>&1 || :
+		end
+	end
+
+	package %{name}-devel
+		template DEVEL
 	end
 
 	package %{name}-debuginfo

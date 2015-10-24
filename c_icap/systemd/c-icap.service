@@ -1,0 +1,10 @@
+[Unit]
+Description=C-ICAP service.
+After=network-online.target squid.service
+
+[Service]
+ExecStart=/usr/bin/c-icap -f /etc/c-icap/c-icap.conf -N
+ExecReload=/usr/bin/echo -n "reconfigure" > /var/run/c-icap.ctl
+
+[Install]
+WantedBy=multi-user.target
