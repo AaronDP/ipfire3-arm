@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = c_icap_modules
-version    = 0.1.6
-release    = 3
+ver_major  = 0.4
+ver_minor  = 1
+version    = %{ver_major}.%{ver_minor}
+release    = 1
 
 groups     = Networking/Daemons
 url        = http://c-icap.sourceforge.net
@@ -13,44 +15,43 @@ license    = GPLv2
 summary    = c-icap service modules for clamav and content filrer.
 
 description
-	c-icap is an implementation of an ICAP server. It can be used with \
-	HTTP proxies that support the ICAP protocol to implement content \
+	c-icap is an implementation of an ICAP server. It can be used with
+	HTTP proxies that support the ICAP protocol to implement content
 	adaptation and filtering services.
 end
 
-source_dl = http://downloads.sourceforge.net/project/c-icap/c-icap-modules/0.1.x/
+source_dl = http://downloads.sourceforge.net/project/c-icap/c-icap-modules/%{ver_major}.x/
 
 build
 	requires
-		autoconf
-		automake
-		c_icap >= 0.1.7-3
+		bzip2-devel
+		c_icap-devel >= 0.4
 		clamav-devel
 		libdb-devel
-		libtool-devel
+		zlib-devel
 	end
 
 	configure_options += \
-		--sysconfdir=/etc/c-icap \
-		--localstatedir=/var
-
-	prepare_cmds
-		autoreconf -vfi
-	end
+		--sysconfdir=%{sysconfdir}/c-icap
 
 	install
-		mkdir -pv %{BUILDROOT}/etc/c-icap
+		# Create directory for config files.
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/c-icap
+
+		# Install c-icap modules
 		make install DESTDIR=%{BUILDROOT}
 	end
 end
 
 packages
 	package %{name}
+		requires = c_icap > %{ver_major}
+
 		configfiles
-			/etc/c-icap/srv_clamav.conf
-			/etc/c-icap/srv_clamav.conf.default
-			/etc/c-icap/srv_url_check.conf
-			/etc/c-icap/srv_url_check.conf.default
+			%{sysconfdir}/c-icap/clamav_mod.conf
+			%{sysconfdir}/c-icap/clamd_mod.conf
+			%{sysconfdir}/c-icap/srv_url_check.conf
+			%{sysconfdir}/c-icap/virus_scan.conf
 		end
 	end
 
