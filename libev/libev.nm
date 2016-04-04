@@ -1,0 +1,81 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = libev
+version    = 4.22
+release    = 1
+
+groups     = System/Libraries
+url        = http://software.schmorp.de/pkg/libev.html
+license    = BSD or GPLv2+
+summary    = High-performance event loop/event model with lots of features.
+
+description
+	Libev is modeled (very loosely) after libevent and the Event Perl
+	module, but is faster, scales better and is more correct, and also more
+	featureful. And also smaller.
+end
+
+source_dl  = http://dist.schmorp.de/libev/Attic/
+
+# Specify directory for installing the source code of libev, for packaging into
+# own sub-package.
+libev-src-instdir = %{BUILDROOT}%{datadir}/%{name}-source/
+
+build
+	requires
+		autoconf
+		automake
+		libtool
+	end
+
+	configure_options += \
+		--disable-static \
+		--with-pic
+
+	prepare_cmds
+		autoreconf -vi
+	end
+
+	test
+		make check
+	end
+
+	install_cmds
+		# Make the source package
+		mkdir -pv %{libev-src-instdir}
+		find . -type f | grep -E '.*\.(c|h|am|ac|inc|m4|h.in|man.pre|pl|txt)$' | xargs tar cf - | (cd %{libev-src-instdir} && tar xf -)
+		install -p -m 0644 Changes ev.pod LICENSE README %{libev-src-instdir}
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+
+		conflicts
+			libevent-devel
+		end
+	end
+
+	package %{name}-source
+		summary = Source code of libev, a high-performance event loop model.
+		arch    = noarch
+		description
+			This package contains the source code of libev, a
+			high-performance event loop/event model with lots of features.
+		end
+
+		files
+			%{datadir}/%{name}-source
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
