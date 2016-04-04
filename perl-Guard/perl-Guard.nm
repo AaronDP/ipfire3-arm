@@ -1,0 +1,59 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-Guard
+version    = 1.023
+release    = 1
+thisapp    = Guard-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/Guard/
+license    = GPL+ or Artistic
+summary    = Safe cleanup blocks.
+
+description
+	This module implements so-called "guards". A guard is something (usually an
+	object) that "guards" a resource, ensuring that it is cleaned up when expected.
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		perl(Exporter)
+		perl(ExtUtils::MakeMaker)
+		perl(XSLoader)
+		perl(base)
+		perl(warnings)
+		pakfire >= 0.9.26-3.1
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+			perl(Exporter)
+			perl(XSLoader)
+			perl(warnings)
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
