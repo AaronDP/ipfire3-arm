@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = cryptsetup-luks
-version    = %{ver_maj}.7
-ver_maj    = 1.6
+version    = %{ver_maj}.0
+ver_maj    = 1.7
 release    = 1
 
 groups     = System/Filesystems

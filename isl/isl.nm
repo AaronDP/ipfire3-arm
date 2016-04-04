@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = isl
-version    = 0.12.2
+version    = 0.16.1
 release    = 1
 
 groups     = System/Libraries
@@ -22,7 +22,7 @@ description
 end
 
 source_dl += http://isl.gforge.inria.fr/
-sources    = %{thisapp}.tar.lzma
+sources    = %{thisapp}.tar.xz
 
 build
 	requires
@@ -30,6 +30,7 @@ build
 	end
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/.libs
 		make check
 	end
 

@@ -5,7 +5,7 @@
 
 --- gcc/config/esp.h	2010-04-09 16:14:00.000000000 +0200
 +++ gcc/config/esp.h	2012-06-23 01:00:31.248348491 +0200
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,132 @@
 +/* License terms see GNU GENERAL PUBLIC LICENSE Version 3.
 + * Version 20140512.1
 + * Magnus Granberg (Zorry) <zorry@gentoo.org>  */
@@ -52,10 +52,15 @@
 +	/*  This will add -fstack-protector-all if we don't have -nostdlib -nodefaultlibs -fno-stack-protector -fstack-protector
 +		-fstack-protector-all and we have EFAULT_SSP or EFAULT_PIE_SSP defined.  */
 +	#if defined ( EFAULT_SSP ) || defined ( EFAULT_PIE_SSP )
++		#ifdef ESP_NO_STACK_CHECK
++			#define ESP_OPTIONS_STACK_CHECK_SPEC
++		#else
++			#define ESP_OPTIONS_STACK_CHECK_SPEC "%{fstack-check|fstack-check=*:;: -fstack-check}"
++		#endif
 +		#define ESP_OPTIONS_SSP_SPEC \
 +			"%{nostdlib|ffreestanding|fno-stack-protector|fstack-protector| \
-+			fstack-protector-all|fstack-protector-strong:;:-fstack-protector-all} \
-+			%{fstack-check|fstack-check=*:;: -fstack-check}"
++			fstack-protector-all|fstack-protector-strong:;:-fstack-protector-all} " \
++			ESP_OPTIONS_STACK_CHECK_SPEC
 +	#else
 +		#define ESP_OPTIONS_SSP_SPEC ""
 +	#endif

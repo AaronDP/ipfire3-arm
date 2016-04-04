@@ -5,7 +5,7 @@
 
 name       = systemd
 version    = 221
-release    = 3
+release    = 4
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -49,6 +49,8 @@ build
 		m4
 		pam-devel
 		pciutils-devel
+		python3-devel
+		python3-lxml
 		usbutils
 		vala
 		xz-devel
@@ -56,6 +58,7 @@ build
 	end
 
 	configure_options += \
+		PYTHON=%{python3} \
 		--with-sysvinit-path= \
 		--with-sysvrcnd-path= \
 		--enable-introspection \
@@ -427,6 +430,10 @@ packages
 			%{datadir}/gir-*
 			%{datadir}/gtk-doc/html/gudev
 		end
+	end
+
+	package python3-%{name}
+		template PYTHON3
 	end
 
 	package %{name}-debuginfo

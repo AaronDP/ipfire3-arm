@@ -4,7 +4,9 @@
 ###############################################################################
 
 name       = gupnp
-version    = 0.13.1
+ver_major  = 0.20
+ver_minor  = 16
+version    = %{ver_major}.%{ver_minor}
 release    = 1
 
 groups     = System/Libraries
@@ -18,13 +20,14 @@ description
 	The GUPnP API is intended to be easy to use, efficient and flexible.
 end
 
-source_dl  =
+source_dl  = https://download.gnome.org/sources/gupnp/%{ver_major}/
+sources = %{thisapp}.tar.xz
 
 build
 	requires
 		glib2-devel
-		gssdp-devel
-		libsoup-devel
+		gssdp-devel >= 0.14.13
+		libsoup-devel >= 2.48
 		libuuid-devel
 		libxml2-devel
 	end

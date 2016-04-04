@@ -13,12 +13,13 @@
  #include "filenames.h"
  
  /* By default there is no special suffix for target executables.  */
-@@ -822,7 +823,9 @@
+@@ -870,7 +870,9 @@
  
- static const char *asm_debug;
+ static const char *asm_debug = ASM_DEBUG_SPEC;
  static const char *cpp_spec = CPP_SPEC;
+-static const char *cc1_spec = CC1_SPEC;
 +#ifndef ENABLE_ESP
- static const char *cc1_spec = CC1_SPEC CC1_SSP_DEFAULT_SPEC;
++static const char *cc1_spec = CC1_SPEC CC1_SSP_DEFAULT_SPEC;
 +#endif
  static const char *cc1plus_spec = CC1PLUS_SPEC;
  static const char *link_gcc_c_sequence_spec = LINK_GCC_C_SEQUENCE_SPEC;

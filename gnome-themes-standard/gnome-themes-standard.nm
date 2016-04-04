@@ -4,9 +4,8 @@
 ###############################################################################
 
 name       = gnome-themes-standard
-ver_major  = 3.11
-ver_minor  = 5
-version    = %{ver_major}.%{ver_minor}
+ver_major  = 3.20
+version    = %{ver_major}
 release    = 1
 
 groups     = 

@@ -1,0 +1,60 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = compat-isl
+version    = 0.14.1
+release    = 1
+thisapp    = isl-%{version}
+
+groups     = System/Libraries
+url        = http://isl.gforge.inria.fr/
+license    = MIT
+summary    = Integer Set Library
+
+description
+	isl is a library for manipulating sets and relations of integer points
+	bounded by linear constraints. Supported operations on sets include
+	intersection, union, set difference, emptiness check, convex hull,
+	(integer) affine hull, integer projection, computing the lexicographic
+	minimum using parametric integer programming, coalescing and parametric
+	vertex enumeration.
+end
+
+source_dl += http://isl.gforge.inria.fr/
+sources    = %{thisapp}.tar.xz
+
+build
+	requires
+		gmp-devel
+	end
+
+	test
+		export LD_LIBRARY_PATH=$(pwd)/.libs
+		make check
+	end
+
+	install
+		# Install just the library and no headers.
+		mkdir -pv %{BUILDROOT}%{libdir}
+		install -m 644 .libs/libisl.so.13.1.1 %{BUILDROOT}%{libdir}
+		ln -svf libisl.so.13.1.1 %{BUILDROOT}%{libdir}/libisl.so.13
+	end
+end
+
+packages
+	package %{name}
+		provides
+			isl = %{thisver}
+		end
+
+		obsoletes
+			isl <= %{thisver}
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

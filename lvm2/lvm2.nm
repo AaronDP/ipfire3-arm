@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = lvm2
-version    = 2.02.95
-release    = 2
+version    = 2.02.147
+release    = 1
 thisapp    = LVM2.%{version}
 
 groups     = System/Base

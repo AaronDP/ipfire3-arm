@@ -6,7 +6,7 @@
 name       = network
 epoch      = 1
 version    = 007
-release    = 1.1
+release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = Base Networking/Tools
@@ -49,6 +49,7 @@ packages
 			aiccu
 			bash >= 4.0
 			batctl
+			crda
 			curl
 			dhclient >= 4.2.4-2
 			dhcp >= 4.2.4-1

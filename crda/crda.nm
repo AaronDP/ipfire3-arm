@@ -5,8 +5,8 @@
 
 name       = crda
 version    = %{ver_crda}-%{ver_regdb}
-ver_crda   = 3.13
-ver_regdb  = 2014.06.13
+ver_crda   = 3.18
+ver_regdb  = 2016.02.08
 release    = 1
 
 maintainer = Arne Fitzenreiter <arne.fitzenreiter@ipfire.org>

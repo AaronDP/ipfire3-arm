@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = pdns
-version    = 3.3.1
+version    = 3.4.7
 release    = 2
 
 groups     = Networking/DNS
@@ -20,14 +20,19 @@ description
 end
 
 source_dl  = http://downloads.powerdns.com/releases/
+sources    = %{thisapp}.tar.bz2
 
 build
+	# pdns uses polarssl which is no longer maintained
+	# upstream any more. Since nothing else is using
+	# polarssl any more we have dropped this from the
+	# distribution and bundle it with pdns.
+
 	requires
 		boost-devel
 		chrpath
 		gcc-c++
 		lua-devel
-		polarssl-devel
 		shadow-utils
 		sqlite-devel
 		zlib-devel
@@ -38,16 +43,19 @@ build
 
 	configure_options += \
 		--sysconfdir=%{sysconfdir}/pdns \
-		--libdir=%{libdir}/powerdns \
-		--with-system-polarssl \
 		--with-modules="" \
 		--with-dynmodules="pipe geo gsqlite3" \
 		--with-lua \
 		--enable-tools \
-		--disable-static
+		--disable-static \
+		--enable-unit-tests
 
 	prepare_cmds
 		%{create_user}
+	end
+
+	test
+		make -C pdns check
 	end
 
 	install_cmds
@@ -78,7 +86,7 @@ build
 		chrpath --delete %{BUILDROOT}/usr/bin/pdns_control
 		chrpath --delete %{BUILDROOT}/usr/bin/zone2sql
 		chrpath --delete %{BUILDROOT}/usr/sbin/pdns_server
-		chrpath --delete %{BUILDROOT}%{libdir}/powerdns/*.so
+		chrpath --delete %{BUILDROOT}%{libdir}/pdns/*.so
 		chrpath --delete %{BUILDROOT}/usr/bin/dnsreplay
 		chrpath --delete %{BUILDROOT}/usr/bin/pdnssec
 	end

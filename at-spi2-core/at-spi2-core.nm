@@ -5,8 +5,8 @@
 
 name       = at-spi2-core
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 2.7
-ver_minor  = 4.1
+ver_major  = 2.19
+ver_minor  = 92
 release    = 1
 
 groups     = System/Libraries

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = cracklib
-version    = 2.9.2
+version    = 2.9.5
 release    = 1
 
 groups     = Security/Password

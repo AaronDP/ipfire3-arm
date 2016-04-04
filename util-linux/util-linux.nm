@@ -4,10 +4,11 @@
 ###############################################################################
 
 name       = util-linux
-major_ver  = 2.25
-minor_ver  = 2
-version    = %{major_ver}.%{minor_ver}
-release    = 2
+major_ver  = 2.27
+minor_ver  = 
+version    = %{major_ver}
+#version    = %{major_ver}.%{minor_ver}
+release    = 1
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -27,7 +28,7 @@ source_dl  = ftp://ftp.kernel.org/pub/linux/utils/util-linux/v%{major_ver}/
 build
 	requires
 		audit-devel
-		automake >= 1.13
+		automake >= 1.15
 		coreutils >= 8.19
 		gettext
 		libcap-devel

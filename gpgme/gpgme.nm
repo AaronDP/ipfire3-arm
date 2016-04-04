@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = gpgme
-version    = 1.5.3
-release    = 2
+version    = 1.6.0
+release    = 1
 
 groups     = Applications/System
 url        = http://www.gnupg.org/related_software/gpgme/

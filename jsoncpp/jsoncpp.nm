@@ -1,0 +1,46 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = jsoncpp
+version    = 0.10.5
+release    = 1
+
+groups     = System/Libraries
+url        = https://github.com/open-source-parsers/jsoncpp
+license    = Public Domain or MIT
+summary    = A JSON implementation in C++
+
+description
+	%{name} is an implementation of a JSON (http://json.org) reader and
+	writer in C++. JSON (JavaScript Object Notation) is a lightweight
+	data-interchange format.
+	It is easy for humans to read and write. It is easy for machines to
+	parse and generate.
+end
+
+source_dl  = https://github.com/open-source-parsers/%{name}/archive/%{version}.tar.gz#/
+
+build
+	requires
+		cmake
+	end
+
+	build
+		CMAKE_CXX_FLAGS="-Wno-error" %{cmake} .
+		make %{PARALLELISMFLAGS}
+	end
+end
+
+packages
+	package %{name}
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

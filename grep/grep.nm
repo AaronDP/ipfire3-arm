@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = grep
-version    = 2.21
+version    = 2.24
 release    = 1
 
 groups     = Applications/Text

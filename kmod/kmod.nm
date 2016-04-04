@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = kmod
-version    = 19
+version    = 22
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>

@@ -1,0 +1,34 @@
+2014-08-07  Magnus Granberg  <zorry@gentoo.org>
+
+	* gcc/config/rs6000/sysv4.h (DRIVER_SELF_SPECS): Add ESP_DRIVER_SELF_SPEC.
+	(SUBTARGET_EXTRA_SPECS): Add ESP_EXTRA_SPECS.
+
+--- a/gcc/config/rs6000/sysv4.h	2013-01-10 21:38:27.000000000 +0100
++++ b/gcc/config/rs6000/sysv4.h	2013-03-26 01:30:33.257003189 +0100
+@@ -627,8 +627,13 @@ extern int fixuplabelno;
+ 
+ #define LINK_OS_DEFAULT_SPEC ""
+ 
++#ifdef ENABLE_ESP
++#define DRIVER_SELF_SPECS "%{mfpu=none: %<mfpu=* \
++	%<msingle-float %<mdouble-float}", ESP_DRIVER_SELF_SPEC
++#else
+ #define DRIVER_SELF_SPECS "%{mfpu=none: %<mfpu=* \
+  	%<msingle-float %<mdouble-float}"
++#endif
+ 
+ /* Override rs6000.h definition.  */
+ #undef	CPP_SPEC
+@@ -933,7 +938,11 @@ ncrtn.o%s"
+   { "cpp_os_openbsd",		CPP_OS_OPENBSD_SPEC },			\
+   { "cpp_os_default",		CPP_OS_DEFAULT_SPEC },			\
+   { "fbsd_dynamic_linker",	FBSD_DYNAMIC_LINKER },			\
+-  SUBSUBTARGET_EXTRA_SPECS
++  SUBSUBTARGET_EXTRA_SPECS ESP_EXTRA_SPECS
++  
++#ifndef ENABLE_ESP
++#define ESP_EXTRA_SPECS
++#endif
+ 
+ #define	SUBSUBTARGET_EXTRA_SPECS
+ 

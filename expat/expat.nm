@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = expat
-version    = 2.1.0
+version    = 2.1.1
 release    = 1
 
 groups     = System/Libraries
@@ -22,6 +22,7 @@ description
 end
 
 source_dl  = http://downloads.sourceforge.net/project/expat/expat/%{version}/
+sources    = %{thisapp}.tar.bz2
 
 packages
 	package %{name}

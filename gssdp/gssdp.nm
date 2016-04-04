@@ -4,7 +4,9 @@
 ###############################################################################
 
 name       = gssdp
-version    = 0.7.0
+ver_major  = 0.14
+ver_minor  = 14
+version    = %{ver_major}.%{ver_minor}
 release    = 1
 
 groups     = System/Libraries
@@ -16,7 +18,9 @@ description
 	GSSDP implements resource discovery and announcement over SSDP.
 end
 
-source_dl  =
+source_dl  = https://download.gnome.org/sources/gssdp/%{ver_major}/
+sources = %{thisapp}.tar.xz
+
 
 build
 	requires

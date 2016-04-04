@@ -1,0 +1,35 @@
+--- gcc-4.9.2/gcc/config/aarch64/aarch64.h.bak	2015-03-01 15:47:49.321036915 -0500
++++ gcc-4.9.2/gcc/config/aarch64/aarch64.h	2015-03-01 16:52:33.890775022 -0500
+@@ -876,7 +876,13 @@
+ 
+ #define EXTRA_SPEC_FUNCTIONS BIG_LITTLE_CPU_SPEC_FUNCTIONS
+ 
++#ifdef ENABLE_ESP
++#define EXTRA_SPECS						\
++  { "asm_cpu_spec",		ASM_CPU_SPEC },			\
++  ESP_EXTRA_SPECS
++#else
+ #define EXTRA_SPECS						\
+   { "asm_cpu_spec",		ASM_CPU_SPEC }
++#endif
+ 
+ #endif /* GCC_AARCH64_H */
+--- gcc-4.9.2/gcc/config/aarch64/aarch64-elf.h.bak	2015-03-01 15:51:14.111102418 -0500
++++ gcc-4.9.2/gcc/config/aarch64/aarch64-elf.h	2015-03-01 17:22:34.924183682 -0500
+@@ -130,9 +130,16 @@
+ /* Force the default endianness and ABI flags onto the command line
+    in order to make the other specs easier to write.  */
+ #undef DRIVER_SELF_SPECS
++#ifdef ENABLE_ESP
++#define DRIVER_SELF_SPECS \
++  " %{!mbig-endian:%{!mlittle-endian:" ENDIAN_SPEC "}}" \
++  " %{!mabi=*:" ABI_SPEC "}",				\
++  ESP_DRIVER_SELF_SPEC
++#else
+ #define DRIVER_SELF_SPECS \
+   " %{!mbig-endian:%{!mlittle-endian:" ENDIAN_SPEC "}}" \
+   " %{!mabi=*:" ABI_SPEC "}"
++#endif
+ 
+ #ifdef HAVE_AS_MABI_OPTION
+ #define ASM_MABI_SPEC	"%{mabi=*:-mabi=%*}"

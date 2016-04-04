@@ -4,9 +4,9 @@
 ###############################################################################
 
 name       = ImageMagick
-version    = 6.7.6
+version    = 6.9.3
 release    = 1
-patchlevel = 0
+patchlevel = 7
 
 groups     = Application/Multimedia
 url        = http://www.imagemagick.org/

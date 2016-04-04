@@ -1,0 +1,9 @@
+[Unit]
+Description=Periodly cleanup of the DMA mail spool directory
+
+[Timer]
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

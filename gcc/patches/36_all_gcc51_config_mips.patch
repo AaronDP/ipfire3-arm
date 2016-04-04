@@ -1,0 +1,43 @@
+2013-04-01  Magnus Granberg <zorry@gentoo.org>
+
+	* gcc/config/mips/gnu-user.h (DRIVER_SELF_SPECS): Add ESP_DRIVER_SELF_SPEC.
+	* gcc/config/mips/mips.h (SUBTARGET_EXTRA_SPECS): Add ESP_EXTRA_SPECS.
+
+--- a/gcc/config/mips/gnu-user.h	2013-01-10 21:38:27.000000000 +0100
++++ b/gcc/config/mips/gnu-user.h	2013-03-10 22:37:33.743176388 +0100
+@@ -125,9 +125,17 @@ extern const char *host_detect_local_cpu
+   "%{!mabi=*: -" MULTILIB_ABI_DEFAULT "}"
+ 
+ #undef DRIVER_SELF_SPECS
++#ifdef ENABLE_ESP
+ #define DRIVER_SELF_SPECS \
+   MIPS_ISA_LEVEL_SPEC,    \
+   BASE_DRIVER_SELF_SPECS, \
++  ESP_DRIVER_SELF_SPEC, \
+   LINUX_DRIVER_SELF_SPECS
++#else
++#define DRIVER_SELF_SPECS \
++  MIPS_ISA_LEVEL_SPEC,    \
++  BASE_DRIVER_SELF_SPECS, \
++  LINUX_DRIVER_SELF_SPECS
++#endif
+ 
+ /* Similar to standard Linux, but adding -ffast-math support.  */
+ #undef	GNU_USER_TARGET_MATHFILE_SPEC
+--- a/gcc/config/mips/mips.h	2013-01-10 21:38:27.000000000 +0100
++++ b/gcc/config/mips/mips.h	2013-03-24 16:59:01.474513910 +0100
+@@ -1197,9 +1197,13 @@ struct mips_cpu_info {
+   SUBTARGET_EXTRA_SPECS
+ 
+ #ifndef SUBTARGET_EXTRA_SPECS
++#ifdef ENABLE_ESP
++#define SUBTARGET_EXTRA_SPECS ESP_EXTRA_SPECS
++#else
+ #define SUBTARGET_EXTRA_SPECS
+ #endif
+-
++#endif
++
+ #define DBX_DEBUGGING_INFO 1		/* generate stabs (OSF/rose) */
+ #define DWARF2_DEBUGGING_INFO 1         /* dwarf2 debugging info */
+ 

@@ -4,9 +4,8 @@
 ###############################################################################
 
 name       = python-rrdtool
-version    = 0.1.1
-release    = 2
-thisapp    = rrdtool-%{version}
+version    = 0.1.2
+release    = 1
 
 groups     = System/Libraries
 url        = https://github.com/commx/python-rrdtool

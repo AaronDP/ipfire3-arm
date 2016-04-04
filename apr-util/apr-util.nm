@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = apr-util
-version    = 1.4.1
-release    = 3
+version    = 1.5.4
+release    = 1
 
 groups     = System/Libraries
 url        = http://apr.apache.org/
@@ -19,6 +19,7 @@ description
 end
 
 source_dl  = http://www.apache.org/dist/apr/
+
 
 build
 	requires

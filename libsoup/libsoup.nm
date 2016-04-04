@@ -5,8 +5,8 @@
 
 name       = libsoup
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 2.41
-ver_minor  = 5
+ver_major  = 2.54
+ver_minor  = 0.1
 release    = 1
 
 groups     = System/Libraries
@@ -35,6 +35,7 @@ build
 		pkg-config
 		sqlite-devel
 		zlib-devel
+		vala-devel >= 0.32
 	end
 
 	configure_options += \

@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = git
-version    = 1.8.1
-release    = 4
+version    = 2.6.3
+release    = 1
 
 groups     = Development/Tools
 url        = http://git-scm.com/
@@ -18,7 +18,7 @@ description
 	and full access to internals.
 end
 
-source_dl  = http://git-core.googlecode.com/files/
+source_dl  = https://www.kernel.org/pub/software/scm/git/
 
 build
 	requires

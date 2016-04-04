@@ -5,7 +5,7 @@
 
 name       = gtk3
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 3.10
+ver_major  = 3.20
 ver_minor  = 0
 release    = 1
 
@@ -28,16 +28,20 @@ build
 	requires
 		atk-devel >= 2.7.5
 		at-spi2-atk-devel
-		cairo-gobject-devel
-		gdk-pixbuf2-devel >= 2.26
+		cairo-devel >= 1.14.0
+		cairo-gobject-devel >= 1.14.0
+		fontconfig-devel
+		gdk-pixbuf2-devel >= 2.30.0
+		gettext-devel >= 0.18.3
 		glib2-devel >= 2.35.3
 		gobject-introspection-devel >= 1.39.0
-		pango-devel >= 1.32.4
+		libepoxy-devel >= 1.0
 		libXi-devel
 		libXrandr-devel
 		libXrender-devel
 		libXfixes-devel
 		libXdamage-devel
+		pango-devel >= 1.37.3
 	end
 
 	configure_options += \

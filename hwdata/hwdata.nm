@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = hwdata
-version    = 0.232
+version    = 0.287
 release    = 1
 arch       = noarch
 
@@ -18,12 +18,12 @@ description
 	such as the pci.ids database and MonitorsDb databases.
 end
 
-source_dl  =
-sources    = %{thisapp}.tar.bz2
+source_dl  = https://git.fedorahosted.org/cgit/hwdata.git/snapshot/
+sources    = %{thisapp}.tar.gz
 
 build
-	build
-		: # Nothing to do
+	requires
+		git
 	end
 end
 

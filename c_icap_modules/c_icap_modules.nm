@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = c_icap_modules
-version    = 0.1.6
-release    = 3
+version    = 0.4.2
+release    = 2
 
 groups     = Networking/Daemons
 url        = http://c-icap.sourceforge.net
@@ -18,13 +18,13 @@ description
 	adaptation and filtering services.
 end
 
-source_dl = http://downloads.sourceforge.net/project/c-icap/c-icap-modules/0.1.x/
+source_dl = http://downloads.sourceforge.net/project/c-icap/c-icap-modules/0.4.x/
 
 build
 	requires
 		autoconf
 		automake
-		c_icap >= 0.1.7-3
+		c_icap-devel >= 0.4.0
 		clamav-devel
 		libdb-devel
 		libtool-devel

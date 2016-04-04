@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = findutils
-version    = 4.5.14
+version    = 4.6.0
 release    = 1
 
 groups     = System/Tools
@@ -25,7 +25,14 @@ source_dl  = http://ftp.gnu.org/pub/gnu/findutils/ ftp://alpha.gnu.org/gnu/findu
 
 build
 	requires
+		autoconf
+		automake
+		gettext-devel
 		libselinux-devel
+	end
+
+	prepare_cmds
+		autoreconf -vfi
 	end
 
 	configure_options += \

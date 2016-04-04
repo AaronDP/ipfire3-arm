@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = acpid
-version    = 2.0.16
+version    = 2.0.27
 release    = 1
 
 # ACPI is only available on x86 architectures.
@@ -19,7 +19,7 @@ description
 	acpid is a daemon that dispatches ACPI events to user-space programs.
 end
 
-source_dl  = http://tedfelix.com/linux/
+source_dl  = https://sourceforge.net/projects/acpid2/files/
 sources    = %{thisapp}.tar.xz
 
 build

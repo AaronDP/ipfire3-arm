@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = glibc
-version    = 2.21
-release    = 1
+version    = 2.23
+release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = System/Base
@@ -28,16 +28,18 @@ sources    = %{thisapp}.tar.xz
 
 build
 	# Optimize glibc for kernel
-	OPTIMIZED_KERNEL = 2.6.32
+	OPTIMIZED_KERNEL = 3.2
 
 	requires
 		audit-devel
 		autoconf
 		automake
+		gcc >= 4.7
 		gettext
 		kernel-headers >= %{OPTIMIZED_KERNEL}
 		libcap-devel
 		libselinux-devel
+		libstdc++-static
 		texinfo
 	end
 
@@ -67,12 +69,11 @@ build
 		# program interpreter to /bin/bash in case another /bin/sh is installed.
 		sed -i 's|@BASH@|/bin/bash|' elf/ldd.bash.in
 
-		# We don't install pt_chown(1) on the final system, so why install it to
-		# $(TOOLS_DIR):
+		# We don't install pt_chown(1) on the final system
 		sed -e "/^install.*pt_chown/d" -i login/Makefile
 
 		# Build nscd with -fstack-protector-all, instead of -fstack-protector:
-		sed -e "s/fstack-protector/&-all/" -i nscd/Makefile
+		sed -e "s/fstack-protector/&-strong/" -i nscd/Makefile
 
 		# Use gnu hash style
 		sed -i Makeconfig \
@@ -173,6 +174,7 @@ build
 
 	keep_libraries
 		%{libdir}/libc_nonshared.a
+		%{libdir}/libmvec_nonshared.a
 		%{libdir}/libpthread_nonshared.a
 	end
 end
@@ -185,6 +187,10 @@ packages
 			provides += ld-linux.so.3
 			provides += ld-linux.so.3(GLIBC_2.4)
 			provides += ld-linux.so.3(GLIBC_PRIVATE)
+		end
+
+		conflicts
+			kernel < %{OPTIMIZED_KERNEL}
 		end
 	end
 

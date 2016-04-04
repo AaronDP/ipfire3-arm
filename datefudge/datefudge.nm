@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = datefudge
-version    = 1.18
+version    = 1.21
 release    = 1
 
 groups     = System/Tools
@@ -20,7 +20,7 @@ description
 end
 
 source_dl  = http://ftp.de.debian.org/debian/pool/main/d/%{name}/
-sources    = %{name}_%{version}.tar.gz
+sources    = %{name}_%{version}.tar.xz
 
 build
 	# Honor our CFLAGS.

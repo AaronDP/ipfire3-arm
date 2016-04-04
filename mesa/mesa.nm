@@ -5,7 +5,7 @@
 
 name       = mesa
 version    = 9.0.2
-release    = 1.1
+release    = 2
 
 groups     = Development/Tools
 url        = http://www.mesa3d.org
@@ -53,12 +53,12 @@ build
 		--enable-selinux \
 		--enable-pic \
 		--enable-dri \
+		--enable-egl \
 		--with-dri-drivers="nouveau,radeon,r200%{platform_drivers}" \
 		--with-gallium-drivers=swrast \
 		--disable-asm \
 		--disable-gallium-llvm \
 		--disable-gallium-egl \
-		--disable-egl \
 		--disable-static \
 		--without-demos
 
@@ -86,6 +86,17 @@ packages
 			%{sysconfdir}/drirc
 			%{libdir}/libdri*.so.*
 			%{libdir}/dri/*
+		end
+	end
+
+	package libEGL
+		summary = Mesa libEGL runtime library.
+		description
+			This package contains the Mesa libEGL runtime libraries.
+		end
+
+		files
+			%{libdir}/libEGL.so.*
 		end
 	end
 
@@ -123,6 +134,7 @@ packages
 		template DEVEL
 
 		provides
+			libEGL-devel = %{thisver}
 			libGL-devel = %{thisver}
 		end
 

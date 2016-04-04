@@ -1,0 +1,30 @@
+2013-06-03  Magnus Granberg <zorry@gentoo.org>
+
+	* gcc/config/ia64/linux.h Define DRIVER_SELF_SPECS ESP_DRIVER_SELF_SPEC.
+	* gcc/config/ia64/ia64.h (SUBTARGET_EXTRA_SPECS): Add ESP_EXTRA_SPECS.
+
+--- a/gcc/config/ia64/linux.h	2013-01-10 21:38:27.000000000 +0100
++++ b/gcc/config/ia64/linux.h	2013-03-16 22:50:10.363049291 +0100
+@@ -88,3 +88,7 @@ do {						\
+ 
+ /* Define this to be nonzero if static stack checking is supported.  */
+ #define STACK_CHECK_STATIC_BUILTIN 1
++
++#ifdef ENABLE_ESP
++#define DRIVER_SELF_SPECS ESP_DRIVER_SELF_SPEC
++#endif
+--- a/gcc/config/ia64/ia64.h	2013-01-10 21:38:27.000000000 +0100
++++ b/gcc/config/ia64/ia64.h	2013-03-26 02:03:21.052061828 +0100
+@@ -41,8 +41,12 @@ do {						\
+ } while (0)
+ 
+ #ifndef SUBTARGET_EXTRA_SPECS
++#ifdef ENABLE_ESP
++#define SUBTARGET_EXTRA_SPECS ESP_EXTRA_SPECS
++#else
+ #define SUBTARGET_EXTRA_SPECS
+ #endif
++#endif
+ 
+ #define EXTRA_SPECS \
+   { "asm_extra", ASM_EXTRA_SPEC }, \

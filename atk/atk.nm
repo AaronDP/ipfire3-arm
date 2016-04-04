@@ -5,8 +5,8 @@
 
 name       = atk
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 2.11
-ver_minor  = 6
+ver_major  = 2.20
+ver_minor  = 0
 release    = 1
 
 groups     = System/Libraries

@@ -5,8 +5,8 @@
 
 name       = gsettings-desktop-schemas
 version    = %{ver_maj}.%{ver_min}
-ver_maj    = 3.7
-ver_min    = 5
+ver_maj    = 3.20
+ver_min    = 0
 release    = 1
 
 groups     = System/Libraries

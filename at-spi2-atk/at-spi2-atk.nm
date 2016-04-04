@@ -5,8 +5,8 @@
 
 name       = at-spi2-atk
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 2.7
-ver_minor  = 3
+ver_major  = 2.19
+ver_minor  = 92
 release    = 1
 
 groups     = System/Libraries
@@ -24,9 +24,9 @@ sources    = %{thisapp}.tar.xz
 
 build
 	requires
-		at-spi2-core-devel
+		at-spi2-core-devel >= 2.19
 		atk-devel
-		dbus-devel
+		dbus-devel >= 1.5
 		dbus-glib-devel
 		glib2-devel
 		intltool

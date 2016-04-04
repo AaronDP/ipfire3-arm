@@ -4,8 +4,9 @@
 ###############################################################################
 
 name       = vala
-version    = 0.11.2
-major_ver  = 0.11
+ver_major  = 0.32
+ver_minor  = 0
+version    = %{ver_major}.%{ver_minor}
 release    = 1
 
 groups     = Development/Languages
@@ -20,8 +21,8 @@ description
 	ABI compared to applications and libraries written in C.
 end
 
-source_dl  = http://download.gnome.org/sources/vala/%{major_ver}/
-sources    = %{thisapp}.tar.bz2
+source_dl  = http://artfiles.org/gnome.org/sources/vala/0.32/
+sources    = %{thisapp}.tar.xz
 
 build
 	requires

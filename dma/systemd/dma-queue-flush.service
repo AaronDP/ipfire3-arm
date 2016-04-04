@@ -1,0 +1,10 @@
+[Unit]
+Description=Flushing of the DMA mail queue.
+After=network-online.target
+Requires=network-online.target
+Wants=network-online.target
+
+[Service]
+SendSIGKILL=false
+TimeoutStopSec=0
+ExecStart=/usr/sbin/dma -q

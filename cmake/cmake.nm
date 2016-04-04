@@ -4,7 +4,9 @@
 ###############################################################################
 
 name       = cmake
-version    = 3.0.2
+version    = %{ver_maj}.%{ver_min}
+ver_maj    = 3.3
+ver_min    = 2
 release    = 1
 
 groups     = Development/Tools
@@ -25,16 +27,19 @@ description
 	generation, code generation, and template instantiation.
 end
 
-source_dl  = http://www.cmake.org/files/v3.0/
+source_dl  = http://www.cmake.org/files/v%{ver_maj}/
 
 build
 	requires
+		bzip2-devel
 		expat-devel
 		gcc-c++
+		jsoncpp-devel
 		libarchive-devel
 		libcurl-devel
 		ncurses-devel
 		openssl-devel
+		xz-devel
 		zlib-devel
 	end
 

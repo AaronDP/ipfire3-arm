@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = automake
-version    = 1.13.2
-release    = 2
+version    = 1.15
+release    = 1
 arch       = noarch
 
 groups     = Development/Tools

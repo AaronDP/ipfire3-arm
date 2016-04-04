@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = collecty
-version    = 003
-release    = 4
+version    = 004
+release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = System/Monitoring

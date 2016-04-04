@@ -3,11 +3,11 @@
 # Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
 ###############################################################################
 
-# Configure build to compile with cloog.
-build_cloog = 1
+# Configure build to compile with graphite
+build_graphite = 1
 
 name       = gcc
-version    = 4.9.3
+version    = 5.3.0
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -23,7 +23,6 @@ end
 
 # This is the at least required version of binutils.
 binutils_version = 2.24
-cloog_version    = 0.18.1
 
 source_dl  = http://ftp.gnu.org/gnu/gcc/%{thisapp}/
 source_dl += ftp://gcc.gnu.org/pub/gcc/infrastructure/
@@ -41,17 +40,16 @@ build
 		glibc-devel >= 2.16
 		gmp-devel
 		libffi-devel
-		libmpc-devel
+		libmpc-devel >= 0.8.1
 		mpfr-devel
 		perl
 		texinfo
 		zlib-devel
 	end
 
-	# If cloog support is enabled, we require the devel packages for build.
-	if "%{build_cloog}" == "1"
-		requires += cloog-devel >= %{cloog_version}
-		requires += isl-devel
+	# If graphite support is enabled, we require the devel packages for build.
+	if "%{build_graphite}" == "1"
+		requires += isl-devel >= 0.14
 	end
 
 	# Build libquadmath (only on x86).
@@ -62,6 +60,9 @@ build
 
 	# Build libtasn (only on x86_64).
 	build_libtsan = 0
+
+	# Build libubsan
+	build_libubsan = 0
 
 	# Build libcilkrts (only x86)
 	build_libcilkrts = 0
@@ -78,6 +79,7 @@ build
 		build_libquadmath = 1
 		build_liblsan = 1
 		build_libtsan = 1
+		build_libubsan = 1
 		build_libcilkrts = 1
 	end
 
@@ -85,14 +87,12 @@ build
 		configure_options = --with-arch=%{DISTRO_ARCH} --with-tune=generic
 
 		build_libquadmath = 1
+		build_libubsan = 1
 		build_libcilkrts = 1
 	end
 
-	if "%{DISTRO_ARCH}" == "armv5tel"
-		make_bootstrap = bootstrap
-
-		configure_options += --disable-sjlj-exceptions
-		configure_options += --with-float=soft
+	if "%{DISTRO_ARCH}" == "aarch64"
+		build_libubsan = 1
 	end
 
 	if "%{DISTRO_ARCH}" == "armv7hl"
@@ -101,19 +101,27 @@ build
 		configure_options += --disable-sjlj-exceptions
 
 		configure_options += \
-			--with-cpu=cortex-a8 \
 			--with-tune=cortex-a8 \
 			--with-arch=armv7-a \
 			--with-float=hard \
 			--with-fpu=vfpv3-d16 \
 			--with-abi=aapcs-linux
+
+		build_libubsan = 1
 	end
 
-	if "%{build_cloog}" == "1"
+	if "%{DISTRO_ARCH}" == "armv5tel"
+		make_bootstrap = bootstrap
+
+		configure_options += --disable-sjlj-exceptions
+		configure_options += --with-float=soft
+
+		build_libubsan = 1
+	end
+
+	if "%{build_graphite}" == "1"
 		configure_options += \
-			--with-cloog=%{prefix} \
-			--with-isl=%{prefix} \
-			--enable-cloog-backend=isl
+			--with-isl
 	end
 
 	# CFLAGS for hardening.
@@ -169,12 +177,16 @@ build
 		#./contrib/gcc_update --touch
 	end
 
+	export CC=gcc
+	export CXX=g++
+
 	build
 		cd %{DIR_SRC}/gcc-build
 
 		# Modify CFLAGS
 		CFLAGS="%{CFLAGS}"
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/\(-Wp,\)\?-D_FORTIFY_SOURCE=[12]//g')
+		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-Werror=format-security//g')
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-m64//g;s/-m32//g;s/-m31//g')
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-mfpmath=sse/-mfpmath=sse -msse2/g')
 		CFLAGS=$(echo ${CFLAGS} | sed -e 's/-march=i.86//g')
@@ -182,7 +194,7 @@ build
 		CFLAGS=$(echo "${CFLAGS}" | sed -e 's/[[:blank:]]\+/ /g')
 		CXXFLAGS=$(echo  ${CFLAGS} | sed -e 's/ -Wall//g')
 		CXXFLAGS=$(echo  ${CXXFLAGS} | sed -e 's/ -fexceptions / /g')
-		CXXFLAGS=$(echo  ${CXXFLAGS} | sed -e 's/ -Werror=format-security / -Wformat -Werror=format-security /g')
+		#CXXFLAGS=$(echo  ${CXXFLAGS} | sed -e 's/ -Werror=format-security / -Wformat -Werror=format-security /g')
 
 		case "${CFLAGS}" in
 			*-fasynchronous-unwind-tables*)
@@ -220,6 +232,7 @@ build
 			--enable-plugin \
 			--enable-initfini-array \
 			--disable-libgcj \
+			--enable-gnu-indirect-function \
 			%{configure_options}
 
 		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58012
@@ -291,7 +304,8 @@ build
 		chmod 755 %{BUILDROOT}%{libdir}/libgomp.so.1.*
 
 		# libstdc++
-		ln -svf ../../../libstdc++.so.6.0.20 ${FULLPATH}/libstdc++.so
+		ln -svf ../../../libstdc++.so.6.0.21 ${FULLPATH}/libstdc++.so
+		mv -vf %{BUILDROOT}%{libdir}/lib{std,sup}c++.a ${FULLPATH}
 
 		# libquadmath
 		if [ "%{build_libquadmath}" = "1" ]; then
@@ -317,8 +331,10 @@ build
 		fi
 
 		# libubsan
-		ln -svf ../../../libubsan.so.0.0.0 ${FULLPATH}/libubsan.so
-		chmod 755 %{BUILDROOT}%{libdir}/libubsan.so.*
+		if [ "%{build_libubsan}" = "1" ]; then
+			ln -svf ../../../libubsan.so.0.0.0 ${FULLPATH}/libubsan.so
+			chmod 755 %{BUILDROOT}%{libdir}/libubsan.so.*
+		fi
 
 		# libcilkrts
 		if [ "%{build_libcilkrts}" = "1" ]; then
@@ -330,6 +346,8 @@ build
 	keep_libraries
 		%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libgcc.a
 		%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libgcc_eh.a
+		%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libstdc++.a
+		%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libsupc++.a
 	end
 end
 
@@ -351,10 +369,6 @@ packages
 		# We do not ship libgcc-devel anymore.
 		provides += libgcc-devel = %{thisver}
 		obsoletes += libgcc-devel < %{thisver}
-
-		if "%{build_cloog}" == "1"
-			requires += cloog >= %{cloog_version}
-		end
 	end
 
 	package %{name}-c++
@@ -462,6 +476,20 @@ packages
 		end
 	end
 
+	package libstdc++-static
+		summary = Static libraries for the GNU standard C++ library
+		description = %{summary}
+
+		requires
+			libstdc++-devel = %{thisver}
+		end
+
+		files
+			%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libstdc++.a
+			%{libdir}/gcc/%{DISTRO_BUILDTARGET}/%{version}/libsupc++.a
+		end
+	end
+
 	package libgomp
 		summary = GCC OpenMP v3.0 shared support library.
 		description
@@ -561,7 +589,7 @@ packages
 		end
 
 		files
-			%{libdir}/libasan.so.1*
+			%{libdir}/libasan.so.2*
 		end
 	end
 
@@ -579,15 +607,17 @@ packages
 		end
 	end
 
-	package libubsan
-		summary = The Undefined Behavior Sanitizer runtime library
-		description
-			This package contains the Undefined Behavior Sanitizer library
-			which is used for -fsanitize=undefined instrumented programs.
-		end
+	if "%{build_libubsan}" == "1"
+		package libubsan
+			summary = The Undefined Behavior Sanitizer runtime library
+			description
+				This package contains the Undefined Behavior Sanitizer library
+				which is used for -fsanitize=undefined instrumented programs.
+			end
 
-		files
-			%{libdir}/libubsan.so.0*
+			files
+				%{libdir}/libubsan.so.0*
+			end
 		end
 	end
 

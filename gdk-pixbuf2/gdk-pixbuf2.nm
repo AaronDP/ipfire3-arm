@@ -5,8 +5,8 @@
 
 name       = gdk-pixbuf2
 version    = %{ver_major}.%{ver_minor}
-ver_major  = 2.30
-ver_minor  = 5
+ver_major  = 2.33
+ver_minor  = 2
 release    = 1
 
 groups     = System/Libraries

@@ -1,0 +1,5 @@
+[Unit]
+Description=Cleanup of the DMA mail spool directory
+
+[Service]
+ExecStart=/usr/sbin/dma-cleanup-spool

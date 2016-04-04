@@ -1,0 +1,65 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = python-lxml
+version    = 3.4.4
+release    = 1
+thisapp    = lxml-%{version}
+
+groups     = Development/Languages
+url        = http://lxml.de
+license    = BSD
+summary    = ElementTree-like Python bindings for libxml2 and libxslt.
+
+description
+	lxml provides a Python binding to the libxslt and libxml2 libraries.
+	It follows the ElementTree API as much as possible in order to provide
+	a more Pythonic interface to libxml2 and libxslt than the default
+	bindings.
+end
+
+source_dl  = http://lxml.de/files/
+sources    = %{thisapp}.tgz
+
+build
+	requires
+		libxml2-devel
+		libxslt-devel
+		python3-devel
+		zlib-devel
+	end
+
+	build
+		CFLAGS="%{CFLAGS}" %{python3} setup.py build
+	end
+
+	test
+		# Setup test environment.
+		BUILD_LIB_DIR=$(find $(pwd) -name "*.so" | head -n 1 | xargs dirname)
+		cp $BUILD_LIB_DIR/*.so src/lxml
+		export LANG=en_US.utf8
+
+		# Run tests.
+		%{python3} test.py -p -v
+
+		# Launch more tests.
+		export PYTHONPATH=src
+		%{python3} selftest.py
+		%{python3} selftest2.py		
+	end
+
+	install
+		%{python3} setup.py install --skip-build -O1 \
+			--root=%{BUILDROOT}
+	end
+end
+
+packages
+	package python3-lxml
+
+	package python3-lxml-debuginfo
+		template DEBUGINFO
+	end
+end

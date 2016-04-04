@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = glib2
-ver_major  = 2.42
-ver_minor  = 2
+ver_major  = 2.48
+ver_minor  = 0
 version    = %{ver_major}.%{ver_minor}
 release    = 1
 thisapp    = glib-%{version}

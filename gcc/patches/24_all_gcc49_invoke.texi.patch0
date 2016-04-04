@@ -9,20 +9,20 @@
  @opindex fstack-protector-all
  Like @option{-fstack-protector} except that all functions are protected.
  
-+NOTE: NOTE: When --enable-esp this option is enabled by default 
-+for C, C++, ObjC, ObjC++, if neither @option{-fno-stack-protector}, 
-+@option{-nostdlib}, @option{-ffreestanding}, @option{-fstack-protector}, 
-+@option{-fstack-protector-strong}or @option{-fstack-protector-all}are found.
++NOTE: When --enable-esp, this option is enabled by default
++for C, C++, ObjC, and ObjC++ if neither @option{-fno-stack-protector},
++@option{-nostdlib}, @option{-ffreestanding}, @option{-fstack-protector},
++@option{-fstack-protector-strong} or @option{-fstack-protector-all} are found.
 +
  @item -fstack-protector-strong
  @opindex fstack-protector-strong
  Like @option{-fstack-protector} but includes additional functions to
 @@ -7960,6 +7965,12 @@
- that were used to generate code (@option{-fpie}, @option{-fPIE},
- or model suboptions) when you specify this option.
+ used for compilation (@option{-fpie}, @option{-fPIE},
+ or model suboptions) when you specify this linker option.
  
-+NOTE: When --enable-esp this option is enabled by default
-+for C, C++, ObjC, ObjC++, if neither @option{-fno-pie} or @option{-fno-PIE}
++NOTE: When --enable-esp, this option is enabled by default
++for C, C++, ObjC, and ObjC++ if neither @option{-fno-pie} or @option{-fno-PIE}
 +or @option{-fno-pic} or @option{-fno-PIC} or @option{-nostdlib} or
 +@option{-nostartfiles} or @option{-shared} or @option{-pg} or @option{-p}
 +are found.
@@ -34,8 +34,8 @@
  @code{__pie__} and @code{__PIE__}.  The macros have the value 1
  for @option{-fpie} and 2 for @option{-fPIE}.
  
-+NOTE: When --enable-esp this option is enabled by default
-+for C, C++, ObjC, ObjC++, if neither @option{-fno-pie} or @option{-fno-PIE}
++NOTE: When --enable-esp, this option is enabled by default
++for C, C++, ObjC, and ObjC++ if neither @option{-fno-pie} or @option{-fno-PIE}
 +or @option{-fno-pic} or @option{-fno-PIC} or @option{-nostdlib} or
 +@option{-nostartfiles} or @option{-shared} are found.
 +
