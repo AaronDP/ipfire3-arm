@@ -1,0 +1,103 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-AnyEvent
+version    = 7.12
+release    = 1
+thisapp    = AnyEvent-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/AnyEvent/
+license    = GPL+ or Artistic
+summary    = Framework for multiple event loops.
+
+description
+	AnyEvent provides an identical interface to multiple event loops. This allows
+	module authors to utilize an event loop without forcing module users to use the
+	same event loop.
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		coreutils
+		findutils
+		perl(Carp)
+		perl(Canary::Stability)
+		perl(Exporter)
+		perl(ExtUtils::MakeMaker)
+		perl(ExtUtils::ParseXS)
+		perl(File::Spec)
+		perl(File::Temp)
+		perl(List::Util)
+		perl(Net::SSLeay)
+		perl(Scalar::Util)
+		perl(Socket)
+		perl(Storable)
+		perl(Test::More)
+		perl(Time::HiRes)
+		perl(base)
+		perl(overload)
+		pakfire >= 0.9.26-3.1
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		# PERL_ANYEVENT_NET_TESTS shouldn't be set to avoid network tests
+		# on the builder.
+		export PERL_ANYEVENT_LOOP_TESTS=1
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		filter_requires
+			AnyEvent::AIO
+			Cocoa::EventLoop
+			EV
+			Event
+			Event::Lib
+			EventLoop
+			FLTK
+			Glib
+			IO::AIO
+			IO::Async::Loop
+			Irssi
+			POE
+			Qt
+			Qt::isa
+			Qt::slots
+			Tk
+			UV
+		end
+
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+			perl(Storable)
+		end
+
+		# Filter unversioned and bogus provides.
+		filter_provides
+			DB
+			Impl
+			Cocoa
+			FLTK
+			UV
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
