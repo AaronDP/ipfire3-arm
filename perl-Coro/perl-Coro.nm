@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = perl-Coro
-version    = 6.42
-release    = 1.1
+version    = 6.49
+release    = 1
 thisapp    = Coro-%{version}
 
 groups     = Development/Libraries
@@ -24,8 +24,34 @@ source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
 
 build
 	requires
-		perl(ExtUtils::MakeMaker)
-		perl(ExtUtils::ParseXS)
+		coreutils
+		findutils
+		perl(AnyEvent) >= 7
+		perl(AnyEvent::AIO) >= 1
+		perl(AnyEvent::BDB) >= 1
+		perl(AnyEvent::Socket)
+		perl(AnyEvent::Util)
+		perl(Canary::Stability)
+		perl(Carp)
+		perl(Config)
+		perl(Errno)
+		perl(Exporter)
+		perl(EV) >= 4
+		perl(EV::MakeMaker)
+		perl(Event) >= 1.08
+		perl(Event::MakeMaker)
+		perl(ExtUtils::MakeMaker) >= 6.52
+		perl(Guard) >= 0.5
+		perl(IO::Socket::INET)
+		perl(Scalar::Util)
+		perl(Socket)
+		perl(Storable) >= 2.15
+		perl(XSLoader)
+		perl(base)
+		perl(common::sense)
+		perl(overload)
+		perl(strict)
+		perl(warnings)
 		pakfire >= 0.9.26-3.1
 	end
 
@@ -39,6 +65,10 @@ build
 	build
 		perl Makefile.PL INSTALLDIRS=perl OPTIMIZE="%{CFLAGS}"
 		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
 	end
 
 	make_install_targets = \
@@ -58,6 +88,14 @@ packages
 
 		requires
 			perl(:MODULE_COMPAT_%{perl_version})
+			perl(AnyEvent) >= 7
+			perl(AnyEvent::AIO) >= 1
+			perl(AnyEvent::BDB) >= 1
+			perl(EV) >= 4
+			perl(Event) >= 1.08
+			perl(Guard) >= 0.5
+			perl(Storable) >= 2.15
+			perl(warnings)
 		end
 	end
 
