@@ -1,0 +1,66 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-EV
+version    = 4.22
+release    = 1
+thisapp    = EV-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/EV/
+license    = GPL+ or Artistic
+summary    = Wrapper for the libev high-performance event loop library.
+
+description
+	This module provides an interface for the libev high-performance event
+	loop library
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		perl(AnyEvent) >= 2.6
+		perl(Canary::Stability)
+		perl(ExtUtils::MakeMaker)
+		perl(common::sense)
+		libev-source >= 4.22
+		gdbm-devel
+		pakfire >= 0.9.26-3.1
+	end
+
+	prepare_cmds
+		# Remove all traces of the bundled libev
+		rm -fr ./libev
+
+		# Use the sources from the system libev
+		mkdir -p ./libev
+		cp -r /usr/share/libev-source/* ./libev/
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
