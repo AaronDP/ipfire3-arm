@@ -1,0 +1,71 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-Event
+version    = 1.24
+release    = 1
+thisapp    = Event-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/Event/
+license    = GPL+ or Artistic
+summary    = Event loop processing perl module.
+
+description
+	The Event module provide a central facility to watch for various types of
+	events and invoke a callback when these events occur. The idea is to delay the
+	handling of events so that they may be dispatched in priority order when it is
+	safe for callbacks to execute.
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/E/ET/ETJ/
+
+build
+	requires
+		perl(Carp)
+		perl(Config)
+		perl(DynaLoader)
+		perl(Exporter)
+		perl(ExtUtils::MakeMaker)
+		perl(Symbol)
+		perl(Test) >= 1
+		perl(Time::HiRes)
+		perl(base)
+		perl(integer)
+		perl(strict)
+		perl(vars)
+		pakfire >= 0.9.26-3.1
+	end
+
+	prepare_cmds
+		# Fix up permissions and shellbangs.
+		perl -pi -e 's|#!./perl|#!/usr/bin/perl|' demo/*.t t/*.t util/bench.pl
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+			perl(Time::HiRes)
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
