@@ -1,0 +1,51 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-Canary-Stability
+version    = 2011
+release    = 1
+arch       = noarch
+thisapp    = Canary-Stability-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/Canary-Stability
+license    = GPL+
+summary    = Canary to check perl compatibility for Schmorp's modules.
+
+description
+	This module is used by Schmorp's modules during configuration stage to test
+	the installed perl for compatibility with his modules.
+end
+
+source_dl  = http://www.cpan.org/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		findutils
+		perl(ExtUtils::MakeMaker)
+		pakfire >= 0.9.26-3.1
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+			perl(ExtUtils::MakeMaker)
+		end
+	end
+end
