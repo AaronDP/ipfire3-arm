@@ -1,0 +1,54 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-AnyEvent-AIO
+version    = 1.1
+release    = 1
+arch	   = noarch
+thisapp    = AnyEvent-AIO-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/AnyEvent-BDB/
+license    = GPL+ or Artistic
+summary    = Truly asynchronous file and directory I/O
+
+description
+	Truly asynchronous file and directrory I/O..
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		perl(AnyEvent) >= 3.81
+		perl(IO::AIO) >= 3
+		perl(ExtUtils::MakeMaker)
+		pakfire >= 0.9.26-3.1
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
