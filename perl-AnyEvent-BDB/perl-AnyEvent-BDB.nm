@@ -1,0 +1,57 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = perl-AnyEvent-BDB
+version    = 1.1
+release    = 1
+arch	   = noarch
+thisapp    = AnyEvent-BDB-%{version}
+
+groups     = Development/Libraries
+url        = http://search.cpan.org/dist/AnyEvent-BDB/
+license    = GPL+ or Artistic
+summary    = Truly asynchronous Berkeley DB access.
+
+description
+	Loading this module will install the necessary magic to seamlessly integrate
+	BDB into AnyEvent, i.e. you no longer need to concern yourself with calling
+	BDB::poll_cb or any of that stuff.
+end
+
+source_dl  = http://search.cpan.org/CPAN/authors/id/M/ML/MLEHMANN/
+
+build
+	requires
+		perl(AnyEvent) >= 3.81
+		perl(BDB) >= 1.91
+		perl(Exporter)
+		perl(ExtUtils::MakeMaker)
+		pakfire >= 0.9.26-3.1
+	end
+
+	build
+		perl Makefile.PL INSTALLDIRS=vendor OPTIMIZE="%{CFLAGS}"
+		make %{PARALLELISMFLAGS}
+	end
+
+	test
+		make test
+	end
+
+	make_install_targets = \
+		pure_install DESTDIR=%{BUILDROOT}
+end
+
+packages
+	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end
