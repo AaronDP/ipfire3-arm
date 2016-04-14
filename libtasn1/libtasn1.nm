@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libtasn1
-version    = 3.2
+version    = 4.8
 release    = 1
 
 groups     = System/Libraries

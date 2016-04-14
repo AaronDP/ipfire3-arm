@@ -6,7 +6,7 @@
 name       = compat-db
 version    = %{main_version}
 # Release cannot be reset because the sub-packages won't get updated
-release    = 6
+release    = 7
 thisapp    = db-%{version}
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -27,11 +27,13 @@ version_db46 = 4.6.21
 version_db47 = 4.7.25
 version_db48 = 4.8.30
 version_db52 = 5.2.36
-versions     = %{version_db52} %{version_db48} %{version_db47} %{version_db46}
-main_version:= %{version_db52}
+version_db53 = 5.3.28
+versions     = %{version_db53} %{version_db52} %{version_db48} %{version_db47} %{version_db46}
+main_version:= %{version_db53}
 
 source_dl  = http://download.oracle.com/berkeley-db/
-sources    = db-%{version_db52}.tar.gz
+sources    = db-%{version_db53}.tar.gz
+sources   += db-%{version_db52}.tar.gz
 sources   += db-%{version_db48}.tar.gz
 sources   += db-%{version_db47}.tar.gz
 sources   += db-%{version_db46}.tar.gz
@@ -100,6 +102,7 @@ end
 packages
 	package %{name}
 		requires
+			compat-db53 = %{version_db53}-%{_release}
 			compat-db52 = %{version_db52}-%{_release}
 			compat-db48 = %{version_db48}-%{_release}
 			compat-db47 = %{version_db47}-%{_release}
@@ -137,6 +140,13 @@ packages
 		conflicts
 			libdb = %{version_major}
 		end
+	end
+
+	package %{name}53
+		template COMPATDB
+
+		version_tag   = 53
+		version_major = 5.3
 	end
 
 	package %{name}52

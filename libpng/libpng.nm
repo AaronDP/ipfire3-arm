@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = libpng
-version    = 1.6.10
-release    = 2
+version    = 1.6.21
+release    = 1
 
 groups     = System/Libraries
 url        = http://www.libpng.org/pub/png/

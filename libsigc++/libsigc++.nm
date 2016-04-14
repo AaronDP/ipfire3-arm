@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libsigc++
-version    = 2.2.9
+version    = 2.99.4
 release    = 1
 
 groups     = Development/Libraries
@@ -20,7 +20,8 @@ description
 	dissimilar callbacks and has an ease of use unmatched by other C++ callback libraries.
 end
 
-source_dl  =
+source_dl  = http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.99/
+sources    = %{thisapp}.tar.xz
 
 build
 	requires

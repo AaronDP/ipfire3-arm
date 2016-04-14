@@ -4,9 +4,9 @@
 ###############################################################################
 
 name       = libdb
-version_major = 5
-version_minor = 3
-version_patch = 28
+version_major = 6
+version_minor = 1
+version_patch = 26
 version    = %{version_major}.%{version_minor}.%{version_patch}
 release    = 1
 thisapp    = db-%{version}

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libtool
-version    = 2.4.4
+version    = 2.4.6
 release    = 1
 
 groups     = System/Libraries
@@ -20,6 +20,15 @@ description
 end
 
 source_dl  = http://ftp.gnu.org/gnu/libtool/
+sources    = %{thisapp}.tar.gz
+
+build
+	requires
+		m4
+	end
+end
+
+
 
 packages
 	package %{name}

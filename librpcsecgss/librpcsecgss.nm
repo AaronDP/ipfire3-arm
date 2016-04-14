@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = librpcsecgss
-version    = 0.18
+version    = 0.19
 release    = 1
 
 groups     = System/Libraries
@@ -17,7 +17,8 @@ description
 	protocol.
 end
 
-source_dl  =
+source_dl  = http://www.citi.umich.edu/projects/nfsv4/linux/librpcsecgss/
+sources    = %{thisapp}.tar.gz
 
 build
 	requires

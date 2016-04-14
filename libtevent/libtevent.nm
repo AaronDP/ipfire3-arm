@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = libtevent
-version    = 0.9.17
-release    = 1
+version    = 0.9.28
+release    = 2
 
 groups     = System/Libraries
 url        = http://tevent.samba.org/
@@ -26,7 +26,7 @@ build
 	requires
 		docbook-utils
 		docbook-xsl
-		libtalloc-devel
+		libtalloc-devel >= 2.1.5
 		python-devel
 	end
 

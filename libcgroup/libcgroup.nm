@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = libcgroup
-version    = 0.35.1
-release    = 2
+version    = 0.41
+release    = 1
 
 groups     = Development/Libraries
 url        = http://libcg.sourceforge.net/
@@ -18,8 +18,8 @@ description
 	controllers.
 end
 
-source_dl  =
-sources    = %{thisapp}.tar.bz2
+source_dl  = https://sourceforge.net/projects/libcg/files/libcgroup/v0.41/
+sources    = %{thisapp}.tar.gz
 
 build
 	requires

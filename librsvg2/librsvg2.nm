@@ -4,9 +4,9 @@
 ###############################################################################
 
 name       = librsvg2
-version    = 2.34.1
-major_ver  = 2.34
-release    = 2
+version    = 2.40.15
+major_ver  = 2.40
+release    = 1
 
 groups     = System/Libraries
 url        =
@@ -25,8 +25,9 @@ sources    = %{thisapp}.tar.xz
 build
 	requires
 		cairo-devel
+		cairo-gobject-devel
 		gdk-pixbuf2-devel
-		glib2-devel
+		gobject-introspection-devel
 		libcroco-devel
 		libxml2-devel
 		pango-devel
@@ -37,6 +38,7 @@ build
 	configure_options += \
 		--disable-static \
 		--disable-gtk-theme \
+		--disable-gtk-doc \
 		enable_pixbuf_loader=yes
 end
 
