@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = nasm
-version    = 2.08.01
+version    = 2.12.01
 release    = 1
 
 groups     = Development/Languages
@@ -18,7 +18,7 @@ description
 	Intel instruction mnemonics and syntax.
 end
 
-source_dl  =
+source_dl  = http://www.nasm.us/pub/nasm/releasebuilds/2.12.01/
 sources    = %{thisapp}.tar.bz2
 
 build

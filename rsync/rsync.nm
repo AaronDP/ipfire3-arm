@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = rsync
-version    = 3.0.7
+version    = 3.1.2
 release    = 1
 
 groups     = Applications/Internet
@@ -31,7 +31,16 @@ build
 		libacl-devel
 		libattr-devel
 		popt-devel
+		zlib-devel
+
+		# Testsuite.
+		%{bindir}/setfacl
 	end
+
+	configure_options += \
+		--without-included-popt \
+		--without-included-zlib
+
 
 	prepare_cmds
 		# Fix permission issure.
@@ -52,19 +61,60 @@ build
 
 	make_build_targets = proto all
 
+	test
+		# Fix permissions of testsuite helper script.
+		#
+		# Otherwise some tests of the testsuite will fail,
+		# because the script is not allowed to be executed.
+		chmod +x ./support/lsh.sh
+
+		make check
+	end
+
 	make_install_targets += \
 		INSTALLCMD="install -p" \
 		INSTALLMAN="install -p"
 
 	install_cmds
-		mkdir -pv %{BUILDROOT}/etc/xinetd.d
-		install -p -m 644 %{DIR_SOURCE}/rsync.xinetd \
-			%{BUILDROOT}/etc/xinetd.d/rsync
+
+		# Install config file.
+		mkdir -pv %{BUILDROOT}%{sysconfdir}
+
+		install -m 0644 %{DIR_SOURCE}/rsyncd.conf \
+			%{BUILDROOT}%{sysconfdir}/
+
+		# Create directory for pidfile.
+		mkdir -pv %{BUILDROOT}/run/rsyncd
 	end
+
 end
 
 packages
 	package %{name}
+		configfiles
+			%{sysconfdir}/rsyncd.conf
+		end
+
+		script postin
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			systemctl --no-reload disable rsyncd.service >/dev/null 2>&1 || :
+			systemctl --no-reload disable rsyncd.socket >/dev/null 2>&1 || :
+			systemctl stop rsyncd.service >/dev/null 2>&1 || :
+			systemctl stop rsyncd.socket >/dev/null 2>&1 || :
+			systemctl stop rsyncd@.service >/dev/null 2>&1 || :
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+			systemctl try-restart rsyncd.service >/dev/null 2>&1 || :
+		end
 	end
 
 	package %{name}-debuginfo

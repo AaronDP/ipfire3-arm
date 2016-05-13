@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = minicom
-version    = 2.5
+version    = 2.7
 release    = 1
 
 groups     = Applications/System
@@ -19,7 +19,7 @@ description
 	language, and other features.
 end
 
-source_dl  =	http://alioth.debian.org/frs/download.php/3487/
+source_dl  = https://alioth.debian.org/frs/download.php/file/3977/
 
 build
 	requires

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = curl
-version    = 7.41.0
+version    = 7.48.0
 release    = 1
 
 groups     = Application/Internet
@@ -32,6 +32,7 @@ build
 		libtool-devel
 		net-tools
 		openldap-devel
+		openssl-devel
 		zlib-devel
 	end
 

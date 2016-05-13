@@ -1,0 +1,9 @@
+[Unit]
+Description=Fast remote file copy program daemon
+ConditionPathExists=/etc/rsyncd.conf
+
+[Service]
+ExecStart=/usr/bin/rsync --daemon --no-detach
+
+[Install]
+WantedBy=multi-user.target

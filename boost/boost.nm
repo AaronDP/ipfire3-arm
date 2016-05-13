@@ -5,10 +5,10 @@
 
 name       = boost
 ver_major  = 1
-ver_minor  = 51
+ver_minor  = 60
 ver_plevel = 0
 version    = %{ver_major}.%{ver_minor}.%{ver_plevel}
-release    = 2
+release    = 1
 
 groups     = System/Libraries
 url        = http://www.boost.org/
@@ -31,6 +31,7 @@ build
 	requires
 		bzip2-devel
 		gcc-c++
+		icu-devel
 		python-devel
 		python3-devel
 		zlib-devel
@@ -39,12 +40,13 @@ build
 	CFLAGS   += -fno-strict-aliasing
 	CXXFLAGS += -fno-strict-aliasing
 
-	# Don't build in parallel on ARM.
+	# Obtain python3 abiflags.
+	python3_abiflags = %(python3-config --abiflags)
+
+	# Don't build in parallel on any architecture.
 	# The C++ compiles consumes too much memory, so
 	# we cannot run multiple instances at once.
-	if "%{DISTRO_PLATFORM}" == "arm"
-		PARALLELISMFLAGS = -j2
-	end
+	PARALLELISMFLAGS = -j2
 
 	configure_options = \
 		--layout=tagged \
@@ -68,11 +70,12 @@ build
 		mkdir -pv %{DIR_APP}/serial
 
 		# Bootstrap build environment.
-		./bootstrap.sh --with-toolset=gcc
+		./bootstrap.sh --with-toolset=gcc --with-icu
 
 		# Enable boost lib for python3.
-		cat >> ./tools/build/v2/user-config.jam << EOF
-		using python : %{python3_version} : %{python3} : %{includedir}/python%{python3_version}%{python3_abiflags} : %{libdir}/python%{python3_version} ;
+		cat >> ./tools/build/src/user-config.jam << EOF
+		using python : %{python_version} : %{python2} : %{includedir}/python%{python_version} : : : : ;
+		using python : %{python3_version} : %{python3} : %{includedir}/python%{python3_version}%{python3_abiflags} : : : : %{python3_abiflags} ;
 		EOF
 	end
 

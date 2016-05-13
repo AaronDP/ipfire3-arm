@@ -7,7 +7,6 @@ CONFIG_HIGHMEM4G=y
 # CONFIG_HIGHMEM64G is not set
 # CONFIG_VMSPLIT_3G_OPT is not set
 # CONFIG_VMSPLIT_2G_OPT is not set
-# CONFIG_PHYS_ADDR_T_64BIT is not set
 
 #
 # Power management and ACPI options

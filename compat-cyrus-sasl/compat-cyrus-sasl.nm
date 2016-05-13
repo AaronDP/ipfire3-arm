@@ -1,0 +1,74 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = compat-cyrus-sasl
+version    = 2.1.25
+release    = 2.1
+
+thisapp    = cyrus-sasl-%{version}
+
+groups     = System/Libraries
+url        = http://asg.web.cmu.edu/sasl/sasl-library.html
+license    = BSD
+summary    = The Cyrus SASL library.
+
+description
+	The cyrus-sasl package contains the Cyrus implementation of SASL.
+	SASL is the Simple Authentication and Security Layer, a method for
+	adding authentication support to connection-based protocols.
+end
+
+source_dl  = ftp://ftp.cyrusimap.org/cyrus-sasl/
+
+build
+	requires
+		automake
+		libdb-devel
+		openssl-devel
+		pam-devel
+	end
+
+	prepare_cmds
+		# for aarch64
+		for i in $(find . -name config.guess -or -name config.sub); do
+			cp -vf %{datadir}/automake-*/config.{guess,sub} $(dirname ${i})
+		done
+	end
+
+	configure_options += \
+		--sysconfdir=/etc \
+		--with-configdir=%{libdir}/sasl2:/etc/sasl2 \
+		--with-plugindir=%{libdir}/sasl2 \
+		--with-dbpath=/var/lib/sasl/sasldb2 \
+		--with-saslauthd=/var/run/saslauthd \
+		--mandir=/usr/share/man
+
+	PARALLELISMFLAGS = # Disabled
+
+	install
+		# Only install libraries.
+		mkdir -pv %{BUILDROOT}%{libdir}
+		install -m 755 lib/.libs/libsasl2.so.2.0.25 %{BUILDROOT}%{libdir}
+		ln -svf libsasl2.so.2.0.25 %{BUILDROOT}%{libdir}/libpcre.so.2
+	end
+end
+
+packages
+	package %{name}
+		provides
+			cyrus-sasl = %{thisver}
+			cyrus-sasl-libs = %{thisver}
+		end
+
+		conflicts
+			cyrus-sasl <= %{thisver}
+			cyrus-sasl-libs <= %{thisver}
+		end
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

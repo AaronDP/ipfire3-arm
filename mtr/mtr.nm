@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = mtr
-version    = 0.82
+version    = 0.85
 release    = 1
 
 groups     = Applications/Internet
@@ -22,6 +22,7 @@ source_dl  = ftp://ftp.bitwizard.nl/mtr/
 build
 	requires
 		ncurses-devel
+		glib2-devel
 	end
 
 	configure_options += \

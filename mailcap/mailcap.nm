@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = mailcap
-version    = 2.1.36
-release    = 2
+version    = 2.1.45
+release    = 1
 arch       = noarch
 
 groups     = System/Base
@@ -22,7 +22,7 @@ description
 	certain programs to be able to handle non-text files.
 end
 
-source_dl  =
+source_dl  = https://fedorahosted.org/released/mailcap/
 sources    = %{thisapp}.tar.xz
 
 build

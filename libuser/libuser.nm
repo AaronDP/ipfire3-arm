@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libuser
-version    = 0.58
+version    = 0.62
 release    = 1
 
 groups     = System/Libraries

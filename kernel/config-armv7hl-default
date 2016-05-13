@@ -34,11 +34,6 @@ CONFIG_RCU_NOCB_CPU_NONE=y
 CONFIG_LOG_CPU_MAX_BUF_SHIFT=12
 
 #
-# Kernel Performance Events And Counters
-#
-CONFIG_SLUB_CPU_PARTIAL=y
-
-#
 # IO Schedulers
 #
 CONFIG_PADATA=y

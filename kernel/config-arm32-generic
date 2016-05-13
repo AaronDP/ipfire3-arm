@@ -31,6 +31,8 @@ CONFIG_CONTEXT_TRACKING_FORCE=y
 #
 # Kernel Performance Events And Counters
 #
+CONFIG_SLAB=y
+# CONFIG_SLUB is not set
 # CONFIG_KPROBES is not set
 CONFIG_ARCH_USE_BUILTIN_BSWAP=y
 CONFIG_GENERIC_IDLE_POLL_SETUP=y
@@ -41,6 +43,7 @@ CONFIG_OLD_SIGACTION=y
 #
 # GCOV-based kernel profiling
 #
+CONFIG_SLABINFO=y
 CONFIG_LBDAF=y
 
 #
@@ -467,6 +470,7 @@ CONFIG_ARM_SMMU=y
 #
 # Memory Debugging
 #
+# CONFIG_DEBUG_SLAB is not set
 # CONFIG_DEBUG_HIGHMEM is not set
 
 #
