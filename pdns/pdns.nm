@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = pdns
-version    = 3.4.7
-release    = 2
+version    = 4.0.0
+prerelease = alpha3
+release    = 0.1-%{prerelease}
+thisapp    = %{name}-%{version}-%{prerelease}
 
 groups     = Networking/DNS
 url        = http://powerdns.com/
@@ -23,18 +25,18 @@ source_dl  = http://downloads.powerdns.com/releases/
 sources    = %{thisapp}.tar.bz2
 
 build
-	# pdns uses polarssl which is no longer maintained
-	# upstream any more. Since nothing else is using
-	# polarssl any more we have dropped this from the
-	# distribution and bundle it with pdns.
-
 	requires
-		boost-devel
-		chrpath
+		/usr/bin/hostname
+		boost-devel >= 1.60.0
+		bison
+		flex
 		gcc-c++
+		libsodium-devel
 		lua-devel
+		openssl-devel
 		shadow-utils
 		sqlite-devel
+		systemd-devel
 		zlib-devel
 	end
 
@@ -43,12 +45,16 @@ build
 
 	configure_options += \
 		--sysconfdir=%{sysconfdir}/pdns \
+		--libdir=%{libdir}/powerdns \
 		--with-modules="" \
-		--with-dynmodules="pipe geo gsqlite3" \
+		--with-dynmodules="pipe gsqlite3" \
 		--with-lua \
+		--with-sqlite3 \
+		--enable-libsodium \
+		--enable-systemd \
 		--enable-tools \
-		--disable-static \
-		--enable-unit-tests
+		--enable-unit-tests \
+		--disable-static
 
 	prepare_cmds
 		%{create_user}
@@ -81,14 +87,6 @@ build
 
 		# Remove unneded binaries.
 		rm -vf %{BUILDROOT}%{bindir}/zone2ldap
-
-		# Remove rpath from binaries and backend libs.
-		chrpath --delete %{BUILDROOT}/usr/bin/pdns_control
-		chrpath --delete %{BUILDROOT}/usr/bin/zone2sql
-		chrpath --delete %{BUILDROOT}/usr/sbin/pdns_server
-		chrpath --delete %{BUILDROOT}%{libdir}/pdns/*.so
-		chrpath --delete %{BUILDROOT}/usr/bin/dnsreplay
-		chrpath --delete %{BUILDROOT}/usr/bin/pdnssec
 	end
 end
 
