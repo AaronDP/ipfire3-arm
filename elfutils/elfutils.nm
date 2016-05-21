@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = elfutils
-version    = 0.161
+version    = 0.166
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -26,30 +26,16 @@ sources    = %{thisapp}.tar.bz2
 
 build
 	requires
-		autoconf
-		automake
 		bzip2-devel
 		m4
 		xz-devel
 		zlib-devel
 	end
 
-	CFLAGS += -Wno-error -Wformat
-
-	configure_options += \
-		--program-prefix=eu- \
-		--disable-werror
-
 	# fails
 	#test
 	#	make check
 	#end
-end
-
-quality-agent
-	whitelist_rpath
-		%{libdir}/elfutils
-	end
 end
 
 packages

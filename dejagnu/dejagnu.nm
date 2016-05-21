@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = dejagnu
-version    = 1.4.4
-release    = 2
+version    = 1.6
+release    = 1
 arch       = noarch
 
 groups     = Development/Tools
@@ -17,24 +17,18 @@ description
 	DejaGnu is an Expect/Tcl based framework for testing other programs.
 end
 
-source_dl  =
+source_dl  = http://mirror.netcologne.de/gnu/dejagnu/
+sources    = %{thisapp}.tar.gz
 
 build
 	requires
 		bison
+		expect
 	end
 
 	configure_options += \
 		--mandir=/usr/share/man
 
-	# Disabled because testsuite doesn't wort at the moment.
-	#define test
-	#	make check
-	#endef
-
-	install_cmds
-		make -C doc DESTDIR=%{BUILDROOT} install-man
-	end
 end
 
 packages

@@ -17,10 +17,7 @@ CONFIGS="${CONFIGS} i686:legacy i686:default"
 CONFIGS="${CONFIGS} aarch64:default"
 
 # armv7hl
-CONFIGS="${CONFIGS} armv7hl:lpae armv7hl:default"
-
-# armv5tel
-CONFIGS="${CONFIGS} armv5tel:default"
+CONFIGS="${CONFIGS} armv7hl:default"
 
 PLATFORMS="x86 arm"
 declare -A SUBPLATFORMS
@@ -129,17 +126,8 @@ function merge_config() {
 			;;
 
 		# ARM
-		armv5tel:default)
-			configs="${configs} config-arm-generic config-arm32-generic"
-			configs="${configs} config-armv5tel-default"
-			;;
 		armv7hl:default)
 			configs="${configs} config-arm-generic config-arm32-generic"
-			configs="${configs} config-armv7hl-default"
-			;;
-		armv7hl:lpae)
-			configs="${configs} config-arm-generic config-arm32-generic"
-			configs="${configs} config-armv7hl-default config-armv7hl-lpae"
 			;;
 		*)
 			echo >&2 "ERROR: Invalid parameters given: $@"
@@ -248,9 +236,6 @@ function diff_configs() {
 
 		# Do not include leaf configuration.
 		case "${config}" in
-			armv7hl:lpae)
-				continue
-				;;
 			i686:legacy)
 				continue
 				;;
@@ -306,12 +291,12 @@ function diff_configs() {
 		filename=${tmpdir}/config-${arch}-${flavour}
 
 		case "${config}" in
-			aarch64:default)
+			aarch64:default|armv7hl:default)
 				# Virtual configuration
 				rm -f ${filename}
 				continue
 				;;
-			armv7hl:lpae|i686:legacy)
+			i686:legacy)
 				# Legacy depends directly on the default configuration.
 				${SCRIPTS_DIR}/configdiff.py ${tmpdir}/config-${arch}-default \
 					${filename} > ${filename}.tmp

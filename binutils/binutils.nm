@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = binutils
-version    = 2.24
+version    = 2.26
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -18,10 +18,7 @@ description
 	tools for the manipulation of object code in various object file formats.
 end
 
-source_dl
-	http://ftp.gnu.org/gnu/binutils/
-	ftp://ftp.kernel.org/pub/linux/devel/binutils
-end
+source_dl = http://ftp.gnu.org/gnu/binutils/
 
 build
 	requires

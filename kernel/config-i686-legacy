@@ -7,16 +7,7 @@ CONFIG_HIGHMEM4G=y
 # CONFIG_HIGHMEM64G is not set
 # CONFIG_VMSPLIT_3G_OPT is not set
 # CONFIG_VMSPLIT_2G_OPT is not set
-
-#
-# Power management and ACPI options
-#
-CONFIG_PM_OPP=y
-
-#
-# CPU frequency scaling drivers
-#
-CONFIG_CPUFREQ_DT=m
+# CONFIG_PHYS_ADDR_T_64BIT is not set
 
 #
 # Bus options (PCI etc.)
@@ -51,49 +42,13 @@ CONFIG_CMA_ALIGNMENT=8
 #
 # Bus devices
 #
-CONFIG_OF=y
-
-#
-# Device Tree and Open Firmware support
-#
 CONFIG_OF_PROMTREE=y
-CONFIG_OF_ADDRESS=y
-CONFIG_OF_ADDRESS_PCI=y
-CONFIG_OF_IRQ=y
-CONFIG_OF_NET=y
-CONFIG_OF_MDIO=y
-CONFIG_OF_PCI=y
-CONFIG_OF_PCI_IRQ=y
-# CONFIG_OF_OVERLAY is not set
-
-#
-# PIO-only SFF controllers
-#
-# CONFIG_PATA_OF_PLATFORM is not set
-
-#
-# Distributed Switch Architecture drivers
-#
-CONFIG_ARC_EMAC_CORE=m
-# CONFIG_ARC_EMAC is not set
-CONFIG_EMAC_ROCKCHIP=m
-CONFIG_SYSTEMPORT=m
-
-#
-# MII PHY device drivers
-#
-CONFIG_MDIO_BUS_MUX=m
-CONFIG_MDIO_BUS_MUX_GPIO=m
-CONFIG_MDIO_BUS_MUX_MMIOREG=m
 
 #
 # Input Device Drivers
 #
 CONFIG_KEYBOARD_STMPE=m
-CONFIG_KEYBOARD_OMAP4=m
 CONFIG_KEYBOARD_TC3589X=m
-CONFIG_KEYBOARD_CAP11XX=m
-CONFIG_KEYBOARD_BCM=m
 CONFIG_MOUSE_PS2_OLPC=y
 CONFIG_INPUT_MAX77693_HAPTIC=m
 CONFIG_INPUT_MAX8997_HAPTIC=m
@@ -103,7 +58,6 @@ CONFIG_INPUT_PWM_BEEPER=m
 #
 # Hardware I/O ports
 #
-CONFIG_SERIO_APBPS2=m
 # CONFIG_SERIO_OLPC_APSP is not set
 
 #
@@ -115,65 +69,22 @@ CONFIG_SERIO_APBPS2=m
 # Non-8250 serial port support
 #
 CONFIG_SERIAL_OF_PLATFORM=y
-# CONFIG_SERIAL_XILINX_PS_UART is not set
-CONFIG_SERIAL_CONEXANT_DIGICOLOR=m
-
-#
-# Multiplexer I2C Chip support
-#
-# CONFIG_I2C_ARB_GPIO_CHALLENGE is not set
-
-#
-# I2C system bus drivers (mostly embedded / system-on-chip)
-#
-CONFIG_I2C_PXA=m
-CONFIG_I2C_PXA_PCI=y
-CONFIG_I2C_RK3X=m
 
 #
 # Pin controllers
 #
 CONFIG_PINCTRL_AS3722=y
-# CONFIG_PINCTRL_SINGLE is not set
-CONFIG_PINCTRL_PALMAS=y
-CONFIG_OF_GPIO=y
-
-#
-# Memory mapped GPIO drivers
-#
-CONFIG_GPIO_74XX_MMIO=m
-CONFIG_GPIO_ALTERA=m
-# CONFIG_GPIO_GRGPIO is not set
-# CONFIG_GPIO_SYSCON is not set
-# CONFIG_GPIO_XILINX is not set
-
-#
-# I2C GPIO expanders
-#
-CONFIG_GPIO_ADNP=m
 
 #
 # MFD GPIO expanders
 #
 CONFIG_GPIO_CS5535=y
-# CONFIG_GPIO_STMPE is not set
-# CONFIG_GPIO_TC3589X is not set
-
-#
-# PCI GPIO expanders
-#
-# CONFIG_GPIO_SODAVILLE is not set
 
 #
 # USB GPIO expanders
 #
 CONFIG_BATTERY_OLPC=y
 CONFIG_POWER_RESET_AS3722=y
-CONFIG_POWER_RESET_GPIO=y
-CONFIG_POWER_RESET_GPIO_RESTART=y
-CONFIG_POWER_RESET_LTC2952=y
-CONFIG_POWER_RESET_SYSCON=y
-CONFIG_POWER_RESET_SYSCON_POWEROFF=y
 
 #
 # Native drivers
@@ -184,74 +95,24 @@ CONFIG_SENSORS_PWM_FAN=m
 # ACPI drivers
 #
 # CONFIG_THERMAL_OF is not set
-CONFIG_CLOCK_THERMAL=y
-
-#
-# Watchdog Device Drivers
-#
-# CONFIG_GPIO_WATCHDOG is not set
 
 #
 # Multifunction device drivers
 #
-CONFIG_MFD_AS3722=y
-CONFIG_MFD_ATMEL_HLCDC=m
-CONFIG_MFD_HI6421_PMIC=m
-CONFIG_MFD_MAX77686=y
 CONFIG_MFD_RK808=y
-CONFIG_MFD_STMPE=y
 
 #
 # STMicroelectronics STMPE Interface Drivers
 #
-CONFIG_STMPE_I2C=y
-CONFIG_MFD_TC3589X=y
-CONFIG_REGULATOR_AS3722=m
-CONFIG_REGULATOR_HI6421=m
-CONFIG_REGULATOR_MAX77686=m
-CONFIG_REGULATOR_MAX77802=m
 CONFIG_REGULATOR_PWM=m
-CONFIG_REGULATOR_RK808=m
-CONFIG_REGULATOR_TPS65218=m
-
-#
-# Media digital TV PCI Adapters
-#
-# CONFIG_VIDEO_XILINX is not set
-
-#
-# I2C encoder or helper chips
-#
-CONFIG_DRM_PTN3460=m
-CONFIG_DRM_PS8622=m
-
-#
-# Display Panels
-#
-# CONFIG_DRM_PANEL_SIMPLE is not set
-# CONFIG_DRM_PANEL_S6E8AA0 is not set
-# CONFIG_DRM_PANEL_SHARP_LQ101R1SX01 is not set
 
 #
 # Frame buffer hardware drivers
 #
-# CONFIG_FB_SSD1307 is not set
 CONFIG_BACKLIGHT_PWM=m
 # CONFIG_BACKLIGHT_LM3630A is not set
 # CONFIG_BACKLIGHT_LP855X is not set
 # CONFIG_BACKLIGHT_LP8788 is not set
-# CONFIG_BACKLIGHT_OT200 is not set
-
-#
-# Gadget/Dual-role mode requires USB Gadget support to be enabled
-#
-CONFIG_USB_CHIPIDEA_OF=m
-
-#
-# MMC/SD/SDIO Host Controller Drivers
-#
-CONFIG_MMC_SDHCI_OF_ARASAN=m
-CONFIG_MMC_SDHCI_F_SDH30=m
 
 #
 # LED drivers
@@ -259,67 +120,16 @@ CONFIG_MMC_SDHCI_F_SDH30=m
 CONFIG_LEDS_PWM=m
 
 #
-# LED driver for blink(1) USB RGB LED is under Special HID drivers (HID_THINGM)
-#
-CONFIG_LEDS_SYSCON=y
-
-#
-# I2C RTC drivers
-#
-CONFIG_RTC_DRV_AS3722=m
-CONFIG_RTC_DRV_HYM8563=m
-CONFIG_RTC_DRV_MAX77686=m
-CONFIG_RTC_DRV_RK808=m
-CONFIG_RTC_DRV_MAX77802=m
-
-#
-# on-CPU RTC drivers
-#
-CONFIG_RTC_DRV_SNVS=m
-
-#
-# DMA Devices
-#
-CONFIG_FSL_EDMA=m
-CONFIG_DMA_OF=y
-
-#
 # Microsoft Hyper-V guest support
 #
-# CONFIG_FB_OLPC_DCON is not set
-
-#
-# Android
-#
-# CONFIG_COMMON_CLK_XLNX_CLKWZRD is not set
 CONFIG_XO1_RFKILL=m
 # CONFIG_XO15_EBOOK is not set
 
 #
 # Common Clock Framework
 #
-CONFIG_COMMON_CLK_MAX_GEN=y
-CONFIG_COMMON_CLK_MAX77686=m
-CONFIG_COMMON_CLK_MAX77802=m
-CONFIG_COMMON_CLK_RK808=m
 # CONFIG_COMMON_CLK_SI5351 is not set
-CONFIG_COMMON_CLK_SI570=m
 CONFIG_COMMON_CLK_PWM=m
-
-#
-# Generic IOMMU Pagetable Support
-#
-CONFIG_OF_IOMMU=y
-
-#
-# Analog to digital converters
-#
-CONFIG_VF610_ADC=m
-
-#
-# Digital to analog converters
-#
-CONFIG_MAX5821=m
 
 #
 # Temperature sensors
@@ -327,6 +137,7 @@ CONFIG_MAX5821=m
 CONFIG_PWM=y
 CONFIG_PWM_SYSFS=y
 CONFIG_PWM_ATMEL_HLCDC_PWM=m
+CONFIG_PWM_CRC=y
 CONFIG_PWM_FSL_FTM=m
 CONFIG_PWM_LP3943=m
 CONFIG_PWM_LPSS=m
@@ -335,12 +146,6 @@ CONFIG_PWM_LPSS_PLATFORM=m
 CONFIG_PWM_PCA9685=m
 CONFIG_PWM_TWL=m
 CONFIG_PWM_TWL_LED=m
-CONFIG_IRQCHIP=y
-
-#
-# Non-executable pages
-#
-CONFIG_PAX_KERNEXEC_MODULE_TEXT=4
 
 #
 # Random Number Generation

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = kernel
-version    = 4.1.7
+version    = 4.4.10
 release    = 1
 thisapp    = linux-%{version}
 
@@ -35,7 +35,7 @@ build
 		asciidoc
 		audit-devel
 		bc
-		binutils >= 2.23.51.0.3-3
+		binutils >= 2.25
 		binutils-devel
 		bison
 		elfutils-devel
@@ -43,6 +43,7 @@ build
 		gcc >= 4.9
 		gcc-plugin-devel
 		gettext
+		hostname
 		libunwind-devel
 		ncurses-devel
 		net-tools
@@ -50,6 +51,7 @@ build
 		pciutils-devel
 		perl
 		python-devel
+		openssl-devel
 		slang-devel
 		xmlto
 		xz
@@ -69,6 +71,7 @@ build
 	# Arguments that are passed to the kernel build command.
 	kernel_build_flags =
 
+	kernel_arch = %{DISTRO_PLATFORM}
 	kernel_target = bzImage
 	kernel_image = arch/%{kernel_arch}/boot/%{kernel_target}
 
@@ -77,14 +80,10 @@ build
 		# i686 architecture.
 		build_kernel_default = 1
 		build_kernel_legacy = 1
-
-		kernel_arch = x86
 	end
 
 	if "%{DISTRO_ARCH}" == "x86_64"
 		build_kernel_default = 1
-
-		kernel_arch = x86
 	end
 
 	if "%{DISTRO_ARCH}" == "aarch64"
@@ -95,23 +94,10 @@ build
 		kernel_target = Image.gz
 	end
 
-	if "%{DISTRO_ARCH}" == "armv5tel"
-		# Build a kernel for Marvell Kirkwood-based devices.
-		build_kernel_default = 1
-
-		kernel_arch = arm
-		kernel_target = zImage
-
-		# http://lists.infradead.org/pipermail/linux-arm-kernel/2012-March/091404.html
-		kernel_build_flags = KALLSYMS_EXTRA_PASS=1
-	end
-
 	if "%{DISTRO_ARCH}" == "armv7hl"
 		# Build the default unified kernel.
 		build_kernel_default = 1
-		build_kernel_lpae = 1
 
-		kernel_arch = arm
 		kernel_target = zImage
 	end
 
@@ -130,21 +116,11 @@ build
 		kernels += legacy
 	end
 
-	# Build lpae kernel
-	if "%{build_kernel_lpae}" == "1"
-		kernels += lpae
-	end
-
 	perf_make = make %{MAKETUNING} -C tools/perf V=1 WERROR=0 \
 		NO_LIBUNWIND=1 HAVE_CPLUS_DEMANGLE=1 NO_GTK2=1 NO_LIBNUMA=1 \
 		NO_STRLCPY=1 NO_BIONIC=1 prefix=%{prefix} perfexecdir=lib/perf-core
 
 	prepare_cmds
-		rm -f %{DIR_APP}/localversion-grsec
-
-		# Remove -Werror flag to fix ARMv5 build.
-		sed -e "s/-Werror//g" -i grsecurity/Makefile || :
-
 		# Disable the colorize plugin.
 		# It's generally very nice but it clutters our
 		# logfiles.
@@ -562,22 +538,6 @@ packages
 
 			kernel_name = kernel-legacy
 			kernel_release = %{fullver}.legacy
-		end
-	end
-
-	if "%{build_kernel_lpae}" == "1"
-		package kernel-lpae
-			template KERNEL
-
-			kernel_name = kernel-lpae
-			kernel_release = %{fullver}.lpae
-		end
-
-		package kernel-lpae-devel
-			template KERNELDEVEL
-
-			kernel_name = kernel-lpae
-			kernel_release = %{fullver}.lpae
 		end
 	end
 
