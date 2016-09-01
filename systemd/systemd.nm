@@ -5,7 +5,7 @@
 
 name       = systemd
 version    = 221
-release    = 4
+release    = 5
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -231,9 +231,6 @@ packages
 		end
 
 		script postin
-			# Generate Machine ID.
-			/usr/bin/systemd-machine-id-setup > /dev/null 2>&1 || :
-
 			# Reexec systemd daemon.
 			/usr/bin/systemctl daemon-reexec > /dev/null 2>&1 || :
 
