@@ -4,12 +4,12 @@
 ###############################################################################
 
 name       = bash-completion
-version    = 2.1
-release    = 2
+version    = 2.4
+release    = 1
 arch       = noarch
 
 groups     = Development/Languages
-url        = http://bash-completion.alioth.debian.org/
+url        = https://github.com/scop/bash-completion
 license    = GPLv2+
 summary    = Programmable completion for Bash.
 
@@ -18,19 +18,12 @@ description
 	of the programmable completion feature of bash.
 end
 
-source_dl  = http://bash-completion.alioth.debian.org/files/
-sources    = %{thisapp}.tar.bz2
+source_dl  = https://github.com/scop/bash-completion/releases/download/%{version}/
+sources    = %{thisapp}.tar.xz
 
 build
 	install_cmds
 		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{cawsay,cowthink}
-
-		# Remove files which are provided by util-linux >= 2.22.
-		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{cal,ncal,chsh}
-		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{eject,hexdump}
-		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{hwclock,ionice}
-		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{look,renice,hd}
-		rm -rvf %{BUILDROOT}%{datadir}/bash-completion/completions/{rtcwake,su,dmesg}
 
 		install -Dpm 644 %{DIR_SOURCE}/bash-completion-1.99-redefine_filedir.bash \
 			%{BUILDROOT}%{sysconfdir}/bash_completion.d/redefine_filedir
