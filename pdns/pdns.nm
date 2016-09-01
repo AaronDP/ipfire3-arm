@@ -4,10 +4,9 @@
 ###############################################################################
 
 name       = pdns
-version    = 4.0.0
-prerelease = alpha3
-release    = 0.1-%{prerelease}
-thisapp    = %{name}-%{version}-%{prerelease}
+version    = 4.0.1
+release    = 1
+thisapp    = %{name}-%{version}
 
 groups     = Networking/DNS
 url        = http://powerdns.com/
