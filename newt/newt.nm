@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = newt
-version    = 0.52.13
-release    = 2
+version    = 0.52.19
+release    = 1
 
 groups     = System/Libraries
 url        = https://fedorahosted.org/releases/n/e/newt/

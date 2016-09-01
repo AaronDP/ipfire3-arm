@@ -5,7 +5,7 @@
 
 name       = libpwquality
 version    = 1.3.0
-release    = 1
+release    = 2
 
 groups     = System/Base
 url        = https://fedorahosted.org/libpwquality/
@@ -26,25 +26,20 @@ build
 		cracklib-devel
 		gettext
 		pam-devel
-		python-devel
+		python3-devel
 	end
+
+	configure_options += \
+		--disable-static \
+		--with-pythonsitedir=%{python3_sitearch} \
+		--with-python-binary=%{python3}
 end
 
 packages
 	package %{name}
 
-	package python-%{name}
-		summary = Python bindings for the libpwquality library.
-		description
-			This is pwquality Python module that provides Python bindings
-			for the libpwquality library. These bindings can be used
-			for easy password quality checking and generation of random
-			pronounceable passwords from Python applications.
-		end
-
-		files
-			%{libdir}/python*
-		end
+	package python3-%{name}
+		template PYTHON3
 	end
 
 	package %{name}-devel
