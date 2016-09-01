@@ -5,7 +5,7 @@
 
 name       = rsync
 version    = 3.1.2
-release    = 1
+release    = 2
 
 groups     = Applications/Internet
 url        = http://rsync.samba.org/
