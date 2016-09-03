@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = coreutils
-version    = 8.23
+version    = 8.25
 release    = 1
 
 groups     = System/Base
@@ -53,6 +53,9 @@ build
 	prepare_cmds
 		autoreconf -vfi
 	end
+
+	make_build_targets += \
+		V=1
 
 	test
 		make check

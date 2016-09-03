@@ -1,6 +1,5 @@
-diff -Nur coreutils-8.23-orig/tests/local.mk coreutils-8.23/tests/local.mk
---- coreutils-8.23-orig/tests/local.mk	2014-07-14 00:09:52.000000000 +0200
-+++ coreutils-8.23/tests/local.mk	2015-01-23 21:44:03.355661943 +0100
+--- coreutils-8.25_old/tests/local.mk	2016-01-16 19:18:13.000000000 +0100
++++ coreutils-8.25_new/tests/local.mk	2016-09-03 12:59:41.798241660 +0200
 @@ -107,7 +107,6 @@
  
  all_root_tests =				\
@@ -9,7 +8,7 @@ diff -Nur coreutils-8.23-orig/tests/local.mk coreutils-8.23/tests/local.mk
    tests/cp/preserve-gid.sh			\
    tests/cp/special-bits.sh			\
    tests/cp/cp-mv-enotsup-xattr.sh		\
-@@ -121,8 +120,6 @@
+@@ -122,8 +121,6 @@
    tests/install/install-C-root.sh		\
    tests/ls/capability.sh			\
    tests/ls/nameless-uid.sh			\
@@ -18,16 +17,24 @@ diff -Nur coreutils-8.23-orig/tests/local.mk coreutils-8.23/tests/local.mk
    tests/misc/selinux.sh				\
    tests/misc/truncate-owned-by-other.sh		\
    tests/mkdir/writable-under-readonly.sh	\
-@@ -517,8 +514,6 @@
+@@ -236,7 +233,6 @@
+   tests/misc/test.pl				\
+   tests/misc/seq.pl				\
+   tests/misc/seq-long-double.sh			\
+-  tests/misc/seq-precision.sh			\
+   tests/misc/head.pl				\
+   tests/misc/head-elide-tail.pl			\
+   tests/tail-2/tail-n0f.sh			\
+@@ -535,8 +531,6 @@
    tests/du/trailing-slash.sh			\
    tests/du/two-args.sh				\
    tests/id/gnu-zero-uids.sh			\
 -  tests/id/no-context.sh			\
 -  tests/id/context.sh				\
    tests/id/uid.sh				\
-   tests/id/setgid.sh				\
    tests/id/zero.sh				\
-@@ -527,7 +522,6 @@
+   tests/id/smack.sh				\
+@@ -544,7 +538,6 @@
    tests/install/create-leading.sh		\
    tests/install/d-slashdot.sh			\
    tests/install/install-C.sh			\
@@ -35,7 +42,7 @@ diff -Nur coreutils-8.23-orig/tests/local.mk coreutils-8.23/tests/local.mk
    tests/install/strip-program.sh		\
    tests/install/trap.sh				\
    tests/ln/backup-1.sh				\
-@@ -579,7 +573,6 @@
+@@ -598,7 +591,6 @@
    tests/mkdir/parents.sh			\
    tests/mkdir/perm.sh				\
    tests/mkdir/selinux.sh			\
