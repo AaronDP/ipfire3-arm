@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = perl-Net-SSLeay
-version    = 1.69
+version    = 1.78
 release    = 1
 thisapp    = Net-SSLeay-%{version}
 
@@ -40,6 +40,12 @@ end
 
 packages
 	package %{name}
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
+			perl(MIME::Base64)
+			perl(XSLoader)
+		end
+	end
 
 	package %{name}-debuginfo
 		template DEBUGINFO
