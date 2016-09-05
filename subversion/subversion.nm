@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = subversion
-version    = 1.8.13
+version    = 1.9.4
 release    = 1
 
 groups     = Development/Tools
@@ -41,13 +41,14 @@ build
 	end
 
 	configure_options += \
-		--sbindir=/sbin \
+		CPPFLAGS="-P" \
 		--disable-mod-activation \
-		--disable-static \
-		--with-berkeley-db
+		--disable-static
 
 	prepare_cmds
-		./autogen.sh --release
+		# Regenerate build system.
+		sed -i "/seems to be moved/s/^/#/" build/ltmain.sh &&
+		./autogen.sh
 
 		# Fix shebang lines.
 		perl -pi -e 's|/usr/bin/env perl -w|/usr/bin/perl -w|' tools/hook-scripts/*.pl.in
@@ -75,6 +76,10 @@ packages
 		description
 			This package includes the Perl bindings to
 			the Subversion libraries.
+		end
+
+		requires
+			perl(:MODULE_COMPAT_%{perl_version})
 		end
 
 		files

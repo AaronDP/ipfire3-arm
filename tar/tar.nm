@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = tar
-version    = 1.26
-release    = 6
+version    = 1.29
+release    = 1
 
 groups     = System/Packaging
 url        = http://www.gnu.org/software/tar/

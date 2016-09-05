@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = python-rrdtool
-version    = 0.1.2
+version    = 0.1.5
 release    = 1
 
 groups     = System/Libraries
@@ -17,7 +17,7 @@ description
 	object-oriented way to work with Round Robin Databases.
 end
 
-source_dl  = https://pypi.python.org/packages/source/r/rrdtool/
+source_dl  = https://github.com/commx/python-rrdtool/archive/v%{version}.tar.gz#/
 
 build
 	requires

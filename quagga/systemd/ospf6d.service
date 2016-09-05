@@ -1,0 +1,12 @@
+[Unit]
+Description=OSPF routing daemon for IPv6
+BindTo=zebra.service
+After=syslog.target network.target zebra.service
+
+[Service]
+Type=forking
+ExecStart=/usr/sbin/ospf6d -d -f /etc/quagga/ospf6d.conf
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

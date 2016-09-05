@@ -5,7 +5,7 @@
 
 name       = network
 epoch      = 1
-version    = 007
+version    = 008
 release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -68,6 +68,10 @@ packages
 			tunctl
 			wpa_supplicant >= 1.0-2
 			/usr/bin/logger
+		end
+
+		recommends
+			quagga
 		end
 
 		configfiles

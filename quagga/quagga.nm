@@ -1,0 +1,104 @@
+###############################################################################
+# IPFire.org    - An Open Source Firewall Solution                            #
+# Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
+###############################################################################
+
+name       = quagga
+version    = 1.0.20160315
+release    = 2
+
+groups     = Networking/Routing
+url        = http://www.quagga.net/
+license    = GPLv2+
+summary    = Quagga is a rounting daemon.
+
+description
+	Quagga is a free software that manages TCP/IP based routing
+	protocol. It takes multi-server and multi-thread approach to resolve
+	the current complexity of the Internet.
+
+	Quagga supports BGP4, BGP4+, OSPFv2 and OSPFv3.
+end
+
+source_dl  = http://download.savannah.gnu.org/releases/quagga/
+sources    = %{thisapp}.tar.xz
+
+build
+	requires
+		ncurses-devel
+		net-snmp-devel
+		readline-devel
+		systemd-units
+	end
+
+	prepare_cmds
+		%{create_user}
+	end
+
+	configure_options += \
+		--sysconfdir=/etc/quagga \
+		--localstatedir=%{localstatedir}/run/quagga \
+		--disable-static \
+		--disable-watchquagga \
+		--enable-multipath=64 \
+		--disable-isisd \
+		--disable-pimd \
+		--disable-ripd \
+		--disable-ripngd
+
+	install_cmds
+		mkdir -pv %{localstatedir}/run/quagga
+		chown -v quagga.quagga %{localstatedir}/run/quagga
+	end
+end
+
+create_user
+	getent group quagga >/dev/null || /usr/sbin/groupadd -r quagga
+	getent passwd quagga >/dev/null || /usr/sbin/useradd -r -g quagga \
+		-d %{sysconfdir}/%{name} -s /sbin/nologin quagga
+end
+
+packages
+	package %{name}
+		services = bgpd ospf6d ospfd zebra
+
+		script prein
+			%{create_user}
+		end
+
+		script postin
+			/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script preun
+			for i in %{services}; do
+				systemctl --no-reload disable ${i}.service >/dev/null 2>&1 || :
+				systemctl stop ${i}.service >/dev/null 2>&1 || :
+			done
+		end
+
+		script postun
+			systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			systemctl daemon-reload >/dev/null 2>&1 || :
+
+			for i in %{services}; do
+				systemctl try-restart ${i}.service >/dev/null 2>&1 || :
+			done
+		end
+	end
+
+	package %{name}-libs
+		template LIBS
+	end
+
+	package %{name}-devel
+		template DEVEL
+	end
+
+	package %{name}-debuginfo
+		template DEBUGINFO
+	end
+end

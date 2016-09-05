@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libgcrypt
-version    = 1.6.5
+version    = 1.7.0
 release    = 1
 
 groups     = System/Libraries

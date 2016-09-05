@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = fastd
-version    = 16
+version    = 17
 release    = 1
 
 groups     = Networking/VPN
@@ -17,16 +17,18 @@ description
 	to run on embedded devices.
 end
 
-source_dl  =
+source_dl  = https://projects.universe-factory.net/attachments/download/81/
 sources    = %{thisapp}.tar.xz
 
 build
 	requires
 		bison >= 2.5
 		cmake >= 3.0
+		doxygen
 		json-c-devel
 		libcap-devel
 		libsodium-devel
+		libuecc >= 5
 		libuecc-devel
 		openssl-devel
 	end
