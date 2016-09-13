@@ -24,6 +24,8 @@ source_dl  = https://fedorahosted.org/released/sssd/
 build
 	requires
 		/usr/bin/nsupdate
+		autoconf
+		automake
 		c-ares-devel
 		chrpath
 		cifs-utils-devel >= 6.6
@@ -31,18 +33,20 @@ build
 		dbus-devel
 		ding-libs-devel >= 0.6.0
 		docbook-xsl
+		gettext-devel
 		glib2-devel
 		krb5-devel >= 1.10.3
 		libcollection-devel
 		libdhash-devel
 		libini_config-devel
 		libldb-devel
-		libnl-devel
+		libnl3-devel
 		libnfsidmap-devel
 		libsemanage-devel
 		libtalloc-devel
 		libtdb-devel
 		libtevent-devel
+		libtool
 		openldap-devel
 		openssl-devel
 		pam-devel >= 1.1.6
@@ -51,6 +55,10 @@ build
 		python3-devel
 		samba-devel >= 4.0.5
 		systemd-devel
+	end
+
+	prepare_cmds
+		autoreconf -vfi
 	end
 
 	configure_options += \
@@ -76,11 +84,18 @@ build
 			%{BUILDROOT}%{sysconfdir}/sssd/sssd.conf
 
 		# Remove rpath.
-		chrpath --delete %{BUILDROOT}/usr/lib/sssd/sssd_pac
-		chrpath --delete %{BUILDROOT}/usr/lib/sssd/gpo_child
+		#chrpath --delete %{BUILDROOT}/usr/lib/sssd/sssd_pac
+		#chrpath --delete %{BUILDROOT}/usr/lib/sssd/gpo_child
 
 		# Remove old sysVinit stuff.
 		rm -rvf %{BUILDROOT}%{sysconfdir}/rc.d
+	end
+end
+
+quality-agent
+	whitelist_rpath
+		%{libdir}
+		%{libdir}/sssd
 	end
 end
 
