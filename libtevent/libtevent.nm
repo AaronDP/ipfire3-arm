@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = libtevent
-version    = 0.9.28
-release    = 2
+version    = 0.9.30
+release    = 1
 
 groups     = System/Libraries
 url        = http://tevent.samba.org/

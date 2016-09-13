@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = cups
-version    = 1.6.1
+version    = 2.1.4
 release    = 1
 
 groups     = Applications/Printing
@@ -17,8 +17,8 @@ description
 	by Apple Inc. for Mac OS(R) X and other UNIX(R)-like operating systems.
 end
 
-source_dl  = http://ftp.easysw.com/pub/cups/%{version}/
-sources    = %{thisapp}-source.tar.bz2
+source_dl  = https://github.com/apple/cups/releases/download/release-%{version}/
+sources    = %{thisapp}-source.tar.gz
 
 build
 	requires

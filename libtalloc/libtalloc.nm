@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libtalloc
-version    = 2.1.6
+version    = 2.1.8
 release    = 1
 
 groups     = System/Libraries

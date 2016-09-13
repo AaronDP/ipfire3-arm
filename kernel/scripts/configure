@@ -10,9 +10,6 @@ SCRIPTS_DIR=${BASEDIR}
 # x86_64
 CONFIGS="x86_64:default"
 
-# i686
-CONFIGS="${CONFIGS} i686:legacy i686:default"
-
 # aarch64
 CONFIGS="${CONFIGS} aarch64:default"
 
@@ -67,7 +64,7 @@ function get_kernel_arch() {
 		arm*)
 			echo "arm"
 			;;
-		x86_64|i?86)
+		x86_64)
 			echo "x86"
 			;;
 	esac
@@ -110,14 +107,7 @@ function merge_config() {
 	case "${arch}:${flavour}" in
 		# x86
 		x86_64:default)
-			configs="${configs} config-x86-generic config-x86_64-default"
-			;;
-		i686:default)
-			configs="${configs} config-x86-generic config-i686-default"
-			;;
-		i686:legacy)
-			configs="${configs} config-x86-generic config-i686-default"
-			configs="${configs} config-i686-legacy"
+			configs="${configs} config-x86-generic"
 			;;
 
 		# ARM64
@@ -208,9 +198,6 @@ function make_oldconfig() {
 
 # config-generic
 #  Intersection of all files.
-# config-x86-generic
-#  Diff of (intersection of (i686-{default,legacy} and x86_64-default)
-#  against config-generic).
 # config-x86-x86_64
 #  Diff against merge of (config-generic and config-x86-generic).
 
@@ -233,13 +220,6 @@ function diff_configs() {
 		filename=${tmpdir}/config-${arch}-${flavour}
 
 		merge_config ${arch} ${flavour} ${filename} ${extra_configs}
-
-		# Do not include leaf configuration.
-		case "${config}" in
-			i686:legacy)
-				continue
-				;;
-		esac
 
 		platform="$(get_platform "${arch}")"
 		subplatform="$(get_subplatform "${arch}")"
@@ -295,11 +275,6 @@ function diff_configs() {
 				# Virtual configuration
 				rm -f ${filename}
 				continue
-				;;
-			i686:legacy)
-				# Legacy depends directly on the default configuration.
-				${SCRIPTS_DIR}/configdiff.py ${tmpdir}/config-${arch}-default \
-					${filename} > ${filename}.tmp
 				;;
 			*)
 				platform="$(get_subplatform "${arch}" || get_platform "${arch}")"

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = smartmontools
-version    = 5.40
+version    = 6.5
 release    = 1
 
 groups     = System/Statistics
@@ -21,7 +21,7 @@ description
 	and failure.
 end
 
-source_dl  = http://downloads.sourceforge.net/project/%{name}/%{name}/%{thisapp}
+source_dl  = http://sourceforge.net/projects/smartmontools/files/smartmontools/%{version}
 
 build
 	requires

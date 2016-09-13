@@ -9,8 +9,8 @@ release    = 1
 epoch      = 1
 
 major_ver  = 4
-minor_ver  = 13
-rev_ver    = 2
+minor_ver  = 18
+rev_ver    = 1
 
 groups     = Development/Tools
 url        = http://www.riverbankcomputing.com/software/sip/intro
@@ -24,7 +24,9 @@ description
 	tighter bindings. SIP is so called because it is a small SWIG.
 end
 
-source_dl  = http://www.riverbankcomputing.com/static/Downloads/sip%{major_ver}/
+source_dl  = https://sourceforge.net/projects/pyqt/files/sip/sip-%{major_ver}.%{minor_ver}.%{rev_ver}/
+sources    = %{thisapp}.tar.gz
+
 
 build
 	requires

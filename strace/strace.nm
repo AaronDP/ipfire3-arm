@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = strace
-version    = 4.10
+version    = 4.13
 release    = 1
 
 groups     = Development/Debuggers

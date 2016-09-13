@@ -4,9 +4,9 @@
 ###############################################################################
 
 name       = sqlite
-version    = 3.8.8.2
+version    = 3.14.1
 release    = 1
-realver    = 3080802
+realver    = 3140100
 
 groups     = System/Databases
 url        = http://www.sqlite.org/
@@ -23,7 +23,7 @@ description
 end
 
 thisapp    = %{name}-autoconf-%{realver}
-source_dl  = http://www.sqlite.org/2015/
+source_dl  = http://www.sqlite.org/2016/
 
 build
 	requires

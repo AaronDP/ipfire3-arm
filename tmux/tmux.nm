@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = tmux
-version    = 2.0
+version    = 2.2
 release    = 1
 
 groups     = Application/System
@@ -19,7 +19,7 @@ description
 	programs such as GNU Screen.
 end
 
-source_dl  = http://downloads.sourceforge.net/%{name}/
+source_dl  = https://github.com/tmux/tmux/releases/download/%{version}
 
 build
 	requires

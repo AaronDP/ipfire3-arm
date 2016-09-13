@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = tinc
-version    = 1.0.23
+version    = 1.0.28
 release    = 1
 
 groups     = Networking/Tools

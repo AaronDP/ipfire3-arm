@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = kernel
-version    = 4.4.10
+version    = 4.4.19
 release    = 1
 thisapp    = linux-%{version}
 
@@ -60,11 +60,6 @@ build
 		%{kernel_logo}
 	end
 
-	# i686 needs librmi for cpupower.
-	if "%{DISTRO_ARCH}" == "i686"
-		requires += liblrmi-devel
-	end
-
 	# A list of kernels to build.
 	kernels =
 
@@ -74,13 +69,6 @@ build
 	kernel_arch = %{DISTRO_PLATFORM}
 	kernel_target = bzImage
 	kernel_image = arch/%{kernel_arch}/boot/%{kernel_target}
-
-	if "%{DISTRO_ARCH}" == "i686"
-		# Build a default and legacy kernel for the
-		# i686 architecture.
-		build_kernel_default = 1
-		build_kernel_legacy = 1
-	end
 
 	if "%{DISTRO_ARCH}" == "x86_64"
 		build_kernel_default = 1
@@ -109,11 +97,6 @@ build
 	# Build default kernel.
 	if "%{build_kernel_default}" == "1"
 		kernels += default
-	end
-
-	# Build legacy kernel.
-	if "%{build_kernel_legacy}" == "1"
-		kernels += legacy
 	end
 
 	perf_make = make %{MAKETUNING} -C tools/perf V=1 WERROR=0 \
@@ -222,14 +205,6 @@ build
 			make ARCH=%{kernel_arch} INSTALL_MOD_PATH=%{BUILDROOT}/usr mod-fw= V=1 \
 				KERNELRELEASE=${fullversion} modules_install
 
-			# Install vdso.
-			case "%{DISTRO_ARCH}" in
-				i686)
-					make ARCH=%{kernel_arch} INSTALL_MOD_PATH=%{BUILDROOT} \
-						KERNELRELEASE=${fullversion} vdso_install
-					;;
-			esac
-
 			# Create an empty settings file for dracut
 			mkdir -p %{BUILDROOT}/etc/ld.so.conf.d
 			echo "# Placeholder file, no vDSO hwcap entries used in this kernel." \
@@ -301,24 +276,11 @@ build
 			pushd tools/power/cpupower/debug/x86_64
 			make %{MAKETUNING} centrino-decode powernow-k8-decode
 			popd
-		elif [ "%{DISTRO_ARCH}" = "i686" ]; then
-			pushd tools/power/cpupower/debug/i386
-			make %{MAKETUNING} centrino-decode powernow-k8-decode
-			popd
-		fi
 
-		# Should be built for all x86 architectures
-		if [ "%{DISTRO_ARCH}" = "x86_64" ]; then
-			# Won't compile on i686
-			# x86_energy_perf_policy.c: In function ‘validate_cpuid’:
-			# x86_energy_perf_policy.c:154:2: error: PIC register clobbered by ‘ebx’ in ‘asm’
-			#   asm("cpuid" : "=a" (fms), "=c" (ecx), "=d" (edx) : "a" (1) : "ebx");
-			#   ^
 			pushd tools/power/x86/x86_energy_perf_policy
 			make
 			popd
 
-			# Same as above
 			pushd tools/power/x86/turbostat
 			make
 			popd
@@ -358,13 +320,6 @@ build
 
 		if [ "%{DISTRO_ARCH}" = "x86_64" ]; then
 			pushd tools/power/cpupower/debug/x86_64
-			install -m 755 centrino-decode \
-				%{BUILDROOT}/usr/bin/centrino-decode
-			install -m 755 powernow-k8-decode \
-				%{BUILDROOT}/usr/bin/powernow-k8-decode
-			popd
-		elif [ "%{DISTRO_ARCH}" = "i686" ]; then
-			pushd tools/power/cpupower/debug/i386
 			install -m 755 centrino-decode \
 				%{BUILDROOT}/usr/bin/centrino-decode
 			install -m 755 powernow-k8-decode \
@@ -522,22 +477,6 @@ packages
 				kernel_name = kernel
 				kernel_release = %{fullver}
 			end
-		end
-	end
-
-	if "%{build_kernel_legacy}" == "1"
-		package kernel-legacy
-			template KERNEL
-
-			kernel_name = kernel-legacy
-			kernel_release = %{fullver}.legacy
-		end
-
-		package kernel-legacy-devel
-			template KERNELDEVEL
-
-			kernel_name = kernel-legacy
-			kernel_release = %{fullver}.legacy
 		end
 	end
 
