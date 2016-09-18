@@ -22,6 +22,10 @@ end
 source_dl  = https://fedorahosted.org/released/sssd/
 
 build
+	# The system security services daemon and many tools requires
+	# an rpath to run properly. Disable the macro for fixing these rpath's.
+	MACRO_FIX_LIBTOOL = # Do nothing.
+
 	requires
 		/usr/bin/nsupdate
 		autoconf
@@ -78,14 +82,14 @@ build
 		--disable-config-lib \
 		--without-secrets
 
+	test
+		make check
+	end
+
 	install_cmds
 		# Install default config file.
 		install -m 600 %{DIR_SOURCE}/sssd.conf \
 			%{BUILDROOT}%{sysconfdir}/sssd/sssd.conf
-
-		# Remove rpath.
-		#chrpath --delete %{BUILDROOT}/usr/lib/sssd/sssd_pac
-		#chrpath --delete %{BUILDROOT}/usr/lib/sssd/gpo_child
 
 		# Remove old sysVinit stuff.
 		rm -rvf %{BUILDROOT}%{sysconfdir}/rc.d
@@ -94,8 +98,9 @@ end
 
 quality-agent
 	whitelist_rpath
-		%{libdir}
 		%{libdir}/sssd
+		%{libdir}:%{libdir}/sssd
+		%{libdir}/sssd:%{libdir}
 	end
 end
 
