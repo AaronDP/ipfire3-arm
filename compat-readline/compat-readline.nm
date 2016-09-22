@@ -3,14 +3,16 @@
 # Copyright (C) - IPFire Development Team <info@ipfire.org>                   #
 ###############################################################################
 
-name       = readline
-version    = 7.0
+name       = compat-readline
+version    = 6.3
 release    = 1
+
+thisapp    = readline-%{version}
 
 groups     = System/Libraries
 url        = ftp://ftp.gnu.org/gnu/readline/
 license    = GPLv3+
-summary    = A library for editing typed command lines.
+summary    = A library for editing typed command lines
 
 description
 	The Readline library provides a set of functions that allow users to
@@ -31,20 +33,31 @@ build
 	make_build_targets += \
 		SHLIB_LIBS=-lncurses
 
-	install_cmds
-		# Remove a bunch of *.c files
-		rm -rfv %{BUILDROOT}/usr/share/readline
+	test
+		make check
+	end
 
-		mkdir -pv %{BUILDROOT}/etc/profile.d
-		cp -vf %{DIR_SOURCE}/readline.sh %{BUILDROOT}/etc/profile.d/
+	install
+		# Only install libraries.
+		mkdir -pv %{BUILDROOT}%{libdir}
+
+		install -m 755 shlib/libhistory.so.6.3 %{BUILDROOT}%{libdir}
+		ln -svf libhistory.so.6.3 %{BUILDROOT}%{libdir}/libhistory.so.6
+
+		install -m 755 shlib/libreadline.so.6.3 %{BUILDROOT}%{libdir}
+		ln -svf libreadline.so.6.3 %{BUILDROOT}%{libdir}/libreadline.so.6
 	end
 end
 
 packages
 	package %{name}
+		provides
+			readline = %{thisver}
+		end
 
-	package %{name}-devel
-		template DEVEL
+		conflicts
+			readline <= %{thisver}
+		end
 	end
 
 	package %{name}-debuginfo

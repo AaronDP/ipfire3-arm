@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = bash
-version    = 4.3
-release    = 11
+version    = 4.4
+release    = 1
 
 groups     = System/Tools
 url        = http://www.gnu.org/software/bash/
@@ -28,29 +28,42 @@ build
 		bison
 		filesystem >= 002
 		ncurses-devel
+		readline-devel >= 7.0
 		texinfo
 	end
+
+	# Disable parallel build
+	MAKETUNING =
 
 	prepare_cmds
 		# Bash uses the RTLD_LAZY option when loading libraries. We want to use
 		# RTLD_NOW (it is defined from <dlfcn.h>:
 		sed -e "s/filename, RTLD_LAZY/filename, RTLD_NOW/" \
 			-i builtins/enable.def
-
-		sed -i "s|htmldir = @htmldir@|htmldir = /usr/share/doc/%{thisapp}|" \
-			Makefile.in
 	end
 
-	configure_options += \
-		--with-afs \
-		--with-bash-malloc=no
+	CPPFLAGS += -D_GNU_SOURCE %(getconf LFS_CFLAGS)
+
+	CPPFLAGS += -DNON_INTERACTIVE_LOGIN_SHELLS
+	CPPFLAGS += -DSSH_SOURCE_BASHRC
 
 	# Recycles pids is neccessary. When bash's last fork's pid was X
 	# and new fork's pid is also X, bash has to wait for this same pid.
 	# Without Recycles pids bash will not wait.
-	make_build_targets += "CPPFLAGS=-D_GNU_SOURCE -DRECYCLES_PIDS -DDEFAULT_PATH_VALUE='\"/usr/local/bin:/usr/bin\"' $(getconf LFS_CFLAGS)"
+	CPPFLAGS += -DRECYCLES_PIDS
 
-	# Test hangs forever
+	CPPFLAGS += \
+		-DDEFAULT_PATH_VALUE='\"/usr/local/bin:/usr/bin\"' \
+		-DSTANDARD_UTILS_PATH='\"/bin:/usr/bin:/sbin:/usr/sbin\"' \
+		-DSYS_BASH_LOGOUT='\"/etc/bash.bash_logout\"'
+
+	configure_options += \
+		--with-installed-readline \
+		--with-afs \
+		--with-bash-malloc=no
+
+	make_build_targets += CPPFLAGS="%{CPPFLAGS}"
+
 	test
 		make tests
 	end
