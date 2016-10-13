@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = pcre
-version    = 8.35
-release    = 3
+version    = 8.39
+release    = 1
 
 groups     = System/Libraries
 url        = http://www.pcre.org/
@@ -40,6 +40,7 @@ build
 		--enable-pcretest-libreadline
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/.libs
 		make check
 	end
 end

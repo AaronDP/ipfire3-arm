@@ -5,7 +5,7 @@
 
 name       = cups
 version    = 2.1.4
-release    = 1
+release    = 2
 
 groups     = Applications/Printing
 url        = http://cups.org/software.php
@@ -37,6 +37,7 @@ build
 		libtasn1-devel
 		libtiff-devel
 		openldap-devel
+		openssl-devel
 		pam-devel
 		perl
 		python

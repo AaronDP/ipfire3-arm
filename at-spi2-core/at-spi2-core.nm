@@ -7,7 +7,7 @@ name       = at-spi2-core
 version    = %{ver_major}.%{ver_minor}
 ver_major  = 2.19
 ver_minor  = 92
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.linuxfoundation.org/en/AT-SPI_on_D-Bus
@@ -32,6 +32,8 @@ build
 		libXext-devel
 		libXi-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/atspi/.libs
 
 	configure_options += \
 		--disable-gtk-doc-html \

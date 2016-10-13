@@ -5,7 +5,7 @@
 
 name       = harfbuzz
 version    = 1.2.4
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://freedesktop.org/wiki/Software/HarfBuzz
@@ -31,6 +31,7 @@ build
 		--disable-static
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/src/.libs
 		make check
 	end
 end

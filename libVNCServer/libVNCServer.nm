@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libVNCServer
-version    = 0.9.7
+version    = 0.9.9
 release    = 1
 
 groups     = System/Libraries
@@ -13,11 +13,11 @@ license    = GPLv2+
 summary    = Library to make writing a vnc server easy.
 
 description
-	LibVNCServer makes writing a VNC server (or more correctly, a program\
+	LibVNCServer makes writing a VNC server (or more correctly, a program
 	exporting a framebuffer via the Remote Frame Buffer protocol) easy.
 end
 
-source_dl  =
+source_dl  = http://sourceforge.net/projects/libvncserver/files/libvncserver/%{version}/
 sources    = LibVNCServer-%{version}.tar.gz
 
 build
@@ -35,7 +35,6 @@ end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-devel
 		template DEVEL

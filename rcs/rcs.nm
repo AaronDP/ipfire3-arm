@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = rcs
-version    = 5.8
+version    = 5.9.4
 release    = 1
 
 groups     = Development/Tools
@@ -24,6 +24,7 @@ description
 end
 
 source_dl  = ftp://ftp.gnu.org/gnu/rcs/
+sources    = %{thisapp}.tar.xz
 
 build
 	requires
@@ -40,9 +41,9 @@ build
 	configure_options += \
 		--with-diffutils
 
-	#test
-	#	make check
-	#end
+	test
+		make check
+	end
 
 	install_cmds
 		# Install the rcsfreeze command.

@@ -5,7 +5,7 @@
 
 name       = linux-atm
 version    = 2.5.1
-release    = 1
+release    = 2
 
 groups     = System/Daemons
 url        = http://linux-atm.sourceforge.net/
@@ -32,6 +32,8 @@ build
 	prepare_cmds
 		sed -e "s/-lfl/&_pic/g" -i src/*{,/*}/Makefile.in
 	end
+
+	PARALLELISMFLAGS =
 end
 
 packages

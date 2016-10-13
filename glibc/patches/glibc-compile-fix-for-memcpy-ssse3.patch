@@ -1,0 +1,67 @@
+diff --git a/sysdeps/x86_64/multiarch/memcpy-ssse3-back.S b/sysdeps/x86_64/multiarch/memcpy-ssse3-back.S
+index b4890f4..4b717d9 100644
+--- a/sysdeps/x86_64/multiarch/memcpy-ssse3-back.S
++++ b/sysdeps/x86_64/multiarch/memcpy-ssse3-back.S
+@@ -48,8 +48,10 @@
+ 	.section .text.ssse3,"ax",@progbits
+ #if !defined USE_AS_MEMPCPY && !defined USE_AS_MEMMOVE
+ ENTRY (MEMPCPY_CHK)
++#ifdef _FORTIFY_SOURCE
+ 	cmpq	%rdx, %rcx
+ 	jb	HIDDEN_JUMPTARGET (__chk_fail)
++#endif
+ END (MEMPCPY_CHK)
+ 
+ ENTRY (MEMPCPY)
+@@ -61,8 +63,10 @@ END (MEMPCPY)
+ 
+ #if !defined USE_AS_BCOPY
+ ENTRY (MEMCPY_CHK)
++#ifdef _FORTIFY_SOURCE
+ 	cmpq	%rdx, %rcx
+ 	jb	HIDDEN_JUMPTARGET (__chk_fail)
++#endif
+ END (MEMCPY_CHK)
+ #endif
+ 
+diff --git a/sysdeps/x86_64/multiarch/memcpy-ssse3.S b/sysdeps/x86_64/multiarch/memcpy-ssse3.S
+index 1ca88c0..a2f140b 100644
+--- a/sysdeps/x86_64/multiarch/memcpy-ssse3.S
++++ b/sysdeps/x86_64/multiarch/memcpy-ssse3.S
+@@ -48,8 +48,10 @@
+ 	.section .text.ssse3,"ax",@progbits
+ #if !defined USE_AS_MEMPCPY && !defined USE_AS_MEMMOVE
+ ENTRY (MEMPCPY_CHK)
++#ifdef _FORTIFY_SOURCE
+ 	cmpq	%rdx, %rcx
+ 	jb	HIDDEN_JUMPTARGET (__chk_fail)
++#endif
+ END (MEMPCPY_CHK)
+ 
+ ENTRY (MEMPCPY)
+@@ -61,8 +63,10 @@ END (MEMPCPY)
+ 
+ #if !defined USE_AS_BCOPY
+ ENTRY (MEMCPY_CHK)
++#ifdef _FORTIFY_SOURCE
+ 	cmpq	%rdx, %rcx
+ 	jb	HIDDEN_JUMPTARGET (__chk_fail)
++#endif
+ END (MEMCPY_CHK)
+ #endif
+ 
+diff --git a/sysdeps/x86_64/multiarch/memset-avx512-no-vzeroupper.S b/sysdeps/x86_64/multiarch/memset-avx512-no-vzeroupper.S
+index 9687df0..2d0abee 100644
+--- a/sysdeps/x86_64/multiarch/memset-avx512-no-vzeroupper.S
++++ b/sysdeps/x86_64/multiarch/memset-avx512-no-vzeroupper.S
+@@ -29,8 +29,10 @@
+ 	.section .text.avx512,"ax",@progbits
+ #if defined PIC
+ ENTRY (MEMSET_CHK)
++#ifdef _FORTIFY_SOURCE
+ 	cmpq	%rdx, %rcx
+ 	jb	HIDDEN_JUMPTARGET (__chk_fail)
++#endif
+ END (MEMSET_CHK)
+ #endif
+ 

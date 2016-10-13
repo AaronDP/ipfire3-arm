@@ -5,7 +5,7 @@
 
 name       = fontconfig
 version    = 2.11.93
-release    = 1
+release    = 2
 
 groups     = System/Graphics
 url        = http://fontconfig.org/
@@ -32,6 +32,7 @@ build
 		--with-add-fonts=/usr/share/X11/fonts/Type1,/usr/share/X11/fonts/TTF,/usr/local/share/fonts
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/src/.libs
 		make check
 	end
 

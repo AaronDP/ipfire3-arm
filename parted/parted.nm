@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = parted
-version    = 3.1
+version    = 3.2
 release    = 1
 
 groups     = Applications/System
@@ -24,18 +24,37 @@ sources    = %{thisapp}.tar.xz
 
 build
 	requires
+		# Testsuite
+		/usr/sbin/mkswap
+		/usr/bin/udevadm
+
+		# Build dependencies
 		libdevmapper-devel
-		libselinux-devel
-		libsepol-devel
 		libuuid-devel
 		ncurses-devel
 		pkg-config
 		readline-devel
 	end
 
+	export LD_LIBRARY_PATH=%{DIR_APP}/libparted/.libs:%{DIR_APP}/libparted/fs/.libs
+
 	configure_options += \
-		--enable-selinux \
 		--disable-Werror
+
+	test
+		# Disable test because it needs a locale C.UTF-8.
+		sed -i '/t0251-gpt-unicode.sh/d' tests/Makefile
+
+		# Disable tests because they force to require loopback devices.
+		sed -i '/t6001-psep.sh/d' tests/Makefile
+		sed -i '/t6002-dm-busy.sh/d' tests/Makefile
+		sed -i '/t6003-dm-hide.sh/d' tests/Makefile
+		sed -i '/t6004-dm-many-partitions.sh/d' tests/Makefile
+		sed -i '/t6005-dm-uuid.sh/d' tests/Makefile
+
+		# Run testsuite.
+		make check
+	end
 end
 
 packages

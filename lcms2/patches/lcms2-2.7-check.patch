@@ -1,0 +1,24 @@
+diff -up lcms2-2.7/testbed/Makefile.am.check lcms2-2.7/testbed/Makefile.am
+--- lcms2-2.7/testbed/Makefile.am.check	2015-03-17 06:19:51.000000000 -0500
++++ lcms2-2.7/testbed/Makefile.am	2016-03-09 10:17:26.031452857 -0600
+@@ -23,7 +23,7 @@ check:
+ 	if [ $(top_srcdir) != $(top_builddir) ]; then \
+ 		cp $(top_srcdir)/testbed/*.ic? $(top_builddir)/testbed; \
+ 	fi
+-	./testcms
++	LD_LIBRARY_PATH=$(top_builddir)/src/.libs ./testcms
+ 	if [ $(top_srcdir) != $(top_builddir) ]; then \
+ 		rm -f $(top_builddir)/testbed/*.ic?; \
+ 	fi
+diff -up lcms2-2.7/testbed/Makefile.in.check lcms2-2.7/testbed/Makefile.in
+--- lcms2-2.7/testbed/Makefile.in.check	2015-03-17 06:19:51.000000000 -0500
++++ lcms2-2.7/testbed/Makefile.in	2016-03-09 10:18:11.521807110 -0600
+@@ -541,7 +541,7 @@ check:
+ 	if [ $(top_srcdir) != $(top_builddir) ]; then \
+ 		cp $(top_srcdir)/testbed/*.ic? $(top_builddir)/testbed; \
+ 	fi
+-	./testcms
++	LD_LIBRARY_PATH=$(top_builddir)/src/.libs ./testcms
+ 	if [ $(top_srcdir) != $(top_builddir) ]; then \
+ 		rm -f $(top_builddir)/testbed/*.ic?; \
+ 	fi

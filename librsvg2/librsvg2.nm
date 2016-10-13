@@ -6,7 +6,7 @@
 name       = librsvg2
 version    = 2.40.15
 major_ver  = 2.40
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        =
@@ -34,6 +34,7 @@ build
 	end
 
 	export GDK_PIXBUF_QUERYLOADERS=%{bindir}/gdk-pixbuf-query-loaders
+	export LD_LIBRARY_PATH = %{DIR_APP}/.libs
 
 	configure_options += \
 		--disable-static \

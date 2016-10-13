@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = p11-kit
-version    = 0.14
+version    = 0.23.2
 release    = 1
 
 groups     = System/Libraries
@@ -24,7 +24,10 @@ end
 source_dl  = http://p11-glue.freedesktop.org/releases/
 
 build
-	configure_options += --sysconfdir=/etc
+	requires
+		libffi-devel >= 3.0.0
+		libtasn1-devel >= 2.3
+	end
 end
 
 packages

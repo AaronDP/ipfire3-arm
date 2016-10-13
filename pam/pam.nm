@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = pam
-version    = 1.1.6
+version    = 1.3.0
 release    = 1
 thisapp    = Linux-PAM-%{version}
 
@@ -22,7 +22,7 @@ end
 # This is the old location that might be revived in future
 # source_dl = http://ftp.us.kernel.org/pub/linux/libs/pam/library/
 
-source_dl  = https://fedorahosted.org/releases/l/i/linux-pam/
+source_dl  = http://www.linux-pam.org/library/
 
 build
 	requires
@@ -30,8 +30,9 @@ build
 		bison
 		cracklib-devel
 		flex
-		libselinux-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/libpam/.libs
 
 	configure_options += \
 		--includedir=%{includedir}/security \
@@ -39,15 +40,25 @@ build
 		--enable-read-both-confs \
 		--disable-rpath
 
+	test
+		# Temporary copy our pam config files to the sysconfdir
+		# the chroot environment. They are required by various tests
+		# of the testsuite.
+		cp -avf %{DIR_SOURCE}/pam.d %{sysconfdir}
+
+		# Run the testsuite.
+		make check
+	end
+
 	install_cmds
 		#useradd -D -b /home
 		#sed -i 's/yes/no/' %{BUILDROOT}/etc/default/useradd
-		mkdir -pv %{BUILDROOT}/etc/security
+		mkdir -pv %{BUILDROOT}%{sysconfdir}/security
 		install -v -m644 %{DIR_SOURCE}/pam_env.conf \
-			%{BUILDROOT}/etc/security/pam_env.conf
+			%{BUILDROOT}%{sysconfdir}/security/pam_env.conf
 
 		# Included in setup package
-		rm -f %{BUILDROOT}/etc/environment
+		rm -f %{BUILDROOT}%{sysconfdir}/environment
 
 		# Install man pages.
 		mkdir -pv %{BUILDROOT}%{mandir}/man5
@@ -61,7 +72,7 @@ end
 packages
 	package %{name}
 		configfiles
-			/etc/pam.d
+			%{sysconfdir}/pam.d
 		end
 	end
 

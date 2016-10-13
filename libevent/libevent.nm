@@ -5,7 +5,7 @@
 
 name       = libevent
 version    = 2.0.22
-release    = 1
+release    = 2
 
 groups     = Development/Tools
 url        = http://libevent.org
@@ -27,6 +27,10 @@ sources    = %{thisapp}-stable.tar.gz
 
 build
 	DIR_APP = %{DIR_SRC}/%{thisapp}-stable
+
+	requires
+		openssl-devel
+	end
 
 	configure_options += \
 		--mandir=/usr/share/man

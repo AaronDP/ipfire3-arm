@@ -5,7 +5,7 @@
 
 name       = lzip
 version    = 1.17
-release    = 1
+release    = 2
 
 groups     = Application/File
 url        = http://www.nongnu.org/lzip/lzip.html
@@ -22,6 +22,11 @@ end
 source_dl  = http://download.savannah.gnu.org/releases/lzip/
 
 build
+	configure_options += \
+		CFLAGS="%{CFLAGS}" \
+		CXXFLAGS="%{CXXFLAGS}" \
+		LDFLAGS="%{LDFLAGS}"
+
 	make_install_target += install-man
 end
 

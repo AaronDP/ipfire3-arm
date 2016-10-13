@@ -1,0 +1,58 @@
+diff -Nur a/Makefile.am b/Makefile.am
+--- a/Makefile.am	2016-07-25 21:49:47.000000000 +0200
++++ b/Makefile.am	2016-09-23 08:34:47.924257243 +0200
+@@ -1480,9 +1480,7 @@
+ 	test-job-type \
+ 	test-env-util \
+ 	test-strbuf \
+-	test-strv \
+ 	test-path \
+-	test-path-util \
+ 	test-strxcpyx \
+ 	test-siphash24 \
+ 	test-unit-name \
+@@ -1541,7 +1539,6 @@
+ 	test-capability \
+ 	test-async \
+ 	test-ratelimit \
+-	test-condition \
+ 	test-uid-range \
+ 	test-locale-util \
+ 	test-execute \
+@@ -3586,11 +3583,9 @@
+ 
+ tests += \
+ 	test-dhcp-option \
+-	test-dhcp-client \
+ 	test-dhcp-server \
+ 	test-ipv4ll \
+ 	test-ndisc-rs \
+-	test-dhcp6-client \
+ 	test-lldp
+ 
+ # ------------------------------------------------------------------------------
+@@ -4298,16 +4293,11 @@
+ 	catalog-remove-hook
+ 
+ tests += \
+-	test-journal \
+ 	test-journal-enum \
+ 	test-journal-send \
+ 	test-journal-syslog \
+ 	test-journal-match \
+-	test-journal-stream \
+ 	test-journal-init \
+-	test-journal-verify \
+-	test-journal-interleaving \
+-	test-journal-flush \
+ 	test-mmap-cache \
+ 	test-catalog \
+ 	test-audit-type
+@@ -6518,7 +6508,6 @@
+ 	test-libudev-sym.c
+ 
+ tests += \
+-	test-libsystemd-sym \
+ 	test-libudev-sym
+ 
+ .PHONY: cppcheck

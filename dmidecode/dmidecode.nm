@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = dmidecode
-version    = 2.10
+version    = 3.0
 release    = 1
 
 groups     = Applications/System
@@ -21,18 +21,18 @@ description
 	manufacturer.
 end
 
-source_dl  =
-sources    = %{thisapp}.tar.bz2
+source_dl  = http://download.savannah.gnu.org/releases/dmidecode/
 
 build
+	make_build_targets += CFLAGS="%{CFLAGS}" LDFLAGS="%{LDFLAGS}"
+
 	install
-		make install-bin install-man prefix=/usr DESTDIR=%{BUILDROOT}
+		make install-bin install-man prefix=%{prefix} DESTDIR=%{BUILDROOT}
 	end
 end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-debuginfo
 		template DEBUGINFO

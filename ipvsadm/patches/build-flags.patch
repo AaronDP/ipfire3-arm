@@ -1,0 +1,26 @@
+diff --git a/Makefile b/Makefile
+index 91a2991..1d27655 100644
+--- a/Makefile
++++ b/Makefile
+@@ -87,7 +87,7 @@ libs:
+ 		make -C libipvs
+ 
+ ipvsadm:	$(OBJS) $(STATIC_LIBS)
+-		$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
++		$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+ 
+ install:        all
+ 		if [ ! -d $(SBIN) ]; then $(MKDIR) -p $(SBIN); fi
+diff --git a/libipvs/Makefile b/libipvs/Makefile
+index f845c8b..46cd4eb 100644
+--- a/libipvs/Makefile
++++ b/libipvs/Makefile
+@@ -33,7 +33,7 @@ $(STATIC_LIB):	libipvs.o ip_vs_nl_policy.o
+ 		ar rv $@ $^
+ 
+ $(SHARED_LIB):	libipvs.o ip_vs_nl_policy.o
+-		$(CC) -shared -Wl,-soname,$@ -o $@ $^
++		$(CC) $(LDFLAGS) -shared -Wl,-soname,$@ -o $@ $^
+ 
+ %.o:		%.c
+ 		$(CC) $(CFLAGS) $(INCLUDE) $(DEFINES) -c -o $@ $<

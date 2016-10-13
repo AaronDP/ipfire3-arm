@@ -5,7 +5,7 @@
 
 name       = cracklib
 version    = 2.9.5
-release    = 1
+release    = 2
 
 groups     = Security/Password
 url        = http://sourceforge.net/projects/cracklib/
@@ -32,6 +32,8 @@ build
 
 	dictdir  = %{datadir}/cracklib
 	dictpath = %{dictdir}/pw_dict
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/lib/.libs
 
 	configure_options += \
 		--with-default-dict=%{dictpath} \

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libnet
-version    = 1.1.4
+version    = 1.1.6
 release    = 1
 
 groups     = System/Libraries
@@ -21,7 +21,7 @@ description
 	as well as a host of supplementary and complementary functionality.
 end
 
-source_dl  =
+source_dl  = https://sourceforge.net/projects/libnet-dev/files/
 
 packages
 	package %{name}

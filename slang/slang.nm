@@ -5,7 +5,7 @@
 
 name       = slang
 version    = 2.3.0
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.jedsoft.org/slang/
@@ -23,14 +23,16 @@ source_dl  = http://www.jedsoft.org/releases/slang/
 
 build
 	requires
+		libpng-devel
 		ncurses-devel
 		pcre-devel
+		zlib-devel
 	end
 
 	PARALLELISMFLAGS = # off
 
 	install_cmds
-		rm -rvf %{BUILDROOT}/usr/share/slsh
+		rm -rvf %{BUILDROOT}%{bindir} %{BUILDROOT}%{datadir}/slsh
 	end
 end
 

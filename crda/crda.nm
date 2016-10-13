@@ -7,7 +7,7 @@ name       = crda
 version    = %{ver_crda}-%{ver_regdb}
 ver_crda   = 3.18
 ver_regdb  = 2016.02.08
-release    = 1
+release    = 2
 
 maintainer = Arne Fitzenreiter <arne.fitzenreiter@ipfire.org>
 groups     = Network/Wireless
@@ -33,6 +33,13 @@ build
 		libnl3-devel
 		openssl
 		python-m2crypto
+	end
+
+	prepare_cmds
+		# Remove -Werror
+		pushd %{DIR_SRC}/crda-%{ver_crda}
+		sed -e "s/-Werror//" -i Makefile
+		popd
 	end
 
 	build

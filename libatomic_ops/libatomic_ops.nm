@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libatomic_ops
-version    = 7.4.2
+version    = 7.4.4
 release    = 1
 
 groups     = Development/Tools
@@ -23,20 +23,11 @@ end
 source_dl  = http://www.ivmaisoft.com/_bin/atomic_ops/
 
 build
-	requires
-		autoconf
-		automake
-		libtool
-	end
-
-	prepare_cmds
-		autoreconf -vfi
-	end
-
 	configure_options += \
 		--enable-shared
 
 	test
+		export LD_LIBRARY_PATH=%{DIR_APP}/src/.libs
 		make check
 	end
 end

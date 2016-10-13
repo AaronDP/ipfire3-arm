@@ -5,7 +5,8 @@
 
 name       = compat-libffi
 version    = 3.0.10
-release    = 1
+release    = 2
+sup_arches = x86_64 i686 armv7hl armv5tel
 thisapp    = libffi-%{version}
 
 groups     = System/Libraries

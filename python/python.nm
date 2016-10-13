@@ -5,8 +5,8 @@
 
 name       = python
 major_ver  = 2.7
-version    = %{major_ver}.5
-release    = 2
+version    = %{major_ver}.12
+release    = 1
 thisapp    = Python-%{version}
 
 groups     = Development/Languages
@@ -35,7 +35,6 @@ build
 		glibc-headers >= 2.16-4
 		libdb-devel
 		libffi-devel
-		libselinux-devel
 		ncurses-devel
 		openssl-devel
 		pakfire-builder >= 0.9.23-4
@@ -51,7 +50,7 @@ build
 	export OPT      = %{CFLAGS}
 
 	if "%{lib}" == "lib64"
-		patches += %{DIR_SOURCE}/python-2.7.3-lib64.patch
+		patches += %{DIR_SOURCE}/python-2.7.12-lib64.patch
 		patches += %{DIR_SOURCE}/python-2.7-lib64-sysconfig.patch
 	end
 

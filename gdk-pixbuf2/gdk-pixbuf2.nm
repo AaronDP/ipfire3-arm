@@ -7,7 +7,7 @@ name       = gdk-pixbuf2
 version    = %{ver_major}.%{ver_minor}
 ver_major  = 2.33
 ver_minor  = 2
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.gtk.org/
@@ -33,6 +33,8 @@ build
 		libtiff-devel
 		libX11-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/gdk-pixbuf/.libs
 
 	configure_options += \
 		--with-x11 \

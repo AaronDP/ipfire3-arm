@@ -5,7 +5,7 @@
 
 name       = libcap
 version    = 2.25
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://ftp.kernel.org/pub/linux/libs/security/linux-privs/libcap2/
@@ -29,7 +29,8 @@ build
 	end
 
 	build
-		make DYNAMIC=yes LIBATTR=yes
+		make DYNAMIC=yes LIBATTR=yes \
+			CFLAGS="%{CFLAGS}" LDFLAGS="%{LDFLAGS}"
 	end
 
 	install

@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = make
-version    = 4.0
+version    = 4.1
 release    = 1
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -28,7 +28,7 @@ sources    = %{thisapp}.tar.bz2
 build
 	test
 		sed -e "s/-w/& /" -i tests/scripts/features/recursion
-		make check || true
+		make check
 	end
 end
 

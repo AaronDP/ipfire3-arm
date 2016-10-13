@@ -4,8 +4,10 @@
 ###############################################################################
 
 name       = iftop
-version    = 0.17
-release    = 2
+version    = 1.0
+preversion = pre4
+release    = 0.%{preversion}.1
+thisapp    = %{name}-%{version}%{preversion}
 
 groups     = Applications/System
 url        = http://www.ex-parrot.com/pdw/iftop/
@@ -16,7 +18,7 @@ description
 	iftop is an interactive text-mode traffic viewer for Linux.
 end
 
-source_dl  =
+source_dl  = http://www.ex-parrot.com/pdw/iftop/download/
 sources    = %{thisapp}.tar.gz
 
 build
@@ -24,10 +26,6 @@ build
 		libpcap-devel
 		ncurses-devel
 	end
-
-	configure_options += \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man
 end
 
 packages

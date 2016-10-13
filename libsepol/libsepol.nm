@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = libsepol
-version    = 2.1.5
+version    = 2.5
 release    = 1
 
 groups     = System/Libraries
@@ -17,16 +17,21 @@ description
 	policies.
 end
 
-sources    = %{thisapp}.tgz
+source_dl  = https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20160223/
+sources    = %{thisapp}.tar.gz
 
 build
 	# Keep static libsepol.a for some selinux tools, that needs to link 
 	# against it. We will put it into an own package.
 	keep_libraries = %{libdir}/libsepol.a
 
+	requires
+		flex
+	end
+
 	build
 		make clean
-		make CFLAGS="%{CFLAGS}" %{PARALLELISMFLAGS}
+		make CFLAGS="%{CFLAGS}" LDFLAGS="%{LDFLAGS}" %{PARALLELISMFLAGS}
 	end
 
 	# Install libraries to correct place.
@@ -40,9 +45,6 @@ build
 
 		# Remove manpages for binaries
 		rm -rf %{BUILDROOT}/usr/share/man/man8
-
-		# Fix bad symlink.
-		ln -svf libsepol.so.1 %{BUILDROOT}%{libdir}/libsepol.so
 	end
 end
 

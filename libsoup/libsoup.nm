@@ -7,7 +7,7 @@ name       = libsoup
 version    = %{ver_major}.%{ver_minor}
 ver_major  = 2.54
 ver_minor  = 0.1
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://live.gnome.org/LibSoup
@@ -37,6 +37,8 @@ build
 		zlib-devel
 		vala-devel >= 0.32
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/libsoup/.libs
 
 	configure_options += \
 		--enable-introspection=yes \

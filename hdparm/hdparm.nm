@@ -5,7 +5,7 @@
 
 name       = hdparm
 version    = 9.48
-release    = 1
+release    = 2
 
 groups     = Applications/Hardware
 url        = http://sourceforge.net/projects/hdparm/
@@ -22,8 +22,8 @@ source_dl  = http://sourceforge.net/projects/%{name}/files/%{name}/
 
 build
 	build
-		CFLAGS="%{CFLAGS}" make %{PARALLELISMFLAGS} \
-			STRIP=/bin/true LDFLAGS=
+		make %{PARALLELISMFLAGS} \
+			STRIP=/bin/true CFLAGS="%{CFLAGS}" LDFLAGS="%{LDFLAGS}"
 	end
 
 	install

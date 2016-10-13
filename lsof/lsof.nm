@@ -5,7 +5,7 @@
 
 name       = lsof
 version    = 4.85
-release    = 1
+release    = 2
 
 groups     = Development/Debuggers
 url        = ftp://lsof.itap.purdue.edu/pub/tools/unix/lsof/
@@ -25,18 +25,18 @@ build
 		libselinux-devel
 	end
 
+	export LSOF_CFGL = %{CFLAGS} %{LDFLAGS}
+
 	build
-		LINUX_BASE=/proc \
-		LSOF_VSTR="2.6.16" \
-			./Configure linux -n
-		make DEBUG="%{CFLAGS}" %{PARALLELISMFLAGS}
+		./Configure -n linux
+		make %{PARALLELISMFLAGS}
 	end
 
 	install
-		mkdir -pv %{BUILDROOT}/usr/sbin
-		install -m 755 lsof %{BUILDROOT}/usr/sbin
-		mkdir -pv %{BUILDROOT}/usr/share/man/man8
-		cp -vf lsof.8 %{BUILDROOT}/usr/share/man/man8
+		mkdir -pv %{BUILDROOT}%{sbindir}
+		install -m 755 lsof %{BUILDROOT}%{sbindir}
+		mkdir -pv %{BUILDROOT}%{mandir}/man8
+		cp -vf lsof.8 %{BUILDROOT}%{mandir}/man8
 	end
 end
 

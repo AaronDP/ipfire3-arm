@@ -5,7 +5,7 @@
 
 name       = compat-libmpc
 version    = 0.9
-release    = 1
+release    = 2
 
 thisapp    = mpc-%{version}
 
@@ -28,6 +28,7 @@ build
 		mpfr-devel >= 2.4.2
 	end
 
+	export LD_LIBRARY_PATH = %{DIR_APP}/src/.libs
 	export EGREP = egrep
 
 	configure_options += \

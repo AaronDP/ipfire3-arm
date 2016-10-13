@@ -5,7 +5,7 @@
 
 name       = doxygen
 version    = 1.8.4
-release    = 1
+release    = 2
 
 groups     = Development/Tools
 url        = http://www.stack.nl/~dimitri/doxygen/index.html
@@ -33,9 +33,8 @@ build
 		--shared \
 		--release
 
-	# Use or CFLAGS.
-	make_build_targets += \
-		CFLAGS="%{CFLAGS}"
+	# Use our CFLAGS and LDFLAGS
+	make_build_targets += CFLAGS="%{CFLAGS}" LFLAGS="%{LDFLAGS}"
 end
 
 packages

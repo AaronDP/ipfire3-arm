@@ -6,7 +6,7 @@
 name       = json-c
 version    = 0.12
 reldate    = 20140410
-release    = 1
+release    = 2
 thisapp    = %{name}-%{version}-%{reldate}
 
 groups     = System/Libraries
@@ -45,6 +45,7 @@ build
 		--enable-rdrand
 
 	test
+		export LD_LIBRARY_PATH=$(pwd)/.libs:$(pwd)/tests/.libs
 		make check
 	end
 end

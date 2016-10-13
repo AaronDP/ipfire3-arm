@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = xfsprogs
-version    = 3.2.2
+version    = 4.7.0
 release    = 1
 
 groups     = System/Filesystems
@@ -20,10 +20,10 @@ source_dl  = ftp://oss.sgi.com/projects/xfs/cmd_tars/
 
 build
 	requires
-		e2fsprogs-devel
 		gettext
 		libacl-devel
-		libblkid-devel
+		libattr-devel
+		libblkid-devel >= 2.17
 		libtool
 		libuuid-devel
 		readline-devel
@@ -34,11 +34,19 @@ build
 		--enable-readline=yes \
 		--enable-blkid=yes
 
-	make_build_targets += V=1 DEBUG=-DNDEBUG
+	make_build_targets += \
+		V=1 DEBUG=-DNDEBUG
 
-	install
-		make install install-dev install-qa V=1 DIST_ROOT=%{BUILDROOT} \
-			PKG_ROOT_SBIN_DIR=%{sbindir} PKG_ROOT_LIB_DIR=%{libdir}
+	make_install_targets += \
+		install-dev V=1 DIST_ROOT=%{BUILDROOT} \
+		PKG_ROOT_SBIN_DIR=%{sbindir} PKG_ROOT_LIB_DIR=%{libdir}
+
+	install_cmds
+		# Fix file permission.
+		chmod 0755 %{BUILDROOT}/%{libdir}/libhandle.so.*.*.*
+
+		# Remove unneeded doc location.
+		rm -rvf %{BUILDROOT}/%{datadir}/doc/xfsprogs/
 	end
 end
 

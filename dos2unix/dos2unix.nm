@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = dos2unix
-version    = 7.3.3
+version    = 7.3.4
 release    = 1
 
 groups     = Applications/Text
@@ -24,19 +24,14 @@ build
 		gettext
 	end
 
-	prepare_cmds
-		rm -rvf po/*/eo-x.*
-	end
-
 	build
 		make %{PARALLELISMFLAGS} \
-			CFLAGS="%{CFLAGS} -D_LARGEFILE_SOURCE $(getconf LFS_CFLAGS)"
+			CFLAGS_USER="%{CFLAGS}" LDFLAGS_USER="%{LDFLAGS}"
 	end
 end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-debuginfo
 		template DEBUGINFO

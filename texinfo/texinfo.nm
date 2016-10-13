@@ -5,7 +5,7 @@
 
 name       = texinfo
 version    = 6.1
-release    = 1
+release    = 2
 
 groups     = Applications/Publishing
 url        = http://www.gnu.org/software/texinfo/
@@ -24,6 +24,7 @@ build
 	requires
 		help2man
 		ncurses-devel
+		perl(Data::Dumper)
 		perl-libintl-perl
 		zlib-devel
 	end

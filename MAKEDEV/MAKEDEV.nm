@@ -5,7 +5,7 @@
 
 name       = MAKEDEV
 version    = 3.24
-release    = 1
+release    = 2
 
 groups     = System/Base
 url        =
@@ -26,11 +26,7 @@ end
 sources    = %{thisapp}-1.tar.gz
 
 build
-	requires
-		libselinux-devel
-	end
-
-	make_build_targets += OPTFLAGS="%{CFLAGS}" SELINUX=1
+	make_build_targets += OPTFLAGS="%{CFLAGS}"
 	make_install_targets += devdir=/dev makedevdir=/sbin
 
 	install_cmds

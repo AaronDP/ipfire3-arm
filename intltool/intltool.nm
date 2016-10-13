@@ -4,23 +4,22 @@
 ###############################################################################
 
 name       = intltool
-version    = 0.40.6
+version    = 0.51.0
 release    = 1
 arch       = noarch
 
 groups     = Localization/Tools
-url        = http://www.gnome.org/
+url        = https://launchpad.net/intltool
 license    = GPLv2 with exceptions
 summary    = Utility for internationalizing various kinds of data files.
 
 description
-	This tool automatically extracts translatable strings from oaf, glade, \
-	bonobo ui, nautilus theme, .desktop, and other data files and puts \
+	This tool automatically extracts translatable strings from oaf, glade,
+	bonobo ui, nautilus theme, .desktop, and other data files and puts
 	them in the po files.
 end
 
-source_dl  = http://ftp.gnome.org/pub/gnome/sources/intltool/0.40/
-sources    = %{thisapp}.tar.bz2
+source_dl  = http://edge.launchpad.net/intltool/trunk/%{version}/+download/
 
 build
 	requires

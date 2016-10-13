@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = sudo
-version    = 1.8.17p1
-release    = 1
+version    = 1.8.18p1
+release    = 2
 
 groups     = Applications/System
 url        = http://www.sudo.ws/
@@ -30,10 +30,11 @@ build
 	requires
 		audit-devel
 		cyrus-sasl-devel
-		libselinux-devel
 		openldap-devel
 		pam-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/lib/util/.libs/
 
 	configure_options += \
 		--libexecdir=%{libdir} \
@@ -41,18 +42,27 @@ build
 		--with-logfac=authpriv \
 		--with-pam \
 		--with-pam-login \
-		--with-editor=/usr/bin/vi \
+		--with-editor=%{bindir}/vi \
 		--with-env-editor \
 		--with-ignore-dot \
 		--with-tty-tickets \
 		--with-ldap \
 		--with-passprompt="[sudo] password for %p: " \
-		--with-selinux \
 		--with-linux-audit
 
+	prepare_cmds
+		# The tarball contains files owned by a stange uid:gid which will let
+		# the testsuite (testsudoers/test3) fail. Fix the ownership of this files.
+		chown -R 0:0 %{DIR_APP}
+	end
+
+	test
+		make check
+	end
+
 	install_cmds
-		mkdir -pv %{BUILDROOT}/etc
-		cp -vf %{DIR_SOURCE}/sudoers %{BUILDROOT}/etc/sudoers
+		mkdir -pv %{BUILDROOT}%{sysconfdir}
+		cp -vf %{DIR_SOURCE}/sudoers %{BUILDROOT}%{sysconfdir}/sudoers
 	end
 end
 
@@ -61,7 +71,7 @@ packages
 		groups += Base
 
 		configfiles
-			/etc/sudoers
+			%{sysconfdir}/sudoers
 		end
 	end
 

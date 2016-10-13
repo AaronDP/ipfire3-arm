@@ -5,7 +5,7 @@
 
 name       = lm-sensors
 version    = 3.3.5
-release    = 1
+release    = 2
 
 thisapp    = lm_sensors-%{version}
 
@@ -38,7 +38,7 @@ build
 	end
 
 	common_flags = PREFIX=%{prefix} LIBDIR=%{libdir} MANDIR=%{mandir} \
-		PROG_EXTRA=sensord
+		PROG_EXTRA=sensord CFLAGS="%{CFLAGS}" EXLDFLAGS="%{LDFLAGS}"
 
 	make_build_targets += %{common_flags} user
 	make_install_targets += %{common_flags} user_install

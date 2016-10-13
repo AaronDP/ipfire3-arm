@@ -5,7 +5,7 @@
 
 name       = file
 version    = 5.25
-release    = 1
+release    = 2
 
 groups     = System/Tools
 url        = http://www.darwinsys.com/file/
@@ -25,6 +25,8 @@ build
 	requires
 		zlib-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/src/.libs
 
 	configure_options += \
 		--disable-static \

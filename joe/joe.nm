@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = joe
-version    = 3.7
+version    = 4.3
 release    = 1
 
 groups     = Applications/Editors
@@ -17,20 +17,16 @@ description
 	and feel of the good old wordstar.
 end
 
-source_dl  =
+source_dl  = https://sourceforge.net/projects/joe-editor/files/JOE%20sources/%{thisapp}/
 
 build
 	requires
-		libselinux-devel
+		ncurses-devel
 	end
-
-	configure_options += \
-		--sysconfdir=/etc
 end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-debuginfo
 		template DEBUGINFO

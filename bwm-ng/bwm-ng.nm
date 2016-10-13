@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = bwm-ng
-version    = 0.6
-release    = 2
+version    = 0.6.1
+release    = 1
 
 groups     = Networking/Statistics
 url        = http://www.gropp.org/?id=projects&sub=bwm-ng

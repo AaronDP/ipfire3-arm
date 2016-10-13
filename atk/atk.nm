@@ -7,7 +7,7 @@ name       = atk
 version    = %{ver_major}.%{ver_minor}
 ver_major  = 2.20
 ver_minor  = 0
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://www.gnome.org
@@ -27,6 +27,8 @@ build
 		glib2-devel >= 2.31.2
 		gobject-introspection-devel >= 1.39.3
 	end
+
+	export LD_LIBRARY_PATH=%{DIR_APP}/atk/.libs
 
 	configure_options += \
 		--enable-introspection=yes \

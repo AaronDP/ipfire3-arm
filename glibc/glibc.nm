@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = glibc
-version    = 2.23
+version    = 2.24
 release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -34,6 +34,7 @@ build
 		audit-devel
 		autoconf
 		automake
+		binutils >= 2.27
 		gcc >= 4.7
 		gettext
 		kernel-headers >= %{OPTIMIZED_KERNEL}
@@ -44,7 +45,7 @@ build
 	end
 
 	# Build glibc with custom cflags
-	GLIBC_FLAGS = -O3 -g -fasynchronous-unwind-tables -DNDEBUG -fPIC -DPIC
+	GLIBC_FLAGS = -O3 -g -fasynchronous-unwind-tables -DNDEBUG
 
 	if "%{DISTRO_ARCH}" == "i686"
 		GLIBC_FLAGS += -march=i686 -mtune=generic
@@ -110,9 +111,6 @@ build
 		CFLAGS="${CFLAGS} -fno-asynchronous-unwind-tables" \
 		../%{thisapp}/configure \
 			%{configure_options}
-
-		sed -i config.make \
-			-e "s/^build-pic-default=.*/build-pic-default=yes/"
 
 		# Our GCC is already passing -fPIC, and that's all we want for the libraries.
 		# LDFLAGS.so is appended to so we don't build shared libraries with
@@ -181,86 +179,43 @@ end
 
 packages
 	package glibc
-		requires = glibc-common = %{thisver}
-
 		if "%{DISTRO_ARCH}" == "armv7hl"
 			provides += ld-linux.so.3
 			provides += ld-linux.so.3(GLIBC_2.4)
 			provides += ld-linux.so.3(GLIBC_PRIVATE)
 		end
 
-		conflicts
-			kernel < %{OPTIMIZED_KERNEL}
-		end
-	end
-
-	package glibc-common
-		# XXX description and summary are missing
-
 		requires
-			glibc = %{thisver}
 			tzdata
 		end
 
-		files
-			/usr/bin
-			/usr/sbin
-			/usr/share
-			/usr/lib/locale
-			!/usr/share/zoneinfo
+		conflicts
+			kernel < %{OPTIMIZED_KERNEL}
+		end
+
+		obsoletes
+			glibc-common < %{thisver}
 		end
 	end
 
 	package glibc-devel
-		summary = Object files for development using standard C libraries.
-		description
-			The glibc-devel package contains the object files necessary
-			for developing programs which use the standard C libraries (which are
-			used by nearly all programs).  If you are developing programs which
-			will use the standard C libraries, your system needs to have these
-			standard object files available in order to create the
-			executables.
-
-			Install glibc-devel if you are going to develop programs which will
-			use the standard C libraries.
-		end
-		group = Development/Libraries
+		template DEVEL
 
 		requires
 			glibc = %{thisver}
 			glibc-headers = %{thisver}
-		end
-
-		files
-			%{includedir}
-			%{libdir}/*.a
-			%{libdir}/*.o
-		end
-	end
-
-	package glibc-headers
-		description
-			The glibc-headers package contains the header files necessary
-			for developing programs which use the standard C libraries (which are
-			used by nearly all programs).  If you are developing programs which
-			will use the standard C libraries, your system needs to have these
-			standard header files available in order to create the
-			executables.
-
-			Install glibc-headers if you are going to develop programs which will
-			use the standard C libraries.
-		end
-
-		requires
-			glibc = %{thisver}
 			kernel-headers >= %{OPTIMIZED_KERNEL}
 		end
 
-		files
-			/usr/include
-			!/usr/include/linuxthreads
-			!/usr/include/gnu/stubs-[32164]*.h
+		provides
+			glibc-headers = %{thisver}
 		end
+
+		obsoletes
+			glibc-headers < %{thisver}
+		end
+
+		files += %{libdir}/*.[ao]
 	end
 
 	package nscd

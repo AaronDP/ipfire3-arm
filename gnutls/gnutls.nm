@@ -5,8 +5,8 @@
 
 name       = gnutls
 version    = %{ver_maj}.%{ver_min}
-ver_maj    = 3.3
-ver_min    = 10
+ver_maj    = 3.5
+ver_min    = 4
 release    = 1
 
 groups     = System/Libraries
@@ -32,9 +32,10 @@ build
 		libidn-devel
 		libtasn1-devel >= 3.2
 		lzo-devel
-		nettle-devel >= 2.7
+		net-tools
+		nettle-devel >= 3.2
 		perl
-		p11-kit-devel >= 0.14
+		p11-kit-devel >= 0.23.1
 		readline-devel
 		texinfo
 		zlib-devel

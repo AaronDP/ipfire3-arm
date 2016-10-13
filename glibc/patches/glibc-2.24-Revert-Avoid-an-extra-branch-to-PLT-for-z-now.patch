@@ -1,0 +1,84 @@
+From f160cfff59261bb661cf829fdcb5a3f391996280 Mon Sep 17 00:00:00 2001
+From: Michael Tremer <michael.tremer@ipfire.org>
+Date: Thu, 22 Sep 2016 16:33:43 +0100
+Subject: [PATCH] Revert "Avoid an extra branch to PLT for -z now"
+
+This reverts commit 6901def689b5c77465d34f07822989ec67e80c1e.
+
+glibc won't compile on x86_64 with PIC and BIND_NOW enabled
+both at the same time.
+
+See: https://sourceware.org/bugzilla/show_bug.cgi?id=20621
+---
+ config.h.in             | 3 ---
+ configure               | 4 ----
+ configure.ac            | 3 ---
+ sysdeps/x86_64/sysdep.h | 8 ++------
+ 4 files changed, 2 insertions(+), 16 deletions(-)
+
+diff --git a/config.h.in b/config.h.in
+index 8cd08b0..f4ec748 100644
+--- a/config.h.in
++++ b/config.h.in
+@@ -94,9 +94,6 @@
+    include/libc-symbols.h that avoid PLT slots in the shared objects.  */
+ #undef	NO_HIDDEN
+ 
+-/* Define this to disable lazy relocations in DSOs.  */
+-#undef	BIND_NOW
+-
+ /* AArch64 big endian ABI */
+ #undef HAVE_AARCH64_BE
+ 
+diff --git a/configure b/configure
+index 6ff2527..46015c9 100755
+--- a/configure
++++ b/configure
+@@ -3419,10 +3419,6 @@ else
+ fi
+ 
+ 
+-if test "x$bindnow" = xyes; then
+-  $as_echo "#define BIND_NOW 1" >>confdefs.h
+-
+-fi
+ 
+ # Check whether --enable-static-nss was given.
+ if test "${enable_static_nss+set}" = set; then :
+diff --git a/configure.ac b/configure.ac
+index 9938ab0..d255b57 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -231,9 +231,6 @@ AC_ARG_ENABLE([bind-now],
+ 	      [bindnow=$enableval],
+ 	      [bindnow=no])
+ AC_SUBST(bindnow)
+-if test "x$bindnow" = xyes; then
+-  AC_DEFINE(BIND_NOW)
+-fi
+ 
+ dnl On some platforms we cannot use dynamic loading.  We must provide
+ dnl static NSS modules.
+diff --git a/sysdeps/x86_64/sysdep.h b/sysdeps/x86_64/sysdep.h
+index 75ac747..fbe3560 100644
+--- a/sysdeps/x86_64/sysdep.h
++++ b/sysdeps/x86_64/sysdep.h
+@@ -90,13 +90,9 @@ lose:									      \
+ 
+ #undef JUMPTARGET
+ #ifdef PIC
+-# ifdef BIND_NOW
+-#  define JUMPTARGET(name)	*name##@GOTPCREL(%rip)
+-# else
+-#  define JUMPTARGET(name)	name##@PLT
+-# endif
++#define JUMPTARGET(name)	name##@PLT
+ #else
+-# define JUMPTARGET(name)	name
++#define JUMPTARGET(name)	name
+ #endif
+ 
+ /* Local label name for asm code. */
+-- 
+2.7.4
+

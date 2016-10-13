@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = guile
-version    = 2.0.9
-release    = 3
+version    = 2.0.11
+release    = 1
 
 groups     = Development/Tools
 url        = http://www.gnu.org/software/guile/
@@ -35,6 +35,8 @@ build
 	configure_options += \
 		--disable-static \
 		--disable-error-on-warning
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/libguile/.libs
 
 	test
 		make check

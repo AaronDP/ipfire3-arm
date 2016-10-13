@@ -5,7 +5,7 @@
 
 name       = dbus-glib
 version    = 0.94
-release    = 2
+release    = 3
 
 groups     = System/Libraries
 url        = http://www.freedesktop.org/software/dbus/
@@ -28,27 +28,18 @@ build
 		glib2-devel
 	end
 
+	export LD_LIBRARY_PATH = %{DIR_APP}/dbus/.libs
+
 	configure_options += \
-		--sysconfdir=/etc \
-		--libdir=/%{lib} \
-		--libexecdir=%{libdir} \
-		--mandir=/usr/share/man
+		--libexecdir=%{libdir}
 
 	test
 		make check
-	end
-
-	install_cmds
-		mv -v %{BUILDROOT}/%{lib}/pkgconfig %{BUILDROOT}%{libdir}
-
-		rm -vf %{BUILDROOT}/%{lib}/libdbus-glib-1.so
-		ln -svf ../../%{lib}/libdbus-glib-1.so.2 %{BUILDROOT}%{libdir}/libdbus-glib-1.so
 	end
 end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-devel
 		template DEVEL

@@ -6,7 +6,7 @@
 name       = compat-db
 version    = %{main_version}
 # Release cannot be reset because the sub-packages won't get updated
-release    = 7
+release    = 8
 thisapp    = db-%{version}
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
@@ -53,6 +53,15 @@ build
 
 	build
 		for version in %{versions}; do
+			# Fix autotools on aarch64
+			for i in $(find %{DIR_SRC}/db-${version} -name config.guess -or -name config.sub); do
+				if ! grep -q "aarch64" ${i}; then
+					if [ -e "%{datadir}/pakfire/$(basename ${i})" ]; then
+						cp -vf %{datadir}/pakfire/$(basename ${i}) $(dirname ${i})
+					fi
+				fi
+			done
+
 			cd %{DIR_SRC}/db-${version}/build_unix
 			../dist/configure \
 				%{configure_options}

@@ -5,7 +5,7 @@
 
 name       = autoconf
 version    = 2.69
-release    = 1
+release    = 2
 arch       = noarch
 
 groups     = Development/Tools
@@ -27,6 +27,7 @@ build
 	requires
 		m4
 		perl
+		perl(Data::Dumper)
 	end
 end
 

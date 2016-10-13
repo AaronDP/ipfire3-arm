@@ -5,7 +5,7 @@
 
 name       = sip
 version    = %{major_ver}.%{minor_ver}.%{rev_ver}
-release    = 1
+release    = 2
 epoch      = 1
 
 major_ver  = 4
@@ -37,7 +37,8 @@ build
 	build
 		python configure.py \
 			CFLAGS+="%{CFLAGS}" \
-			CXXFLAGS+="%{CXXFLAGS}"
+			CXXFLAGS+="%{CXXFLAGS}" \
+			LFLAGS+="%{LDFLAGS}"
 
 		make %{PARALLELISMFLAGS}
 	end
@@ -45,7 +46,6 @@ end
 
 packages
 	package %{name}
-	end
 
 	package %{name}-devel
 		template DEVEL

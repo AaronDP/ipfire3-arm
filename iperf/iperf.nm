@@ -4,11 +4,11 @@
 ###############################################################################
 
 name       = iperf
-version    = 2.0.5
+version    = 2.0.9
 release    = 1
 
 groups     = Applications/Internet
-url        = http://www..sourceforge.net/projects/iperf/files/
+url        = http://www.sourceforge.net/projects/iperf2/
 license    = GPLv3+ and LGPLv3+
 summary    = Measurement tool for TCP/UDP bandwidth performance
 
@@ -18,7 +18,7 @@ description
 	jitter, datagram loss.
 end
 
-source_dl = http://sourceforge.net/projects/iperf/files
+source_dl = http://sourceforge.net/projects/iperf2/files
 
 build
 	requires

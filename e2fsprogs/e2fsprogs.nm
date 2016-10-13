@@ -5,7 +5,7 @@
 
 name       = e2fsprogs
 version    = 1.42.13
-release    = 1
+release    = 2
 
 groups     = System/Filesystems
 url        = http://e2fsprogs.sourceforge.net/
@@ -42,6 +42,8 @@ build
 			-e 's/getenv("BLKID_DEBUG")/safe_getenv("BLKID_DEBUG")/' \
 			-i lib/blkid/cache.c
 	end
+
+	CFLAGS += -fno-strict-aliasing
 
 	configure_options += \
 		--with-root-prefix="" \

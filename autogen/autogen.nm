@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = autogen
-version    = 5.18.1
+version    = 5.18.12
 release    = 1
 
 groups     = Development/Tools
@@ -27,6 +27,8 @@ build
 		libtool
 		libxml2-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/autoopts/.libs
 
 	prepare_cmds
 		# Fix Libtool to remove rpaths.

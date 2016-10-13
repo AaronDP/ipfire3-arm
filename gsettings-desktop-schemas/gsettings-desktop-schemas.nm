@@ -7,7 +7,7 @@ name       = gsettings-desktop-schemas
 version    = %{ver_maj}.%{ver_min}
 ver_maj    = 3.20
 ver_min    = 0
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://bugzilla.gnome.org/enter_bug.cgi?product=gsettings-desktop-schemas
@@ -26,7 +26,7 @@ build
 	requires
 		glib2 >= 2.31.0
 		gobject-introspection-devel
-		intltool
+		intltool >= 0.50.1
 	end
 
 	configure_options += \

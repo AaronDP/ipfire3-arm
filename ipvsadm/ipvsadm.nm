@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = ipvsadm
-version    = 1.26
+version    = 1.28
 release    = 1
 
 groups     = Applications/System
@@ -17,17 +17,17 @@ description
 	offered by the Linux kernel.
 end
 
-source_dl  = http://www.linuxvirtualserver.org/software/kernel-2.6/
+source_dl  = https://kernel.org/pub/linux/utils/kernel/ipvsadm/
 
 build
 	requires
-		libnl-devel
+		libnl3-devel
 		popt-devel
 	end
 
 	PARALLELISMFLAGS = # parallel build not supported
 
-	make_build_targets += CFLAGS="%{CFLAGS}"
+	make_build_targets += CFLAGS="%{CFLAGS}" LDFLAGS="%{LDFLAGS}"
 
 	make_install_targets += BUILD_ROOT="%{BUILDROOT}" \
 		SBIN="%{BUILDROOT}%{sbindir}" MANDIR="%{mandir}"

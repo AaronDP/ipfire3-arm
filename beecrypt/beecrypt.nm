@@ -5,7 +5,7 @@
 
 name       = beecrypt
 version    = 4.2.1
-release    = 2
+release    = 3
 
 groups     = System/Libraries
 url        = http://beecrypt.sourceforge.net/
@@ -31,7 +31,7 @@ build
 
 	prepare_cmds
 		libtoolize
-		autoreconf
+		autoreconf -vfi
 	end
 
 	# Getting weird linking errors without --disable-threads.

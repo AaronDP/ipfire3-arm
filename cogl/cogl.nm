@@ -7,7 +7,7 @@ name       = cogl
 version    = %{ver_maj}.%{ver_min}
 ver_maj    = 1.13
 ver_min    = 2
-release    = 1
+release    = 2
 
 groups     = Development/Libraries
 url        = http://www.clutter-project.org/
@@ -48,6 +48,8 @@ build
 		libGL-devel
 		pango-devel
 	end
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/cogl/.libs:%{DIR_APP}/cogl-pango/.libs
 
 	configure_options += \
 		--enable-cairo \

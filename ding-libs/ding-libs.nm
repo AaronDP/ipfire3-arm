@@ -5,7 +5,7 @@
 
 name       = ding-libs
 version    = 0.5.0
-release    = 1
+release    = 2
 
 groups     = System/Libraries
 url        = http://fedorahosted.org/sssd/
@@ -21,6 +21,8 @@ source_dl  = http://fedorahosted.org/releases/d/i/ding-libs/
 build
 	configure_options += \
 		--disable-static
+
+	export LD_LIBRARY_PATH = %{DIR_APP}/.libs
 
 	test
 		make check

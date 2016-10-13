@@ -6,7 +6,7 @@
 name       = mstpd
 version    = 0.01
 svn_ver    = 36
-release    = 0.7-svn%{svn_ver}.1
+release    = 0.7-svn%{svn_ver}.2
 thisapp    = %{name}-%{version}-svn%{svn_ver}
 
 groups     = Networking/Tools
@@ -24,7 +24,7 @@ end
 
 build
 	# Compile for release.
-	make_build_targets += MODE=release
+	make_build_targets += MODE=release CC="gcc %{LDFLAGS}"
 
 	install_cmds
 		rm -vf %{BUILDROOT}/sbin/bridge-stp
