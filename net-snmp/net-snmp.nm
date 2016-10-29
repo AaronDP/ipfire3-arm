@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = net-snmp
-version    = 5.7.2
-release    = 2
+version    = 5.7.3
+release    = 1
 
 groups     = Networking/Daemons
 url        = http://net-snmp.sourceforge.net
@@ -27,7 +27,6 @@ build
 		bzip2-devel
 		chrpath
 		elfutils-devel
-		libselinux-devel
 		lm-sensors-devel >= 3
 		openssl-devel
 		perl(ExtUtils::Embed)
