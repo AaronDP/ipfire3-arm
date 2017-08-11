@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = sudo
-version    = 1.8.18p1
-release    = 2
+version    = 1.8.20p2
+release    = 1
 
 groups     = Applications/System
 url        = http://www.sudo.ws/
@@ -28,7 +28,6 @@ source_dl  = http://www.sudo.ws/sudo/dist/
 
 build
 	requires
-		audit-devel
 		cyrus-sasl-devel
 		openldap-devel
 		pam-devel
@@ -47,8 +46,7 @@ build
 		--with-ignore-dot \
 		--with-tty-tickets \
 		--with-ldap \
-		--with-passprompt="[sudo] password for %p: " \
-		--with-linux-audit
+		--with-passprompt="[sudo] password for %p: "
 
 	prepare_cmds
 		# The tarball contains files owned by a stange uid:gid which will let
