@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = openssh
-version    = 7.4p1
+version    = 7.5p1
 release    = 1
 
 groups     = Application/Internet
@@ -23,7 +23,6 @@ source_dl  = http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/
 
 build
 	requires
-		audit-devel
 		autoconf
 		automake
 		groff
@@ -49,8 +48,7 @@ build
 		--with-authorized-keys-command \
 		--with-ipaddr-display \
 		--with-pam \
-		--with-libedit \
-		--with-audit=linux
+		--with-libedit
 
 	prepare_cmds
 		autoreconf -vfi
