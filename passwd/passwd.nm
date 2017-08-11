@@ -5,10 +5,10 @@
 
 name       = passwd
 version    = 0.79
-release    = 1
+release    = 2
 
 groups     = System/Base
-url        = http://fedorahosted.org/passwd
+url        = https://pagure.io/passwd
 license    = BSD
 summary    = An utility for setting or changing passwords using PAM.
 
@@ -18,12 +18,11 @@ description
 	Modules) library.
 end
 
-source_dl  = https://fedorahosted.org/releases/p/a/%{name}/
+source_dl  = https://releases.pagure.org/passwd/
 sources    = %{thisapp}.tar.bz2
 
 build
 	requires
-		audit-devel
 		glib2-devel
 		libuser-devel
 		pam-devel
@@ -33,7 +32,7 @@ build
 
 	configure_options +=\
 		--without-selinux \
-		--with-audit \
+		--without-audit \
 		--disable-static
 
 	make_build_targets += \
