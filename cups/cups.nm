@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = cups
-version    = 2.2.2
+version    = 2.2.4
 release    = 1
 
 groups     = Applications/Printing
@@ -22,7 +22,6 @@ sources    = %{thisapp}-source.tar.gz
 
 build
 	requires
-		audit-devel
 		autoconf
 		automake
 		avahi-devel
