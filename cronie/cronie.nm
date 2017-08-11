@@ -5,10 +5,10 @@
 
 name       = cronie
 version    = 1.5.1
-release    = 1
+release    = 2
 
 groups     = System/Environment/Base
-url        = https://fedorahosted.org/cronie/
+url        = https://github.com/cronie-crond/cronie
 license    = MIT and BSD and ISC and GPLv2
 summary    = Cron daemon for executing programs at set times
 
@@ -19,11 +19,10 @@ description
 	the ability to use pam and SELinux.
 end
 
-source_dl  = https://fedorahosted.org/releases/c/r/cronie/
+source_dl  = https://github.com/cronie-crond/cronie/releases/download/%{thisapp}/
 
 build
 	requires
-		audit-devel
 		bison
 		libcap-devel
 		libedit-devel
@@ -35,7 +34,6 @@ build
 
 	configure_options += \
 		--with-pam \
-		--with-audit \
 		--with-inotify \
 		--enable-anacron \
 		--enable-pie \
