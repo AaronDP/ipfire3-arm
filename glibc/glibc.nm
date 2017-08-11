@@ -5,7 +5,7 @@
 
 name       = glibc
 version    = 2.26
-release    = 1
+release    = 2
 
 maintainer = Michael Tremer <michael.tremer@ipfire.org>
 groups     = System/Base
@@ -31,7 +31,6 @@ build
 	OPTIMIZED_KERNEL = 3.2
 
 	requires
-		audit-devel
 		autoconf
 		automake
 		binutils >= 2.27
