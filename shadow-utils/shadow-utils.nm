@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = shadow-utils
-version    = 4.4
+version    = 4.5
 release    = 1
 thisapp    = shadow-%{version}
 
@@ -26,7 +26,6 @@ build
 	requires
 		autoconf
 		automake
-		audit-devel
 		bison
 		docbook-xsl
 		flex
