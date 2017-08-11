@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = systemd
-version    = 232
-release    = 2
+version    = 233
+release    = 1
 
 maintainer = Stefan Schantl <stefan.schantl@ipfire.org>
 groups     = System/Base
@@ -38,7 +38,6 @@ build
 		autoconf
 		automake
 		attr-devel
-		audit-devel
 		cryptsetup-luks-devel >= 1.4.2
 		dbus-devel
 		docbook-utils
@@ -100,6 +99,9 @@ build
 	test
 		# Create dummy machine-id file, which is required for some tests.
 		touch %{sysconfdir}/machine-id
+
+		# Generate temporary machine-id, which is required at least by the id128 test.
+		systemd-machine-id-setup
 
 		# Run the testsuite.
 		make check || true
@@ -188,6 +190,9 @@ build
 
 		mkdir -pv %{BUILDROOT}/var/log/journal
 		chown root:systemd-journal %{BUILDROOT}/var/log/journal
+
+		# Create empty environment file.
+		touch %{BUILDROOT}%{sysconfdir}/environment
 	end
 end
 
