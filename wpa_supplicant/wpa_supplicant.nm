@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = wpa_supplicant
-version    = 2.4
+version    = 2.6
 release    = 1
 
 groups     = Sytem/Base
@@ -24,15 +24,30 @@ source_dl  = http://hostap.epitest.fi/releases/
 
 build
 	requires
-		dbus-devel
+		libnl3-devel
+		ncurses-devel
 		openssl-devel
 		pkg-config
+		readline-devel
+	end
+
+	prepare_cmds
+		cp -v %{DIR_APP}/wpa_supplicant/{defconfig,.config}
+
+		sed -i %{DIR_APP}/wpa_supplicant/.config \
+			-e "s/#CONFIG_READLINE=y/CONFIG_READLINE=y/" \
+			-e "s/#CONFIG_LIBNL32=y/CONFIG_LIBNL32=y/"
+
+		(
+			# Enable 802.11s mesh networking
+			echo "CONFIG_MESH=y"
+			echo "CONFIG_SAE=y"
+
+			echo "CONFIG_IEEE80211W=y"
+		) >> %{DIR_APP}/wpa_supplicant/.config
 	end
 
 	build
-		# Copy our config file for build
-		cp %{DIR_SOURCE}/wpa_supplicant.config %{DIR_APP}/wpa_supplicant/.config
-
 		# Build wpa_supplicant
 		cd %{DIR_APP}/wpa_supplicant && make %{PARALLELISMFLAGS}
 	end
@@ -54,6 +69,18 @@ end
 packages
 	package %{name}
 		requires += network >= 1:005
+
+		script postin
+			/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postun
+			/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
+
+		script postup
+			/usr/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+		end
 	end
 
 	package %{name}-debuginfo
