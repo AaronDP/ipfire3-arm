@@ -3,6 +3,7 @@ Description=wpa_supplicant for %I.
 
 [Service]
 ExecStart=/usr/lib/network/helpers/wpa_supplicant %I
+ExecReload=/bin/kill -HUP $MAINPID
 PIDFile=/run/wpa_supplicant-%I.pid
 Restart=on-failure
 UtmpIdentifier=%I
