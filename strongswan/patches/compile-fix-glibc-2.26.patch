@@ -1,0 +1,11 @@
+--- a/src/libstrongswan/utils/utils/memory.h~     2017-08-23 19:27:47.033658351 +0000
++++ b/src/libstrongswan/utils/utils/memory.h      2017-08-23 19:28:09.468390261 +0000
+@@ -22,6 +22,8 @@
+ #ifndef MEMORY_H_
+ #define MEMORY_H_
+ 
++#include <stdint.h>
++
+ /**
+  * Helper function that compares two binary blobs for equality
+  */
