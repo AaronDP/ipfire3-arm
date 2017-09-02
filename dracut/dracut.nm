@@ -4,7 +4,7 @@
 ###############################################################################
 
 name       = dracut
-version    = 044
+version    = 045
 release    = 1
 
 groups     = System/Boot
@@ -24,6 +24,7 @@ build
 		asciidoc
 		docbook-utils
 		docbook-xsl
+		kmod-devel >= 15
 	end
 
 	prepare_cmds
