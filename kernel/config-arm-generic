@@ -428,6 +428,11 @@ CONFIG_DRM_MESON=m
 CONFIG_DRM_MESON_DW_HDMI=m
 
 #
+# Frame buffer Devices
+#
+# CONFIG_FB_BOOT_VESA_SUPPORT is not set
+
+#
 # Frame buffer hardware drivers
 #
 # CONFIG_FB_ARMCLCD is not set
@@ -725,11 +730,6 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=21
 # CONFIG_CORESIGHT is not set
 
 #
-# Security options
-#
-CONFIG_LSM_MMAP_MIN_ADDR=32768
-
-#
 # Crypto core or helper
 #
 CONFIG_CRYPTO_GF128MUL=m
@@ -748,5 +748,4 @@ CONFIG_CRYPTO_CHACHA20_NEON=m
 #
 # Library routines
 #
-CONFIG_AUDIT_GENERIC=y
 CONFIG_LIBFDT=y

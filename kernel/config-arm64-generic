@@ -400,7 +400,7 @@ CONFIG_HISI_KIRIN_DW_DSI=m
 #
 # Frame buffer hardware drivers
 #
-# CONFIG_FB_EFI is not set
+CONFIG_FB_EFI=y
 
 #
 # Console display driver support
@@ -709,6 +709,5 @@ CONFIG_CRYPTO_AES_ARM64_BS=m
 # Library routines
 #
 CONFIG_AUDIT_ARCH_COMPAT_GENERIC=y
-CONFIG_AUDIT_COMPAT_GENERIC=y
 CONFIG_HAS_IOPORT_MAP=y
 CONFIG_UCS2_STRING=y

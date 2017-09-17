@@ -4,8 +4,8 @@
 ###############################################################################
 
 name       = kernel
-version    = 4.12.4
-release    = 2
+version    = 4.12.11
+release    = 1
 thisapp    = linux-%{version}
 
 maintainer = Arne Fitzenreiter <arne.fitzenreiter@ipfire.org>
@@ -33,7 +33,6 @@ build
 
 	requires
 		asciidoc
-		audit-devel
 		bc
 		binutils >= 2.25
 		binutils-devel
