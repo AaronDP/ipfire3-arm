@@ -4,8 +4,11 @@
 ###############################################################################
 
 name       = vim
-version    = 7.3
-release    = 5
+major_ver  = 8
+minor_ver  = 0
+patchlevel = 1184
+version    = %{major_ver}.%{minor_ver}.%{patchlevel}
+release    = 1
 
 groups     = Applications/Editors
 url        = http://www.vim.org
@@ -18,27 +21,21 @@ description
 	distributed with most UNIX systems.
 end
 
-source_dl  = ftp://ftp.vim.org/pub/vim/unix/
-sources    = %{thisapp}.tar.bz2
-
+source_dl  = https://github.com/vim/vim/archive/v%{version}.tar.gz#/
 
 build
-	DIR_APP = %{DIR_SRC}/%{name}73
-
 	requires
 		libacl-devel
-		libselinux-devel
 		ncurses-devel
-		python-devel
+		python3-devel
 	end
 
 	configure_options += \
 		--with-features=huge \
-		--enable-pythoninterp \
+		--enable-python3interp=dynamic \
 		--enable-gui=no \
 		--enable-multibyte \
 		--enable-cscope \
-		--enable-selinux \
 		--with-tlib=ncurses \
 		--with-modified-by="<bugzilla@ipfire.org>" \
 		--with-compiled-by="<bugzilla@ipfire.org>"
@@ -55,7 +52,7 @@ build
 		cp -vf %{DIR_SOURCE}/vimrc %{BUILDROOT}%{sysconfdir}/vimrc
 
 		# Remove script for c-shell
-		rm -rf %{BUILDROOT}%{datadir}/vim/vim73/tools/vim132
+		rm -rf %{BUILDROOT}%{datadir}/vim/vim%{major_ver}%{minor_ver}/tools/vim132
 	end
 end
 
